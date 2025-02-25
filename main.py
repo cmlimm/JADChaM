@@ -15,6 +15,9 @@ def draw_abilities(static):
 
     ABILITY_WIDGET_WIDTH = 25
 
+    # TODO:
+    #   - horizonal layout
+    #   - hide base + manual modifier under expand
     if imgui.begin_table("abilities_tables", 4, flags=imgui.TableFlags_.sizing_fixed_fit):
         for name, data in static.abilities.items():
             imgui.table_next_row()
