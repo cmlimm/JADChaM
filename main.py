@@ -65,10 +65,10 @@ def draw_abilities(static):
                     imgui.end_table()
 
                 if base_score_bonuses:
-                    imgui.text(f"Base Score bonus ({base_score_bonus}):")
+                    imgui.text(f"Base Score bonus ({base_score_bonus} -> {base_score_bonus // 2}):")
                     for item in base_score_bonuses:
                         name, value = item.values()
-                        imgui.text(f"\t{name}: {value}")
+                        imgui.text(f"\t{name}: {value} -> {value // 2}")
 
                 if mod_bonuses:
                     imgui.text(f"Additional bonus ({mod_bonus}):")
