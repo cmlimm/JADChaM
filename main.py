@@ -1,7 +1,12 @@
 from imgui_bundle import imgui, immapp, hello_imgui
 
+TWO_DIGIT_BUTTONS_INPUT_WIDTH = 75
+TWO_DIGIT_INPUT_WIDTH = 25
+ABILITY_BUTTON_WIDTH = 70
+
 def draw_abilities(static):
 
+    # TEMP: until save on every change is implemented
     if not hasattr(static, 'abilities'): 
         abilities = {
             "str": {"base": 10, "manual_mod": 0},
@@ -13,33 +18,35 @@ def draw_abilities(static):
         }
         static.abilities = abilities
 
-    ABILITY_WIDGET_WIDTH = 25
-
-    # TODO:
-    #   - horizonal layout
-    #   - hide base + manual modifier under expand
-    if imgui.begin_table("abilities_tables", 4, flags=imgui.TableFlags_.sizing_fixed_fit):
+    if imgui.begin_table("abilities_table", 10, flags=imgui.TableFlags_.sizing_fixed_fit):
+        imgui.table_next_row()
         for name, data in static.abilities.items():
-            imgui.table_next_row()
+            base, manual_mod = data.values()
 
-            base, manual_mod = data.values() 
+            # Buttons with final abilities' modifiers
+            imgui.table_next_column()
+            if imgui.button(f"{name.upper()}: {(base - 10) // 2 + manual_mod:+}"):
+                imgui.open_popup(f"{name}_popup")
 
-            imgui.table_next_column()
-            imgui.text(f"BASE:"); imgui.same_line()
-            imgui.push_item_width(75)
-            changed, static.abilities[name]["base"] = imgui.input_int(f"##{name}", base, 1); imgui.same_line()
-            imgui.text("// 2")
+            # Popup windows where you can change basic ability score and add a manual modifier
+            if imgui.begin_popup(f"{name}_popup"):
+                if imgui.begin_table("abilities_base_and_mod_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):
+                    imgui.table_next_row()
+                    imgui.table_next_column()
+                    imgui.text("Base Score: "); imgui.same_line()
+                    imgui.table_next_column()
+                    imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+                    changed, static.abilities[name]["base"] = imgui.input_int(f"##{name}", base, 1)
 
-            imgui.table_next_column()
-            imgui.text(f"+"); imgui.same_line()
-            imgui.push_item_width(ABILITY_WIDGET_WIDTH)
-            changed, static.abilities[name]["manual_mod"] = imgui.input_int(f"##{name}_manual_mod", manual_mod, 0)
-            
-            imgui.table_next_column()
-            imgui.text(f"{name.upper()}:")
-            imgui.table_next_column()
-            imgui.text(f"{(base - 10) // 2 + manual_mod:+}")
-        
+                    imgui.table_next_row()
+                    imgui.table_next_column()
+                    imgui.text("Manual Mod: "); imgui.same_line()
+                    imgui.table_next_column()
+                    imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+                    changed, static.abilities[name]["manual_mod"] = imgui.input_int(f"##{name}_manual_mod", manual_mod, 1)
+                    
+                    imgui.end_table()
+                    imgui.end_popup()
         imgui.end_table()
 
 def main_window():
