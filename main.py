@@ -176,7 +176,7 @@ def main_window():
         # TODO: move to util.py or something
         static.character_file.seek(0)
         static.character_file.truncate(0)
-        json.dump(static.data, static.character_file)
+        json.dump(static.data, static.character_file, indent=4)
 
     if not hasattr(static, "theme"):
         hello_imgui.apply_theme(hello_imgui.ImGuiTheme_.imgui_colors_dark)
