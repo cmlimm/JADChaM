@@ -166,6 +166,7 @@ def draw_misc(static):
 def main_window():
     static = main_window
     draw_file_button(static)
+
     if hasattr(static, "character_file"):
         draw_abilities(static)
         draw_misc(static)
@@ -176,16 +177,15 @@ def main_window():
         static.character_file.truncate(0)
         json.dump(static.data, static.character_file)
 
+    if not hasattr(static, "theme"):
+        hello_imgui.apply_theme(hello_imgui.ImGuiTheme_.imgui_colors_dark)
+        static.theme = hello_imgui.ImGuiTheme_.imgui_colors_dark.name
 
-def gui():
-    main_window()
-    
-    hello_imgui.apply_theme(hello_imgui.ImGuiTheme_.imgui_colors_dark)
 
 theme_applied = False
 file_read = False
 immapp.run(
-    gui_function=gui,
+    gui_function=main_window,
     window_title="Just Another D&D Character Manager",
     window_restore_previous_geometry=True
 )
