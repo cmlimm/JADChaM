@@ -167,6 +167,7 @@ def main_window():
     static = main_window
     draw_file_button(static)
 
+    # Only draw the main interface if the character file is loaded
     if hasattr(static, "character_file"):
         draw_abilities(static)
         draw_misc(static)
