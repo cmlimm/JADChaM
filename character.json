@@ -23,9 +23,9 @@
             ]
         },
         "dex": {
-            "total": 4,
-            "base_score": 18,
-            "manual_mod": 0,
+            "total": 5,
+            "base_score": 14,
+            "manual_mod": 3,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
@@ -42,9 +42,9 @@
             ]
         },
         "wis": {
-            "total": 0,
+            "total": 4,
             "base_score": 10,
-            "manual_mod": 0,
+            "manual_mod": 4,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
@@ -73,8 +73,8 @@
         }
     },
     "proficiency": {
-        "total": 4,
-        "base_mod": 3,
+        "total": 10,
+        "manual_mod": 9,
         "bonuses": [
             {
                 "name": "something",
@@ -83,7 +83,8 @@
         ]
     },
     "initiative": {
-        "manual_mod": 0,
+        "total": 20,
+        "manual_mod": 4,
         "bonuses": [
             {
                 "name": "basic rule",
@@ -100,7 +101,8 @@
         ]
     },
     "ac": {
-        "base": 10,
+        "total": 0,
+        "manual_mod": 0,
         "bonuses": [
             {
                 "name": "something",
@@ -109,7 +111,8 @@
         ]
     },
     "speed": {
-        "base": 30,
+        "total": 0,
+        "manual_mod": 30,
         "bonuses": [
             {
                 "name": "something",

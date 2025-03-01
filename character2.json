@@ -2,25 +2,11 @@
     "name": "Cool Name",
     "abilities": {
         "str": {
-            "total": 13,
-            "base_score": 20,
+            "total": 0,
+            "base_score": 10,
             "manual_mod": 0,
-            "base_score_bonuses": [
-                {
-                    "name": "something 1",
-                    "value": 4
-                }
-            ],
-            "mod_bonuses": [
-                {
-                    "name": "something 2",
-                    "value": 3
-                },
-                {
-                    "name": "something 2",
-                    "value": 3
-                }
-            ]
+            "base_score_bonuses": [],
+            "mod_bonuses": []
         },
         "dex": {
             "total": 0,
@@ -30,20 +16,15 @@
             "mod_bonuses": []
         },
         "con": {
-            "total": 2,
+            "total": 0,
             "base_score": 10,
             "manual_mod": 0,
             "base_score_bonuses": [],
-            "mod_bonuses": [
-                {
-                    "name": "something 3",
-                    "value": 2
-                }
-            ]
+            "mod_bonuses": []
         },
         "wis": {
-            "total": 1,
-            "base_score": 12,
+            "total": 0,
+            "base_score": 10,
             "manual_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
@@ -56,65 +37,36 @@
             "mod_bonuses": []
         },
         "cha": {
-            "total": 1,
+            "total": 0,
             "base_score": 10,
             "manual_mod": 0,
-            "base_score_bonuses": [
-                {
-                    "name": "something 4",
-                    "value": 1
-                },
-                {
-                    "name": "something 4",
-                    "value": 1
-                }
-            ],
+            "base_score_bonuses": [],
             "mod_bonuses": []
         }
     },
     "proficiency": {
-        "total": 1,
-        "base_mod": 0,
-        "bonuses": [
-            {
-                "name": "something",
-                "value": 1
-            }
-        ]
+        "total": 0,
+        "manual_mod": 0,
+        "bonuses": []
     },
     "initiative": {
+        "total": 0,
         "manual_mod": 0,
         "bonuses": [
             {
                 "name": "basic rule",
                 "value": "dex"
-            },
-            {
-                "name": "Feat 'add prof to init'",
-                "value": "prof"
-            },
-            {
-                "name": "something",
-                "value": 1
             }
         ]
     },
     "ac": {
-        "base": 10,
-        "bonuses": [
-            {
-                "name": "something",
-                "value": 1
-            }
-        ]
+        "total": 0,
+        "manual_mod": 0,
+        "bonuses": []
     },
     "speed": {
-        "base": 30,
-        "bonuses": [
-            {
-                "name": "something",
-                "value": 5
-            }
-        ]
+        "total": 0,
+        "manual_mod": 30,
+        "bonuses": []
     }
 }
