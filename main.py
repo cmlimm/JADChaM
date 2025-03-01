@@ -376,7 +376,7 @@ def draw_speed_button(speed_name: str, dict_key: str, static: character_sheet_ty
     total_bonus = 0
     for bonus in bonuses:
         if util.isSpeedName(bonus["value"]):
-            total_bonus += static.data["speed"][dict_key]["total"]
+            total_bonus += static.data["speed"][bonus["value"]]["total"]
         elif util.isRepresentInt(bonus["value"]):
             total_bonus += bonus["value"]
 
@@ -431,7 +431,7 @@ def draw_speed_button(speed_name: str, dict_key: str, static: character_sheet_ty
             imgui.text(f"Additional bonus ({total_bonus}):")
             for bonus in bonuses:
                 if util.isSpeedName(bonus["value"]):
-                    imgui.text(f"\t{bonus["name"]}: {bonus["value"].upper()} ({static.data["speed"][dict_key]["total"]})")
+                    imgui.text(f"\t{bonus["name"]}: {bonus["value"].capitalize()} ({static.data["speed"][dict_key]["total"]})")
                 elif util.isRepresentInt(bonus["value"]):
                     imgui.text(f"\t{bonus["name"]}: {bonus["value"]}")
 
