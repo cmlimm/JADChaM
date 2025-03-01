@@ -23,9 +23,9 @@
             ]
         },
         "dex": {
-            "total": 5,
-            "base_score": 14,
-            "custom_mod": 3,
+            "total": 0,
+            "base_score": 10,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
@@ -73,8 +73,8 @@
         }
     },
     "proficiency": {
-        "total": 10,
-        "custom_mod": 9,
+        "total": 1,
+        "custom_mod": 0,
         "bonuses": [
             {
                 "name": "something",
@@ -82,29 +82,31 @@
             }
         ]
     },
-    "initiative": {
-        "total": 20,
-        "custom_mod": 4,
-        "bonuses": [
-            {
-                "name": "basic rule",
-                "value": "dex"
-            },
-            {
-                "name": "Feat 'add prof to init'",
-                "value": "prof"
-            },
-            {
-                "name": "something",
-                "value": 1
-            },
-            {
-                "name": "Give advantage",
-                "value": "adv"
-            }
-        ],
-        "custom_advantage": false,
-        "custom_disadvantage": false
+    "skills": {
+        "initiative": {
+            "total": 2,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "basic rule",
+                    "value": "dex"
+                },
+                {
+                    "name": "Feat 'add prof to init'",
+                    "value": "prof"
+                },
+                {
+                    "name": "something",
+                    "value": 1
+                },
+                {
+                    "name": "Give advantage",
+                    "value": "adv"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false
+        }
     },
     "ac": {
         "total": 0,

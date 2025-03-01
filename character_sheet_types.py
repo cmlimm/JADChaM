@@ -41,7 +41,7 @@ class CharacterDataType(TypedDict):
     name: str
     abilities: dict[str, AbilityType]
     proficiency: ProficiencyType
-    initiative: RollableStatType
+    skills: dict[str, RollableStatType]
     ac: IntStatType
     speed: IntStatType
 
