@@ -60,7 +60,7 @@
             ]
         },
         "wis": {
-            "total": 4,
+            "total": 0,
             "forced_total": [
                 {
                     "name": "Item with forced value",
@@ -68,7 +68,7 @@
                 }
             ],
             "base_score": 10,
-            "custom_mod": 4,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },

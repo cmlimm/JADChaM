@@ -6,6 +6,7 @@ from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 import character_sheet_types
 import util
 
+# TODO: move to const.py or something
 TWO_DIGIT_BUTTONS_INPUT_WIDTH = 75
 TWO_DIGIT_INPUT_WIDTH = 25
 ADVANTAGE_COLOR = imgui.ImColor.hsv(0.3, 0.6, 0.6).value
@@ -14,6 +15,7 @@ ADVANTAGE_ACTIVE_COLOR = imgui.ImColor.hsv(0.3, 0.8, 0.8).value
 DISADVANTAGE_COLOR = imgui.ImColor.hsv(0, 0.6, 0.6).value
 DISADVANTAGE_HOVER_COLOR = imgui.ImColor.hsv(0, 0.7, 0.7).value
 DISADVANTAGE_ACTIVE_COLOR = imgui.ImColor.hsv(0, 0.8, 0.8).value
+FORCED_ABILITY_SCORE_OVERRIDE_VALUE_COLOR = imgui.ImColor.hsv(0.15, 0.8, 0.8).value
 
 
 @character_sheet_types.main_window_decorator
@@ -89,12 +91,10 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
             if imgui.button(f"{name.upper()}: {static.data["abilities"][name]["total"]:+}"):
                 imgui.open_popup(f"{name}_popup")
 
-            # Popup windows where you can
+            # Popup window where you can
             #   - change the basic ability score
             #   - add a custom modifier
             #   - see what gives you additional bonuses
-
-            # TODO: create a function for these popups
             if imgui.begin_popup(f"{name}_popup"):
                 if imgui.begin_table("abilities_base_and_mod_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
                     imgui.table_next_row()
@@ -132,9 +132,7 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
 
                 if forced_total_max_idx != -1:
                     if is_forced_total:
-                        imgui.text_colored(
-                            imgui.ImColor.hsv(1 / 7.0, 0.8, 0.8).value, f"Forced total ({forced_total_max_value}):"
-                        )
+                        imgui.text_colored(FORCED_ABILITY_SCORE_OVERRIDE_VALUE_COLOR, f"Forced total ({forced_total_max_value}):")
                     else:
                         imgui.text_disabled(f"Forced total (Not applied):")
 
@@ -177,6 +175,8 @@ def draw_rollable_stat(stat_name: str, dict_key: str, static: character_sheet_ty
     advantage = advantage or static.data["skills"][dict_key]["custom_advantage"]
     disadvantage = disadvantage or static.data["skills"][dict_key]["custom_disadvantage"]
 
+    # Color the skill button depending on having a (dis)advantage
+    # Advantage and Disadvantage override each other, so we use XOR instead of OR
     button_color_applied = False
     if advantage ^ disadvantage:
         if advantage:
