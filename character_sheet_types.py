@@ -31,6 +31,7 @@ class ProficiencyType(StatType):
 class MiscStatType(StatType):
     bonuses: list[IntOrAbilityBonusType]
 
+
 class CharacterDataType(TypedDict):
     name: str
     abilities: dict[str, AbilityType]

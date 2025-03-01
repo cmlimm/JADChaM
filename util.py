@@ -9,6 +9,7 @@ def isRepresentInt(value: int | str) -> TypeGuard[int]:
         return value[1:].isdigit()
     return value.isdigit()
 
+
 def isAbilityName(string: int | str) -> TypeGuard[str]:
     if string in ["str", "dex", "con", "wis", "int", "cha"]:
         return True

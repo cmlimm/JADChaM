@@ -30,6 +30,7 @@ def main_window() -> None:
         hello_imgui.apply_theme(hello_imgui.ImGuiTheme_.imgui_colors_dark)
         static.theme = hello_imgui.ImGuiTheme_.imgui_colors_dark.name
 
+
 def draw_file_button(static: character_sheet_types.MainWindowProtocol) -> None:
     if not hasattr(static, "open_file_dialog"):
         static.open_file_dialog = None
@@ -48,7 +49,7 @@ def draw_file_button(static: character_sheet_types.MainWindowProtocol) -> None:
 
 
 def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
-    if imgui.begin_table("abilities_table", 10, flags=imgui.TableFlags_.sizing_fixed_fit): # type: ignore
+    if imgui.begin_table("abilities_table", 10, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
         imgui.table_next_row()
         for name, ability in static.data["abilities"].items():
             base = ability["base_score"]
@@ -71,7 +72,7 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
 
             # TODO: create a function for these popups
             if imgui.begin_popup(f"{name}_popup"):
-                if imgui.begin_table("abilities_base_and_mod_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit): # type: ignore
+                if imgui.begin_table("abilities_base_and_mod_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
                     imgui.table_next_row()
                     imgui.table_next_column()
                     imgui.text("Base Score: ")
@@ -107,7 +108,7 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
 
 # Proficiency, initiative, walking speed, armor class
 def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
-    if imgui.begin_table("misc_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit): # type: ignore
+    if imgui.begin_table("misc_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
         imgui.table_next_row()
 
         # Proficiency
@@ -121,7 +122,7 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
 
         # TODO: create a function for these popups
         if imgui.begin_popup(f"prof_popup"):
-            if imgui.begin_table("prof_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit): # type: ignore
+            if imgui.begin_table("prof_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
                 imgui.table_next_row()
                 imgui.table_next_column()
                 imgui.text("Base: ")
@@ -161,7 +162,7 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
 
         # TODO: create a function for these popups
         if imgui.begin_popup(f"init_popup"):
-            if imgui.begin_table("init_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit): # type: ignore
+            if imgui.begin_table("init_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
                 imgui.table_next_row()
                 imgui.table_next_column()
                 imgui.text("Manual Mod: ")
