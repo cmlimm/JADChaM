@@ -1,13 +1,10 @@
 import json
-from typing import TypeGuard
 
 from imgui_bundle import hello_imgui, imgui, immapp  # type: ignore
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 import character_sheet_types
-
-# TODO: add typing, add mypy, isort and black to vs code
-
+import util
 
 TWO_DIGIT_BUTTONS_INPUT_WIDTH = 75
 TWO_DIGIT_INPUT_WIDTH = 25
@@ -32,21 +29,6 @@ def main_window() -> None:
     if not hasattr(static, "theme"):
         hello_imgui.apply_theme(hello_imgui.ImGuiTheme_.imgui_colors_dark)
         static.theme = hello_imgui.ImGuiTheme_.imgui_colors_dark.name
-
-
-# TODO: move to util.py or something
-def isRepresentInt(value: int | str) -> TypeGuard[int]:
-    if isinstance(value, int):
-        return True
-    if value[0] in ("-", "+"):
-        return value[1:].isdigit()
-    return value.isdigit()
-
-# TODO: move to util.py or something
-def isAbilityName(string: int | str) -> TypeGuard[str]:
-    if string in ["str", "dex", "con", "wis", "int", "cha"]:
-        return True
-    return False
 
 def draw_file_button(static: character_sheet_types.MainWindowProtocol) -> None:
     if not hasattr(static, "open_file_dialog"):
@@ -167,9 +149,9 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
             name, value = init_bonus["name"], init_bonus["value"]
             if value == "prof":
                 total_bonus += static.data["proficiency"]["total"]
-            elif isAbilityName(value):
+            elif util.isAbilityName(value):
                 total_bonus += static.data["abilities"][value]["total"]
-            elif isRepresentInt(value):
+            elif util.isRepresentInt(value):
                 total_bonus += value
 
         static.data["initiative"]["total"] = manual_mod + total_bonus
@@ -197,9 +179,9 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
 
                     if value == "prof":
                         imgui.text(f"\t{name}: {value} ({static.data["proficiency"]["total"]})")
-                    elif isAbilityName(value):
+                    elif util.isAbilityName(value):
                         imgui.text(f"\t{name}: {value} ({static.data["abilities"][value]["total"]})")
-                    elif isRepresentInt(value):
+                    elif util.isRepresentInt(value):
                         imgui.text(f"\t{name}: {value}")
             imgui.end_popup()
         imgui.end_table()
