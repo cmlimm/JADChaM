@@ -60,6 +60,7 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
     if imgui.begin_table("abilities_table", 10, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
         imgui.table_next_row()
         for name, ability in static.data["abilities"].items():
+            forced_total_base_scores = ability["forced_total_base_scores"]
             base_score = ability["base_score"]
             custom_mod = ability["custom_mod"]
             base_score_bonuses = ability["base_score_bonuses"]
@@ -74,11 +75,9 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
             forced_total_max_idx = -1
             forced_total_max_value = 0
             is_forced_total = False
-            if static.data["abilities"][name]["forced_total_base_score"]:
-                forced_total_max = max(
-                    [total for total in static.data["abilities"][name]["forced_total_base_score"]], key=lambda x: x["value"]
-                )
-                forced_total_max_idx = static.data["abilities"][name]["forced_total_base_score"].index(forced_total_max)
+            if forced_total_base_scores:
+                forced_total_max = max([total for total in forced_total_base_scores], key=lambda x: x["value"])
+                forced_total_max_idx = forced_total_base_scores.index(forced_total_max)
                 forced_total_max_value = forced_total_max["value"]
 
                 if base_score_total < forced_total_max_value:
@@ -136,7 +135,7 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
                     else:
                         imgui.text_disabled(f"Forced total (Not applied):")
 
-                    for idx, total in enumerate(static.data["abilities"][name]["forced_total_base_score"]):
+                    for idx, total in enumerate(forced_total_base_scores):
                         total_name, total_value = total["name"], total["value"]
 
                         if (idx == forced_total_max_idx) and is_forced_total:
@@ -330,6 +329,111 @@ def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
         imgui.end_popup()
 
 
+def draw_speed_button(speed_name: str, dict_key: str, static: character_sheet_types.MainWindowProtocol) -> None:
+    base = static.data["speed"][dict_key]["base"]
+    forced_bases = static.data["speed"][dict_key]["forced_bases"]
+    custom_mod = static.data["speed"][dict_key]["custom_mod"]
+    bonuses = static.data["speed"][dict_key]["bonuses"]
+
+    # Override the speed base
+    forced_base_max_idx = -1
+    is_forced_base = False
+    if forced_bases:
+        for idx, forced_base in enumerate(forced_bases):
+            value = 0
+            if util.isSpeedName(forced_base["value"]):
+                value = static.data["speed"][forced_base["value"]]["total"]
+            elif util.isRepresentInt(forced_base["value"]):
+                value = forced_base["value"]
+
+            if base < value:
+                base = value
+                forced_base_max_idx = idx
+                is_forced_base = True
+
+    total_bonus = 0
+    for bonus in bonuses:
+        if util.isSpeedName(bonus["value"]):
+            total_bonus += static.data["speed"][dict_key]["total"]
+        elif util.isRepresentInt(bonus["value"]):
+            total_bonus += bonus["value"]
+
+    static.data["speed"][dict_key]["total"] = base + total_bonus + custom_mod
+
+    if imgui.button(f"{speed_name}: {static.data["speed"][dict_key]["total"]}"):
+        imgui.open_popup(f"{dict_key}_popup")
+
+    if imgui.begin_popup(f"{dict_key}_popup"):
+        if imgui.begin_table(f"{dict_key}_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.text("Base: ")
+            imgui.same_line()
+            imgui.table_next_column()
+            imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+            _, static.data["speed"][dict_key]["base"] = imgui.input_int(
+                f"##{dict_key}", static.data["speed"][dict_key]["base"], 1
+            )
+
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.text("Custom Mod: ")
+            imgui.same_line()
+            imgui.table_next_column()
+            imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+            _, static.data["speed"][dict_key]["custom_mod"] = imgui.input_int(
+                f"##{dict_key}_custom_mod", static.data["speed"][dict_key]["custom_mod"], 1
+            )
+            imgui.end_table()
+
+        if forced_bases:
+            if is_forced_base:
+                imgui.text_colored(FORCED_ABILITY_SCORE_OVERRIDE_VALUE_COLOR, f"Forced base ({base}):")
+            else:
+                imgui.text_disabled(f"Forced total (Not applied):")
+
+            for idx, forced_base in enumerate(static.data["speed"][dict_key]["forced_bases"]):
+                display_value = ""
+                if util.isSpeedName(forced_base["value"]):
+                    speed_value = static.data["speed"][forced_base["value"]]["total"]
+                    display_value = f"{dict_key} ({speed_value})"
+                elif util.isRepresentInt(forced_base["value"]):
+                    display_value = str(forced_base["value"])
+
+                if (idx == forced_base_max_idx) and is_forced_base:
+                    imgui.text(f"\t{forced_base["name"]}: {display_value}")
+                else:
+                    imgui.text_disabled(f"\t{forced_base["name"]}: {display_value}")
+
+        if bonuses:
+            imgui.text(f"Additional bonus ({total_bonus}):")
+            for bonus in bonuses:
+                if util.isSpeedName(bonus["value"]):
+                    imgui.text(f"\t{bonus["name"]}: {bonus["value"].upper()} ({static.data["speed"][dict_key]["total"]})")
+                elif util.isRepresentInt(bonus["value"]):
+                    imgui.text(f"\t{bonus["name"]}: {bonus["value"]}")
+
+        imgui.end_popup()
+
+
+def draw_speed(static: character_sheet_types.MainWindowProtocol) -> None:
+    if imgui.begin_table("speed_table", 5, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+        imgui.table_next_row()
+        imgui.table_next_column()
+        imgui.text("Speed: ")
+
+        imgui.table_next_column()
+        draw_speed_button("Walking", "walking", static)
+        imgui.table_next_column()
+        draw_speed_button("Climbing", "climbing", static)
+        imgui.table_next_column()
+        draw_speed_button("Swimming", "swimming", static)
+        imgui.table_next_column()
+        draw_speed_button("Flying", "flying", static)
+
+        imgui.end_table()
+
+
 # Proficiency, initiative, walking speed, armor class
 def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
     if imgui.begin_table("misc_table", 3, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
@@ -348,6 +452,8 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
         draw_ac(static)
 
         imgui.end_table()
+
+    draw_speed(static)
 
 
 immapp.run(

@@ -2,71 +2,32 @@
     "name": "Cool Name",
     "abilities": {
         "str": {
-            "total": 8,
-            "forced_total_base_score": [
-                {
-                    "name": "Item with forced value",
-                    "value": 0
-                }
-            ],
+            "total": 0,
+            "forced_total_base_scores": [],
             "base_score": 10,
             "custom_mod": 0,
-            "base_score_bonuses": [
-                {
-                    "name": "something 1",
-                    "value": 4
-                }
-            ],
-            "mod_bonuses": [
-                {
-                    "name": "something 2",
-                    "value": 3
-                },
-                {
-                    "name": "something 2",
-                    "value": 3
-                }
-            ]
+            "base_score_bonuses": [],
+            "mod_bonuses": []
         },
         "dex": {
-            "total": 4,
-            "forced_total_base_score": [
-                {
-                    "name": "Item with forced value",
-                    "value": 0
-                }
-            ],
+            "total": 0,
+            "forced_total_base_scores": [],
             "base_score": 10,
-            "custom_mod": 4,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "con": {
-            "total": 2,
-            "forced_total_base_score": [
-                {
-                    "name": "Item with forced value",
-                    "value": 0
-                }
-            ],
+            "total": 0,
+            "forced_total_base_scores": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
-            "mod_bonuses": [
-                {
-                    "name": "something 3",
-                    "value": 2
-                }
-            ]
+            "mod_bonuses": []
         },
         "wis": {
             "total": 0,
-            "forced_total_base_score": [
-                {
-                    "name": "Item with forced value",
-                    "value": 0
-                }
-            ],
+            "forced_total_base_scores": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -74,108 +35,70 @@
         },
         "int": {
             "total": 0,
-            "forced_total_base_score": [
-                {
-                    "name": "Item with forced value",
-                    "value": 0
-                }
-            ],
+            "forced_total_base_scores": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "cha": {
-            "total": 1,
-            "forced_total_base_score": [
-                {
-                    "name": "Item with forced value",
-                    "value": 0
-                }
-            ],
+            "total": 0,
+            "forced_total_base_scores": [],
             "base_score": 10,
             "custom_mod": 0,
-            "base_score_bonuses": [
-                {
-                    "name": "something 4",
-                    "value": 1
-                },
-                {
-                    "name": "something 4",
-                    "value": 1
-                }
-            ],
+            "base_score_bonuses": [],
             "mod_bonuses": []
         }
     },
     "proficiency": {
-        "total": 1,
+        "total": 0,
         "custom_mod": 0,
-        "bonuses": [
-            {
-                "name": "something",
-                "value": 1
-            }
-        ]
+        "bonuses": []
     },
     "skills": {
         "initiative": {
-            "total": 6,
+            "total": 0,
             "custom_mod": 0,
-            "bonuses": [
-                {
-                    "name": "basic rule",
-                    "value": "dex"
-                },
-                {
-                    "name": "Feat 'add prof to init'",
-                    "value": "prof"
-                },
-                {
-                    "name": "something",
-                    "value": 1
-                },
-                {
-                    "name": "Give advantage",
-                    "value": "adv"
-                }
-            ],
+            "bonuses": [],
             "custom_advantage": false,
             "custom_disadvantage": false
         }
     },
     "ac": {
-        "total": 16,
+        "total": 10,
         "base": 10,
-        "armor": {
-            "name": "Studded Leather",
-            "value": 12,
-            "max_dex_bonus": 2
-        },
+        "armor": {},
         "custom_mod": 0,
-        "bonuses": [
-            {
-                "name": "Basic rules",
-                "value": "dex"
-            },
-            {
-                "name": "Basic rules Monk",
-                "value": "wis"
-            },
-            {
-                "name": "Shield",
-                "value": 2
-            }
-        ]
+        "bonuses": []
     },
     "speed": {
-        "total": 0,
-        "custom_mod": 30,
-        "bonuses": [
-            {
-                "name": "something",
-                "value": 5
-            }
-        ]
+        "walking": {
+            "total": 30,
+            "base": 30,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        },
+        "climbing": {
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        },
+        "swimming": {
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        },
+        "flying": {
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        }
     }
 }

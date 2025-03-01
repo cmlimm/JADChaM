@@ -14,3 +14,9 @@ def isAbilityName(string: int | str) -> TypeGuard[str]:
     if string in ["str", "dex", "con", "wis", "int", "cha"]:
         return True
     return False
+
+
+def isSpeedName(string: int | str) -> TypeGuard[str]:
+    if string in ["walking", "climbing", "swimming", "flying"]:
+        return True
+    return False

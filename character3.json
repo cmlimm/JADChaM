@@ -3,7 +3,7 @@
     "abilities": {
         "str": {
             "total": 0,
-            "forced_total_base_score": [],
+            "forced_total_base_scores": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -11,7 +11,7 @@
         },
         "dex": {
             "total": 0,
-            "forced_total_base_score": [],
+            "forced_total_base_scores": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -19,7 +19,7 @@
         },
         "con": {
             "total": 0,
-            "forced_total_base_score": [],
+            "forced_total_base_scores": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -27,53 +27,26 @@
         },
         "wis": {
             "total": 0,
-            "forced_total_base_score": [],
+            "forced_total_base_scores": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "int": {
-            "total": 4,
-            "forced_total_base_score": [
-                {
-                    "name": "Headband of Intellect",
-                    "value": 19
-                }
-            ],
-            "base_score": 19,
+            "total": 0,
+            "forced_total_base_scores": [],
+            "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "cha": {
-            "total": 4,
-            "forced_total_base_score": [
-                {
-                    "name": "Headband of Charisma",
-                    "value": 19
-                },
-                {
-                    "name": "Headband of Charisma That Sucks",
-                    "value": 10
-                }
-            ],
+            "total": 0,
+            "forced_total_base_scores": [],
             "base_score": 10,
             "custom_mod": 0,
-            "base_score_bonuses": [
-                {
-                    "name": "Ability Score Increase (4 lvl)",
-                    "value": 2
-                },
-                {
-                    "name": "Ability Score Increase (8 lvl)",
-                    "value": 2
-                },
-                {
-                    "name": "Ability Score Increase (12 lvl)",
-                    "value": 2
-                }
-            ],
+            "base_score_bonuses": [],
             "mod_bonuses": []
         }
     },
@@ -86,12 +59,7 @@
         "initiative": {
             "total": 0,
             "custom_mod": 0,
-            "bonuses": [
-                {
-                    "name": "basic rule",
-                    "value": "dex"
-                }
-            ],
+            "bonuses": [],
             "custom_advantage": false,
             "custom_disadvantage": false
         }
@@ -101,21 +69,36 @@
         "base": 10,
         "armor": {},
         "custom_mod": 0,
-        "bonuses": [
-            {
-                "name": "Basic rules",
-                "value": "dex"
-            }
-        ]
+        "bonuses": []
     },
     "speed": {
-        "total": 0,
-        "custom_mod": 30,
-        "bonuses": [
-            {
-                "name": "something",
-                "value": 5
-            }
-        ]
+        "walking": {
+            "total": 0,
+            "base": 30,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        },
+        "climbing": {
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        },
+        "swimming": {
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        },
+        "flying": {
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        }
     }
 }

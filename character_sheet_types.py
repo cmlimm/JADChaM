@@ -3,7 +3,7 @@ from typing import Any, Optional, Protocol, TextIO, TypedDict
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 
-class IntOrAbilityBonusType(TypedDict):
+class IntOrStrBonusType(TypedDict):
     name: str
     value: int | str
 
@@ -14,15 +14,15 @@ class IntBonusType(TypedDict):
 
 
 class StatType(TypedDict):
-    total: int
-    custom_mod: int
+    total: int  # used for exchanging the total value of a stat between parts of the app, never used when loading a character
+    custom_mod: int  # either a base value for a stat (proficiency) or a manually added bonus
 
 
 class AbilityType(StatType):
-    forced_total_base_score: list[IntBonusType]
-    base_score: int
-    base_score_bonuses: list[IntBonusType]
-    mod_bonuses: list[IntBonusType]
+    forced_total_base_scores: list[IntBonusType]  # overrides from items (e.g. Headband of Intellect)
+    base_score: int  # what number a player assigned to this ability when creating a character (point buy, rolls, etc.)
+    base_score_bonuses: list[IntBonusType]  # ability score increase feats and similar
+    mod_bonuses: list[IntBonusType]  # something that straight up increases your modifier
 
 
 class ProficiencyType(StatType):
@@ -30,7 +30,7 @@ class ProficiencyType(StatType):
 
 
 class IntStatType(StatType):
-    bonuses: list[IntOrAbilityBonusType]
+    bonuses: list[IntOrStrBonusType]
 
 
 class ArmorType(IntBonusType):
@@ -40,6 +40,11 @@ class ArmorType(IntBonusType):
 class AcType(IntStatType):
     base: int
     armor: ArmorType
+
+
+class SpeedType(IntStatType):
+    base: int
+    forced_bases: list[IntOrStrBonusType]
 
 
 class RollableStatType(IntStatType):
@@ -53,7 +58,7 @@ class CharacterDataType(TypedDict):
     proficiency: ProficiencyType
     skills: dict[str, RollableStatType]
     ac: AcType
-    speed: IntStatType
+    speed: dict[str, SpeedType]
 
 
 class MainWindowProtocol(Protocol):
