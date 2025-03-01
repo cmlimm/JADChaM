@@ -329,7 +329,7 @@ def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
             imgui.text(f"Armor:")
             if armor["max_dex_bonus"]:
                 imgui.text(
-                    f"\t{armor["name"]}: {armor["value"]} + DEX (max {armor["max_dex_bonus"]}) = {armor["value"]} + {dex_bonus}"
+                    f"\t{armor["name"]}: {armor["value"]} + DEX (max {armor["max_dex_bonus"]}) = {armor["value"] + dex_bonus}"
                 )
             else:
                 imgui.text(f"\t{armor["name"]}: {armor["value"]} + DEX ({dex_bonus})")
