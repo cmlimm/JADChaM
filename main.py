@@ -15,7 +15,7 @@ ADVANTAGE_ACTIVE_COLOR = imgui.ImColor.hsv(0.3, 0.8, 0.8).value
 DISADVANTAGE_COLOR = imgui.ImColor.hsv(0, 0.6, 0.6).value
 DISADVANTAGE_HOVER_COLOR = imgui.ImColor.hsv(0, 0.7, 0.7).value
 DISADVANTAGE_ACTIVE_COLOR = imgui.ImColor.hsv(0, 0.8, 0.8).value
-FORCED_ABILITY_SCORE_OVERRIDE_VALUE_COLOR = imgui.ImColor.hsv(0.15, 0.8, 0.8).value
+FORCED_OVERRIDE_COLOR = imgui.ImColor.hsv(0.15, 0.8, 0.8).value
 
 
 @character_sheet_types.main_window_decorator
@@ -129,7 +129,7 @@ def draw_ability_button(
 
         if forced_total_max_idx != -1:
             if is_forced_total:
-                imgui.text_colored(FORCED_ABILITY_SCORE_OVERRIDE_VALUE_COLOR, f"Forced total ({forced_total_max_value}):")
+                imgui.text_colored(FORCED_OVERRIDE_COLOR, f"Forced total ({forced_total_max_value}):")
             else:
                 imgui.text_disabled(f"Forced total (Not applied):")
 
@@ -410,7 +410,7 @@ def draw_speed_button(speed_name: str, dict_key: str, static: character_sheet_ty
 
         if forced_bases:
             if is_forced_base:
-                imgui.text_colored(FORCED_ABILITY_SCORE_OVERRIDE_VALUE_COLOR, f"Forced base ({base}):")
+                imgui.text_colored(FORCED_OVERRIDE_COLOR, f"Forced base ({base}):")
             else:
                 imgui.text_disabled(f"Forced total (Not applied):")
 
