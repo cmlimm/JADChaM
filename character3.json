@@ -2,102 +2,94 @@
     "name": "Cool Name",
     "abilities": {
         "str": {
-            "total": 16,
+            "total": 0,
+            "forced_total": [],
             "base_score": 10,
-            "custom_mod": 8,
-            "base_score_bonuses": [
-                {
-                    "name": "something 1",
-                    "value": 4
-                }
-            ],
-            "mod_bonuses": [
-                {
-                    "name": "something 2",
-                    "value": 3
-                },
-                {
-                    "name": "something 2",
-                    "value": 3
-                }
-            ]
+            "custom_mod": 0,
+            "base_score_bonuses": [],
+            "mod_bonuses": []
         },
         "dex": {
-            "total": 10,
-            "base_score": 24,
-            "custom_mod": 3,
+            "total": 0,
+            "forced_total": [],
+            "base_score": 10,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "con": {
-            "total": 2,
+            "total": 0,
+            "forced_total": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
-            "mod_bonuses": [
-                {
-                    "name": "something 3",
-                    "value": 2
-                }
-            ]
+            "mod_bonuses": []
         },
         "wis": {
-            "total": 4,
+            "total": 0,
+            "forced_total": [],
             "base_score": 10,
-            "custom_mod": 4,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "int": {
-            "total": 0,
-            "base_score": 10,
+            "total": 4,
+            "forced_total": [
+                {
+                    "name": "Headband of Intellect",
+                    "value": 19
+                }
+            ],
+            "base_score": 19,
             "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "cha": {
-            "total": 1,
+            "total": 4,
+            "forced_total": [
+                {
+                    "name": "Headband of Charisma",
+                    "value": 19
+                },
+                {
+                    "name": "Headband of Charisma That Sucks",
+                    "value": 10
+                }
+            ],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [
                 {
-                    "name": "something 4",
-                    "value": 1
+                    "name": "Ability Score Increase (4 lvl)",
+                    "value": 2
                 },
                 {
-                    "name": "something 4",
-                    "value": 1
+                    "name": "Ability Score Increase (8 lvl)",
+                    "value": 2
+                },
+                {
+                    "name": "Ability Score Increase (12 lvl)",
+                    "value": 2
                 }
             ],
             "mod_bonuses": []
         }
     },
     "proficiency": {
-        "total": 15,
-        "custom_mod": 14,
-        "bonuses": [
-            {
-                "name": "something",
-                "value": 1
-            }
-        ]
+        "total": 0,
+        "custom_mod": 0,
+        "bonuses": []
     },
     "skills": {
         "initiative": {
-            "total": 32,
-            "custom_mod": 6,
+            "total": 0,
+            "custom_mod": 0,
             "bonuses": [
                 {
                     "name": "basic rule",
                     "value": "dex"
-                },
-                {
-                    "name": "Feat 'add prof to init'",
-                    "value": "prof"
-                },
-                {
-                    "name": "something",
-                    "value": 1
                 }
             ],
             "custom_advantage": false,

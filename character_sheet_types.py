@@ -19,6 +19,7 @@ class StatType(TypedDict):
 
 
 class AbilityType(StatType):
+    forced_total: list[IntBonusType]
     base_score: int
     base_score_bonuses: list[IntBonusType]
     mod_bonuses: list[IntBonusType]

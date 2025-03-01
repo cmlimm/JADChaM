@@ -2,9 +2,15 @@
     "name": "Cool Name",
     "abilities": {
         "str": {
-            "total": 16,
+            "total": 8,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
-            "custom_mod": 8,
+            "custom_mod": 0,
             "base_score_bonuses": [
                 {
                     "name": "something 1",
@@ -23,14 +29,26 @@
             ]
         },
         "dex": {
-            "total": 10,
-            "base_score": 24,
-            "custom_mod": 3,
+            "total": 0,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
+            "base_score": 10,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "con": {
             "total": 2,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -43,6 +61,12 @@
         },
         "wis": {
             "total": 4,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
             "custom_mod": 4,
             "base_score_bonuses": [],
@@ -50,6 +74,12 @@
         },
         "int": {
             "total": 0,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -57,6 +87,12 @@
         },
         "cha": {
             "total": 1,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [
@@ -73,8 +109,8 @@
         }
     },
     "proficiency": {
-        "total": 15,
-        "custom_mod": 14,
+        "total": 1,
+        "custom_mod": 0,
         "bonuses": [
             {
                 "name": "something",
@@ -84,8 +120,8 @@
     },
     "skills": {
         "initiative": {
-            "total": 32,
-            "custom_mod": 6,
+            "total": 2,
+            "custom_mod": 0,
             "bonuses": [
                 {
                     "name": "basic rule",
@@ -100,8 +136,8 @@
                     "value": 1
                 },
                 {
-                    "name": "Give disadvantage",
-                    "value": "disadv"
+                    "name": "Give advantage",
+                    "value": "adv"
                 }
             ],
             "custom_advantage": false,

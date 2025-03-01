@@ -3,6 +3,12 @@
     "abilities": {
         "str": {
             "total": 8,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [
@@ -24,6 +30,12 @@
         },
         "dex": {
             "total": 0,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -31,6 +43,12 @@
         },
         "con": {
             "total": 2,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -43,6 +61,12 @@
         },
         "wis": {
             "total": 4,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
             "custom_mod": 4,
             "base_score_bonuses": [],
@@ -50,6 +74,12 @@
         },
         "int": {
             "total": 0,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -57,6 +87,12 @@
         },
         "cha": {
             "total": 1,
+            "forced_total": [
+                {
+                    "name": "Item with forced value",
+                    "value": 0
+                }
+            ],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [

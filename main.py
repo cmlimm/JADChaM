@@ -66,8 +66,26 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
             # Buttons with final abilities' modifiers
             imgui.table_next_column()
             base_score_bonus = sum([bonus["value"] for bonus in base_score_bonuses])
+            base_score_total = base_score + base_score_bonus
+
+            # Override the ability score (for example, with Headband of Intellect)
+            forced_total_max_idx = -1
+            forced_total_max_value = 0
+            is_forced_total = False
+            if static.data["abilities"][name]["forced_total"]:
+                forced_total_max = max(
+                    [total for total in static.data["abilities"][name]["forced_total"]], key=lambda x: x["value"]
+                )
+                forced_total_max_idx = static.data["abilities"][name]["forced_total"].index(forced_total_max)
+                forced_total_max_value = forced_total_max["value"]
+
+                if base_score_total < forced_total_max_value:
+                    base_score_total = forced_total_max_value
+                    is_forced_total = True
+
             mod_bonus = sum([bonus["value"] for bonus in mod_bonuses])
-            static.data["abilities"][name]["total"] = (base_score + base_score_bonus - 10) // 2 + custom_mod + mod_bonus
+            static.data["abilities"][name]["total"] = (base_score_total - 10) // 2 + custom_mod + mod_bonus
+
             if imgui.button(f"{name.upper()}: {static.data["abilities"][name]["total"]:+}"):
                 imgui.open_popup(f"{name}_popup")
 
@@ -111,6 +129,22 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
                     for bonus in mod_bonuses:
                         mod_bonus_name, mod_bonus_value = bonus["name"], bonus["value"]
                         imgui.text(f"\t{mod_bonus_name}: {mod_bonus_value}")
+
+                if forced_total_max_idx != -1:
+                    if is_forced_total:
+                        imgui.text_colored(
+                            imgui.ImColor.hsv(1 / 7.0, 0.8, 0.8).value, f"Forced total ({forced_total_max_value}):"
+                        )
+                    else:
+                        imgui.text_disabled(f"Forced total (Not applied):")
+
+                    for idx, total in enumerate(static.data["abilities"][name]["forced_total"]):
+                        total_name, total_value = total["name"], total["value"]
+
+                        if (idx == forced_total_max_idx) and is_forced_total:
+                            imgui.text(f"\t{total_name}: {total_value}")
+                        else:
+                            imgui.text_disabled(f"\t{total_name}: {total_value}")
 
                 imgui.end_popup()
         imgui.end_table()
