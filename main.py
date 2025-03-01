@@ -74,11 +74,11 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
             forced_total_max_idx = -1
             forced_total_max_value = 0
             is_forced_total = False
-            if static.data["abilities"][name]["forced_total"]:
+            if static.data["abilities"][name]["forced_total_base_score"]:
                 forced_total_max = max(
-                    [total for total in static.data["abilities"][name]["forced_total"]], key=lambda x: x["value"]
+                    [total for total in static.data["abilities"][name]["forced_total_base_score"]], key=lambda x: x["value"]
                 )
-                forced_total_max_idx = static.data["abilities"][name]["forced_total"].index(forced_total_max)
+                forced_total_max_idx = static.data["abilities"][name]["forced_total_base_score"].index(forced_total_max)
                 forced_total_max_value = forced_total_max["value"]
 
                 if base_score_total < forced_total_max_value:
@@ -136,7 +136,7 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
                     else:
                         imgui.text_disabled(f"Forced total (Not applied):")
 
-                    for idx, total in enumerate(static.data["abilities"][name]["forced_total"]):
+                    for idx, total in enumerate(static.data["abilities"][name]["forced_total_base_score"]):
                         total_name, total_value = total["name"], total["value"]
 
                         if (idx == forced_total_max_idx) and is_forced_total:
@@ -203,7 +203,7 @@ def draw_rollable_stat(stat_name: str, dict_key: str, static: character_sheet_ty
             imgui.table_next_column()
             imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
             _, static.data["skills"][dict_key]["custom_mod"] = imgui.input_int(
-                f"##custom_mod", static.data["skills"][dict_key]["custom_mod"], 1
+                f"##{dict_key}_custom_mod", static.data["skills"][dict_key]["custom_mod"], 1
             )
             imgui.end_table()
 
@@ -226,7 +226,7 @@ def draw_rollable_stat(stat_name: str, dict_key: str, static: character_sheet_ty
                 if value == "prof":
                     imgui.text(f"\t{name}: {value} ({static.data["proficiency"]["total"]})")
                 elif util.isAbilityName(value):
-                    imgui.text(f"\t{name}: {value} ({static.data["abilities"][value]["total"]})")
+                    imgui.text(f"\t{name}: {value.upper()} ({static.data["abilities"][value]["total"]})")
                 elif util.isRepresentInt(value):
                     imgui.text(f"\t{name}: {value}")
         imgui.end_popup()
@@ -259,9 +259,80 @@ def draw_proficiency(static: character_sheet_types.MainWindowProtocol) -> None:
         imgui.end_popup()
 
 
+def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
+    base, armor, custom_mod, bonuses = (
+        static.data["ac"]["base"],
+        static.data["ac"]["armor"],
+        static.data["ac"]["custom_mod"],
+        static.data["ac"]["bonuses"],
+    )
+
+    if armor:
+        base = armor["value"]
+
+    total_bonus_no_dex = 0
+    dex_bonus = static.data["abilities"]["dex"]["total"]
+    for bonus in bonuses:
+        name, value = bonus["name"], bonus["value"]
+
+        if value == "prof":
+            total_bonus_no_dex += static.data["proficiency"]["total"]
+        elif util.isAbilityName(value):
+            if value == "dex":
+                if armor and armor["max_dex_bonus"]:
+                    dex_bonus = min(static.data["abilities"]["dex"]["total"], armor["max_dex_bonus"])
+                else:
+                    dex_bonus = static.data["abilities"]["dex"]["total"]
+            else:
+                total_bonus_no_dex += static.data["abilities"][value]["total"]
+        elif util.isRepresentInt(value):
+            total_bonus_no_dex += value
+
+    static.data["ac"]["total"] = base + total_bonus_no_dex + dex_bonus + custom_mod
+
+    if imgui.button(f"AC: {static.data["ac"]["total"]:+}"):
+        imgui.open_popup(f"ac_popup")
+
+    if imgui.begin_popup(f"ac_popup"):
+        if imgui.begin_table(f"ac_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.text("Custom Mod: ")
+            imgui.same_line()
+            imgui.table_next_column()
+            imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+            _, static.data["ac"]["custom_mod"] = imgui.input_int(f"##ac_custom_mod", static.data["ac"]["custom_mod"], 1)
+            imgui.end_table()
+
+        if armor:
+            imgui.text(f"Armor:")
+            if armor["max_dex_bonus"]:
+                imgui.text(
+                    f"\t{armor["name"]}: {armor["value"]} + DEX (max {armor["max_dex_bonus"]}) = {armor["value"]} + {dex_bonus}"
+                )
+            else:
+                imgui.text(f"\t{armor["name"]}: {armor["value"]} + DEX ({dex_bonus})")
+
+        if bonuses:
+            imgui.text(f"Additional bonus ({total_bonus_no_dex + dex_bonus}):")
+            for bonus in bonuses:
+                name, value = bonus["name"], bonus["value"]
+
+                if value == "prof":
+                    imgui.text(f"\t{name}: {value} ({static.data["proficiency"]["total"]})")
+                elif util.isAbilityName(value):
+                    if value == "dex" and armor and armor["max_dex_bonus"]:
+                        imgui.text(f"\tBasic rules: DEX (max {armor["max_dex_bonus"]}) -> {dex_bonus}")
+                    else:
+                        imgui.text(f"\t{name}: {value.upper()} ({static.data["abilities"][value]["total"]})")
+                elif util.isRepresentInt(value):
+                    imgui.text(f"\t{name}: {value}")
+        imgui.end_popup()
+
+
 # Proficiency, initiative, walking speed, armor class
 def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
-    if imgui.begin_table("misc_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+    if imgui.begin_table("misc_table", 3, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
         imgui.table_next_row()
 
         # Proficiency
@@ -271,6 +342,10 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
         # Initiative
         imgui.table_next_column()
         draw_rollable_stat("INIT", "initiative", static)
+
+        # AC
+        imgui.table_next_column()
+        draw_ac(static)
 
         imgui.end_table()
 

@@ -3,7 +3,7 @@
     "abilities": {
         "str": {
             "total": 8,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
@@ -30,7 +30,7 @@
         },
         "dex": {
             "total": 0,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
@@ -43,7 +43,7 @@
         },
         "con": {
             "total": 2,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
@@ -61,7 +61,7 @@
         },
         "wis": {
             "total": 4,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
@@ -74,7 +74,7 @@
         },
         "int": {
             "total": 0,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
@@ -87,7 +87,7 @@
         },
         "cha": {
             "total": 1,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0

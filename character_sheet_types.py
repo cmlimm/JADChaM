@@ -19,7 +19,7 @@ class StatType(TypedDict):
 
 
 class AbilityType(StatType):
-    forced_total: list[IntBonusType]
+    forced_total_base_score: list[IntBonusType]
     base_score: int
     base_score_bonuses: list[IntBonusType]
     mod_bonuses: list[IntBonusType]
@@ -33,6 +33,15 @@ class IntStatType(StatType):
     bonuses: list[IntOrAbilityBonusType]
 
 
+class ArmorType(IntBonusType):
+    max_dex_bonus: None | int
+
+
+class AcType(IntStatType):
+    base: int
+    armor: ArmorType
+
+
 class RollableStatType(IntStatType):
     custom_advantage: bool
     custom_disadvantage: bool
@@ -43,7 +52,7 @@ class CharacterDataType(TypedDict):
     abilities: dict[str, AbilityType]
     proficiency: ProficiencyType
     skills: dict[str, RollableStatType]
-    ac: IntStatType
+    ac: AcType
     speed: IntStatType
 
 

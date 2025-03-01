@@ -3,7 +3,7 @@
     "abilities": {
         "str": {
             "total": 0,
-            "forced_total": [],
+            "forced_total_base_score": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -11,7 +11,7 @@
         },
         "dex": {
             "total": 0,
-            "forced_total": [],
+            "forced_total_base_score": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -19,7 +19,7 @@
         },
         "con": {
             "total": 0,
-            "forced_total": [],
+            "forced_total_base_score": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -27,7 +27,7 @@
         },
         "wis": {
             "total": 0,
-            "forced_total": [],
+            "forced_total_base_score": [],
             "base_score": 10,
             "custom_mod": 0,
             "base_score_bonuses": [],
@@ -35,7 +35,7 @@
         },
         "int": {
             "total": 4,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Headband of Intellect",
                     "value": 19
@@ -48,7 +48,7 @@
         },
         "cha": {
             "total": 4,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Headband of Charisma",
                     "value": 19
@@ -97,12 +97,14 @@
         }
     },
     "ac": {
-        "total": 0,
+        "total": 10,
+        "base": 10,
+        "armor": {},
         "custom_mod": 0,
         "bonuses": [
             {
-                "name": "something",
-                "value": 1
+                "name": "Basic rules",
+                "value": "dex"
             }
         ]
     },

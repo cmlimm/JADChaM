@@ -3,7 +3,7 @@
     "abilities": {
         "str": {
             "total": 8,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
@@ -29,21 +29,21 @@
             ]
         },
         "dex": {
-            "total": 0,
-            "forced_total": [
+            "total": 4,
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
                 }
             ],
             "base_score": 10,
-            "custom_mod": 0,
+            "custom_mod": 4,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "con": {
             "total": 2,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
@@ -61,7 +61,7 @@
         },
         "wis": {
             "total": 0,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
@@ -74,7 +74,7 @@
         },
         "int": {
             "total": 0,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
@@ -87,7 +87,7 @@
         },
         "cha": {
             "total": 1,
-            "forced_total": [
+            "forced_total_base_score": [
                 {
                     "name": "Item with forced value",
                     "value": 0
@@ -120,7 +120,7 @@
     },
     "skills": {
         "initiative": {
-            "total": 2,
+            "total": 6,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -145,12 +145,26 @@
         }
     },
     "ac": {
-        "total": 0,
+        "total": 16,
+        "base": 10,
+        "armor": {
+            "name": "Studded Leather",
+            "value": 12,
+            "max_dex_bonus": 2
+        },
         "custom_mod": 0,
         "bonuses": [
             {
-                "name": "something",
-                "value": 1
+                "name": "Basic rules",
+                "value": "dex"
+            },
+            {
+                "name": "Basic rules Monk",
+                "value": "wis"
+            },
+            {
+                "name": "Shield",
+                "value": 2
             }
         ]
     },
