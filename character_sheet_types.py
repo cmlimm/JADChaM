@@ -1,4 +1,4 @@
-from typing import Any, Optional, Protocol, TextIO, TypedDict
+from typing import Any, Literal, Optional, Protocol, TextIO, TypedDict
 
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
@@ -25,6 +25,18 @@ class AbilityType(StatType):
     mod_bonuses: list[IntBonusType]  # something that straight up increases your modifier
 
 
+type AbilityNameType = Literal["str", "dex", "con", "wis", "int", "cha"]
+
+
+class AbilitiesDictType(TypedDict):
+    str: AbilityType
+    dex: AbilityType
+    con: AbilityType
+    wis: AbilityType
+    int: AbilityType
+    cha: AbilityType
+
+
 class ProficiencyType(StatType):
     bonuses: list[IntBonusType]
 
@@ -42,9 +54,19 @@ class AcType(IntStatType):
     armor: ArmorType
 
 
+type SpeedNameType = Literal["walking", "climbing", "swimming", "flying"]
+
+
 class SpeedType(IntStatType):
     base: int
     forced_bases: list[IntOrStrBonusType]
+
+
+class SpeedDictType(TypedDict):
+    walking: SpeedType
+    climbing: SpeedType
+    swimming: SpeedType
+    flying: SpeedType
 
 
 class RollableStatType(IntStatType):
@@ -54,7 +76,7 @@ class RollableStatType(IntStatType):
 
 class CharacterDataType(TypedDict):
     name: str
-    abilities: dict[str, AbilityType]
+    abilities: AbilitiesDictType
     proficiency: ProficiencyType
     skills: dict[str, RollableStatType]
     ac: AcType

@@ -56,94 +56,116 @@ def draw_file_button(static: character_sheet_types.MainWindowProtocol) -> None:
         static.open_file_dialog = None
 
 
-def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
-    if imgui.begin_table("abilities_table", 10, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-        imgui.table_next_row()
-        for name, ability in static.data["abilities"].items():
-            forced_total_base_scores = ability["forced_total_base_scores"]
-            base_score = ability["base_score"]
-            custom_mod = ability["custom_mod"]
-            base_score_bonuses = ability["base_score_bonuses"]
-            mod_bonuses = ability["mod_bonuses"]
+def draw_ability_button(
+    ability_name: str, dict_key: character_sheet_types.AbilityNameType, static: character_sheet_types.MainWindowProtocol
+) -> None:
+    forced_total_base_scores = static.data["abilities"][dict_key]["forced_total_base_scores"]
+    base_score = static.data["abilities"][dict_key]["base_score"]
+    custom_mod = static.data["abilities"][dict_key]["custom_mod"]
+    base_score_bonuses = static.data["abilities"][dict_key]["base_score_bonuses"]
+    mod_bonuses = static.data["abilities"][dict_key]["mod_bonuses"]
 
-            # Buttons with final abilities' modifiers
+    base_score_bonus = sum([bonus["value"] for bonus in base_score_bonuses])
+    base_score_total = base_score + base_score_bonus
+
+    # Override the ability score (for example, with Headband of Intellect)
+    forced_total_max_idx = -1
+    forced_total_max_value = 0
+    is_forced_total = False
+    if forced_total_base_scores:
+        forced_total_max = max([total for total in forced_total_base_scores], key=lambda x: x["value"])
+        forced_total_max_idx = forced_total_base_scores.index(forced_total_max)
+        forced_total_max_value = forced_total_max["value"]
+
+        if base_score_total < forced_total_max_value:
+            base_score_total = forced_total_max_value
+            is_forced_total = True
+
+    mod_bonus = sum([bonus["value"] for bonus in mod_bonuses])
+    static.data["abilities"][dict_key]["total"] = (base_score_total - 10) // 2 + custom_mod + mod_bonus
+
+    # Button with final ability modifier
+    if imgui.button(f"{ability_name.upper()}: {static.data["abilities"][dict_key]["total"]:+}"):
+        imgui.open_popup(f"{dict_key}_popup")
+
+    # Popup window where you can
+    #   - change the basic ability score
+    #   - add a custom modifier
+    #   - see what gives you additional bonuses
+    if imgui.begin_popup(f"{dict_key}_popup"):
+        if imgui.begin_table("abilities_base_and_mod_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+            imgui.table_next_row()
             imgui.table_next_column()
-            base_score_bonus = sum([bonus["value"] for bonus in base_score_bonuses])
-            base_score_total = base_score + base_score_bonus
+            imgui.text("Base Score: ")
+            imgui.same_line()
+            imgui.table_next_column()
+            imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+            _, static.data["abilities"][dict_key]["base_score"] = imgui.input_int(
+                f"##{dict_key}", static.data["abilities"][dict_key]["base_score"], 1
+            )
 
-            # Override the ability score (for example, with Headband of Intellect)
-            forced_total_max_idx = -1
-            forced_total_max_value = 0
-            is_forced_total = False
-            if forced_total_base_scores:
-                forced_total_max = max([total for total in forced_total_base_scores], key=lambda x: x["value"])
-                forced_total_max_idx = forced_total_base_scores.index(forced_total_max)
-                forced_total_max_value = forced_total_max["value"]
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.text("Custom Mod: ")
+            imgui.same_line()
+            imgui.table_next_column()
+            imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+            _, static.data["abilities"][dict_key]["custom_mod"] = imgui.input_int(
+                f"##{dict_key}_custom_mod", static.data["abilities"][dict_key]["custom_mod"], 1
+            )
+            imgui.end_table()
 
-                if base_score_total < forced_total_max_value:
-                    base_score_total = forced_total_max_value
-                    is_forced_total = True
+        if base_score_bonuses:
+            imgui.text(f"Base Score bonus ({base_score_bonus} -> {base_score_bonus // 2}):")
+            for bonus in base_score_bonuses:
+                base_score_bonus_name, base_score_bonus_value = bonus["name"], bonus["value"]
+                imgui.text(f"\t{base_score_bonus_name}: {base_score_bonus_value} -> {base_score_bonus_value // 2}")
 
-            mod_bonus = sum([bonus["value"] for bonus in mod_bonuses])
-            static.data["abilities"][name]["total"] = (base_score_total - 10) // 2 + custom_mod + mod_bonus
+        if mod_bonuses:
+            imgui.text(f"Additional bonus ({mod_bonus}):")
+            for bonus in mod_bonuses:
+                mod_bonus_name, mod_bonus_value = bonus["name"], bonus["value"]
+                imgui.text(f"\t{mod_bonus_name}: {mod_bonus_value}")
 
-            if imgui.button(f"{name.upper()}: {static.data["abilities"][name]["total"]:+}"):
-                imgui.open_popup(f"{name}_popup")
+        if forced_total_max_idx != -1:
+            if is_forced_total:
+                imgui.text_colored(FORCED_ABILITY_SCORE_OVERRIDE_VALUE_COLOR, f"Forced total ({forced_total_max_value}):")
+            else:
+                imgui.text_disabled(f"Forced total (Not applied):")
 
-            # Popup window where you can
-            #   - change the basic ability score
-            #   - add a custom modifier
-            #   - see what gives you additional bonuses
-            if imgui.begin_popup(f"{name}_popup"):
-                if imgui.begin_table("abilities_base_and_mod_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-                    imgui.table_next_row()
-                    imgui.table_next_column()
-                    imgui.text("Base Score: ")
-                    imgui.same_line()
-                    imgui.table_next_column()
-                    imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                    _, static.data["abilities"][name]["base_score"] = imgui.input_int(
-                        f"##{name}", static.data["abilities"][name]["base_score"], 1
-                    )
+            for idx, total in enumerate(forced_total_base_scores):
+                total_name, total_value = total["name"], total["value"]
 
-                    imgui.table_next_row()
-                    imgui.table_next_column()
-                    imgui.text("Custom Mod: ")
-                    imgui.same_line()
-                    imgui.table_next_column()
-                    imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                    _, static.data["abilities"][name]["custom_mod"] = imgui.input_int(
-                        f"##{name}_custom_mod", static.data["abilities"][name]["custom_mod"], 1
-                    )
-                    imgui.end_table()
+                if (idx == forced_total_max_idx) and is_forced_total:
+                    imgui.text(f"\t{total_name}: {total_value}")
+                else:
+                    imgui.text_disabled(f"\t{total_name}: {total_value}")
 
-                if base_score_bonuses:
-                    imgui.text(f"Base Score bonus ({base_score_bonus} -> {base_score_bonus // 2}):")
-                    for bonus in base_score_bonuses:
-                        base_score_bonus_name, base_score_bonus_value = bonus["name"], bonus["value"]
-                        imgui.text(f"\t{base_score_bonus_name}: {base_score_bonus_value} -> {base_score_bonus_value // 2}")
+        imgui.end_popup()
 
-                if mod_bonuses:
-                    imgui.text(f"Additional bonus ({mod_bonus}):")
-                    for bonus in mod_bonuses:
-                        mod_bonus_name, mod_bonus_value = bonus["name"], bonus["value"]
-                        imgui.text(f"\t{mod_bonus_name}: {mod_bonus_value}")
 
-                if forced_total_max_idx != -1:
-                    if is_forced_total:
-                        imgui.text_colored(FORCED_ABILITY_SCORE_OVERRIDE_VALUE_COLOR, f"Forced total ({forced_total_max_value}):")
-                    else:
-                        imgui.text_disabled(f"Forced total (Not applied):")
+def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
+    if imgui.begin_table("abilities_table", 6, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+        imgui.table_next_row()
 
-                    for idx, total in enumerate(forced_total_base_scores):
-                        total_name, total_value = total["name"], total["value"]
+        imgui.table_next_column()
+        draw_ability_button("STR", "str", static)
 
-                        if (idx == forced_total_max_idx) and is_forced_total:
-                            imgui.text(f"\t{total_name}: {total_value}")
-                        else:
-                            imgui.text_disabled(f"\t{total_name}: {total_value}")
+        imgui.table_next_column()
+        draw_ability_button("DEX", "dex", static)
 
-                imgui.end_popup()
+        imgui.table_next_column()
+        draw_ability_button("CON", "con", static)
+
+        imgui.table_next_column()
+        draw_ability_button("WIS", "wis", static)
+
+        imgui.table_next_column()
+        draw_ability_button("INT", "int", static)
+
+        imgui.table_next_column()
+        draw_ability_button("CHA", "cha", static)
+
         imgui.end_table()
 
 
@@ -289,7 +311,7 @@ def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
 
     static.data["ac"]["total"] = base + total_bonus_no_dex + dex_bonus + custom_mod
 
-    if imgui.button(f"AC: {static.data["ac"]["total"]:+}"):
+    if imgui.button(f"AC: {static.data["ac"]["total"]}"):
         imgui.open_popup(f"ac_popup")
 
     if imgui.begin_popup(f"ac_popup"):
