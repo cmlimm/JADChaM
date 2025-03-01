@@ -15,7 +15,7 @@ class IntBonusType(TypedDict):
 
 class StatType(TypedDict):
     total: int
-    manual_mod: int
+    custom_mod: int
 
 
 class AbilityType(StatType):
@@ -28,17 +28,22 @@ class ProficiencyType(StatType):
     bonuses: list[IntBonusType]
 
 
-class MiscStatType(StatType):
+class IntStatType(StatType):
     bonuses: list[IntOrAbilityBonusType]
+
+
+class RollableStatType(IntStatType):
+    custom_advantage: bool
+    custom_disadvantage: bool
 
 
 class CharacterDataType(TypedDict):
     name: str
     abilities: dict[str, AbilityType]
     proficiency: ProficiencyType
-    initiative: MiscStatType
-    ac: MiscStatType
-    speed: MiscStatType
+    initiative: RollableStatType
+    ac: IntStatType
+    speed: IntStatType
 
 
 class MainWindowProtocol(Protocol):

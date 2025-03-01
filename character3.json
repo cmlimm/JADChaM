@@ -60,6 +60,10 @@
             {
                 "name": "Give disadvantage",
                 "value": "disadv"
+            },
+            {
+                "name": "Give advantage",
+                "value": "adv"
             }
         ],
         "custom_advantage": false,

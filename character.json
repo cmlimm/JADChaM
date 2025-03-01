@@ -4,7 +4,7 @@
         "str": {
             "total": 8,
             "base_score": 10,
-            "manual_mod": 0,
+            "custom_mod": 0,
             "base_score_bonuses": [
                 {
                     "name": "something 1",
@@ -25,14 +25,14 @@
         "dex": {
             "total": 5,
             "base_score": 14,
-            "manual_mod": 3,
+            "custom_mod": 3,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "con": {
             "total": 2,
             "base_score": 10,
-            "manual_mod": 0,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": [
                 {
@@ -44,21 +44,21 @@
         "wis": {
             "total": 4,
             "base_score": 10,
-            "manual_mod": 4,
+            "custom_mod": 4,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "int": {
             "total": 0,
             "base_score": 10,
-            "manual_mod": 0,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "cha": {
             "total": 1,
             "base_score": 10,
-            "manual_mod": 0,
+            "custom_mod": 0,
             "base_score_bonuses": [
                 {
                     "name": "something 4",
@@ -74,7 +74,7 @@
     },
     "proficiency": {
         "total": 10,
-        "manual_mod": 9,
+        "custom_mod": 9,
         "bonuses": [
             {
                 "name": "something",
@@ -84,7 +84,7 @@
     },
     "initiative": {
         "total": 20,
-        "manual_mod": 4,
+        "custom_mod": 4,
         "bonuses": [
             {
                 "name": "basic rule",
@@ -97,12 +97,18 @@
             {
                 "name": "something",
                 "value": 1
+            },
+            {
+                "name": "Give advantage",
+                "value": "adv"
             }
-        ]
+        ],
+        "custom_advantage": false,
+        "custom_disadvantage": false
     },
     "ac": {
         "total": 0,
-        "manual_mod": 0,
+        "custom_mod": 0,
         "bonuses": [
             {
                 "name": "something",
@@ -112,7 +118,7 @@
     },
     "speed": {
         "total": 0,
-        "manual_mod": 30,
+        "custom_mod": 30,
         "bonuses": [
             {
                 "name": "something",

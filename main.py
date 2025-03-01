@@ -8,6 +8,12 @@ import util
 
 TWO_DIGIT_BUTTONS_INPUT_WIDTH = 75
 TWO_DIGIT_INPUT_WIDTH = 25
+ADVANTAGE_COLOR = imgui.ImColor.hsv(0.3, 0.6, 0.6).value
+ADVANTAGE_HOVER_COLOR = imgui.ImColor.hsv(0.3, 0.7, 0.7).value
+ADVANTAGE_ACTIVE_COLOR = imgui.ImColor.hsv(0.3, 0.8, 0.8).value
+DISADVANTAGE_COLOR = imgui.ImColor.hsv(0, 0.6, 0.6).value
+DISADVANTAGE_HOVER_COLOR = imgui.ImColor.hsv(0, 0.7, 0.7).value
+DISADVANTAGE_ACTIVE_COLOR = imgui.ImColor.hsv(0, 0.8, 0.8).value
 
 
 @character_sheet_types.main_window_decorator
@@ -52,8 +58,8 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
     if imgui.begin_table("abilities_table", 10, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
         imgui.table_next_row()
         for name, ability in static.data["abilities"].items():
-            base = ability["base_score"]
-            manual_mod = ability["manual_mod"]
+            base_score = ability["base_score"]
+            custom_mod = ability["custom_mod"]
             base_score_bonuses = ability["base_score_bonuses"]
             mod_bonuses = ability["mod_bonuses"]
 
@@ -61,13 +67,13 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
             imgui.table_next_column()
             base_score_bonus = sum([bonus["value"] for bonus in base_score_bonuses])
             mod_bonus = sum([bonus["value"] for bonus in mod_bonuses])
-            static.data["abilities"][name]["total"] = (base + base_score_bonus - 10) // 2 + manual_mod + mod_bonus
+            static.data["abilities"][name]["total"] = (base_score + base_score_bonus - 10) // 2 + custom_mod + mod_bonus
             if imgui.button(f"{name.upper()}: {static.data["abilities"][name]["total"]:+}"):
                 imgui.open_popup(f"{name}_popup")
 
             # Popup windows where you can
             #   - change the basic ability score
-            #   - add a manual modifier
+            #   - add a custom modifier
             #   - see what gives you additional bonuses
 
             # TODO: create a function for these popups
@@ -79,15 +85,19 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
                     imgui.same_line()
                     imgui.table_next_column()
                     imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                    _, static.data["abilities"][name]["base_score"] = imgui.input_int(f"##{name}", base, 1)
+                    _, static.data["abilities"][name]["base_score"] = imgui.input_int(
+                        f"##{name}", static.data["abilities"][name]["base_score"], 1
+                    )
 
                     imgui.table_next_row()
                     imgui.table_next_column()
-                    imgui.text("Manual Mod: ")
+                    imgui.text("Custom Mod: ")
                     imgui.same_line()
                     imgui.table_next_column()
                     imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                    _, static.data["abilities"][name]["manual_mod"] = imgui.input_int(f"##{name}_manual_mod", manual_mod, 1)
+                    _, static.data["abilities"][name]["custom_mod"] = imgui.input_int(
+                        f"##{name}_custom_mod", static.data["abilities"][name]["custom_mod"], 1
+                    )
                     imgui.end_table()
 
                 if base_score_bonuses:
@@ -113,9 +123,9 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
 
         # Proficiency
         imgui.table_next_column()
-        manual_mod, bonuses = static.data["proficiency"]["manual_mod"], static.data["proficiency"]["bonuses"]
+        custom_mod, bonuses = static.data["proficiency"]["custom_mod"], static.data["proficiency"]["bonuses"]
         bonus = sum([bonus["value"] for bonus in bonuses])
-        static.data["proficiency"]["total"] = manual_mod + bonus
+        static.data["proficiency"]["total"] = custom_mod + bonus
 
         if imgui.button(f"PROF: {static.data["proficiency"]["total"]:+}"):
             imgui.open_popup(f"prof_popup")
@@ -129,7 +139,9 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
                 imgui.same_line()
                 imgui.table_next_column()
                 imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                _, static.data["proficiency"]["manual_mod"] = imgui.input_int(f"##prof", manual_mod, 1)
+                _, static.data["proficiency"]["custom_mod"] = imgui.input_int(
+                    f"##prof", static.data["proficiency"]["custom_mod"], 1
+                )
                 imgui.end_table()
 
             # TODO: move to a separate function
@@ -142,35 +154,70 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
 
         # Initiative
         imgui.table_next_column()
-        manual_mod, bonuses = static.data["initiative"]["manual_mod"], static.data["initiative"]["bonuses"]
+        custom_mod, bonuses = static.data["initiative"]["custom_mod"], static.data["initiative"]["bonuses"]
 
         # TODO: move to a separate function, this will be useful later for skills
         total_bonus = 0
+        advantage = False
+        disadvantage = False
         for init_bonus in bonuses:
             name, value = init_bonus["name"], init_bonus["value"]
-            if value == "prof":
+
+            # Advantages (disadvantages) don't stack, so we can just reassing the value
+            # instead of calculating a sum or something
+            if value == "adv":
+                advantage = True
+            elif value == "disadv":
+                disadvantage = True
+            elif value == "prof":
                 total_bonus += static.data["proficiency"]["total"]
             elif util.isAbilityName(value):
                 total_bonus += static.data["abilities"][value]["total"]
             elif util.isRepresentInt(value):
                 total_bonus += value
 
-        static.data["initiative"]["total"] = manual_mod + total_bonus
+        static.data["initiative"]["total"] = custom_mod + total_bonus
+
+        advantage = advantage or static.data["initiative"]["custom_advantage"]
+        disadvantage = disadvantage or static.data["initiative"]["custom_disadvantage"]
+
+        init_button_color_applied = False
+        if not (advantage and disadvantage):
+            if advantage:
+                imgui.push_style_color(imgui.Col_.button.value, ADVANTAGE_COLOR)
+                imgui.push_style_color(imgui.Col_.button_hovered.value, ADVANTAGE_HOVER_COLOR)
+                imgui.push_style_color(imgui.Col_.button_active.value, ADVANTAGE_ACTIVE_COLOR)
+            elif disadvantage:
+                imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+            init_button_color_applied = True
 
         if imgui.button(f"INIT: {static.data["initiative"]["total"]:+}"):
             imgui.open_popup(f"init_popup")
+        if init_button_color_applied:
+            imgui.pop_style_color(3)
 
         # TODO: create a function for these popups
         if imgui.begin_popup(f"init_popup"):
             if imgui.begin_table("init_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
                 imgui.table_next_row()
                 imgui.table_next_column()
-                imgui.text("Manual Mod: ")
+                imgui.text("Custom Mod: ")
                 imgui.same_line()
                 imgui.table_next_column()
                 imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                _, static.data["initiative"]["manual_mod"] = imgui.input_int(f"##manual_mod", manual_mod, 1)
+                _, static.data["initiative"]["custom_mod"] = imgui.input_int(
+                    f"##custom_mod", static.data["initiative"]["custom_mod"], 1
+                )
                 imgui.end_table()
+
+            _, static.data["initiative"]["custom_advantage"] = imgui.checkbox(
+                "Custom Advantage", static.data["initiative"]["custom_advantage"]
+            )
+            _, static.data["initiative"]["custom_disadvantage"] = imgui.checkbox(
+                "Custom Disadvantage", static.data["initiative"]["custom_disadvantage"]
+            )
 
             # TODO: move to a separate function
             if bonuses:
@@ -178,6 +225,10 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
                 for init_bonus in bonuses:
                     name, value = init_bonus["name"], init_bonus["value"]
 
+                    if value == "adv":
+                        imgui.text_colored(ADVANTAGE_ACTIVE_COLOR, f"\t{name}: Advantage")
+                    elif value == "disadv":
+                        imgui.text_colored(DISADVANTAGE_ACTIVE_COLOR, f"\t{name}: Disadvantage")
                     if value == "prof":
                         imgui.text(f"\t{name}: {value} ({static.data["proficiency"]["total"]})")
                     elif util.isAbilityName(value):
