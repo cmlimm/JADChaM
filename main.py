@@ -191,7 +191,11 @@ def draw_rollable_stat(stat_name: str, dict_key: str, static: character_sheet_ty
         elif util.isRepresentInt(value):
             total_bonus += value
 
-    static.data["skills"][dict_key]["total"] = custom_mod + total_bonus
+    custom_proficiency = 0
+    if static.data["skills"][dict_key].get("custom_proficiency"):
+        custom_proficiency = static.data["proficiency"]["total"]
+
+    static.data["skills"][dict_key]["total"] = custom_mod + custom_proficiency + total_bonus
 
     advantage = advantage or static.data["skills"][dict_key]["custom_advantage"]
     disadvantage = disadvantage or static.data["skills"][dict_key]["custom_disadvantage"]
@@ -233,6 +237,9 @@ def draw_rollable_stat(stat_name: str, dict_key: str, static: character_sheet_ty
         )
         _, static.data["skills"][dict_key]["custom_disadvantage"] = imgui.checkbox(
             "Custom Disadvantage", static.data["skills"][dict_key]["custom_disadvantage"]
+        )
+        _, static.data["skills"][dict_key]["custom_proficiency"] = imgui.checkbox(
+            "Custom Proficiency", static.data["skills"][dict_key]["custom_proficiency"]
         )
 
         if bonuses:

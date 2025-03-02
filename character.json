@@ -61,7 +61,8 @@
             "custom_mod": 0,
             "bonuses": [],
             "custom_advantage": false,
-            "custom_disadvantage": false
+            "custom_disadvantage": false,
+            "custom_proficiency": false
         }
     },
     "ac": {

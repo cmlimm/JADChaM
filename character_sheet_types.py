@@ -72,6 +72,7 @@ class SpeedDictType(TypedDict):
 class RollableStatType(IntStatType):
     custom_advantage: bool
     custom_disadvantage: bool
+    custom_proficiency: bool
 
 
 class CharacterDataType(TypedDict):
