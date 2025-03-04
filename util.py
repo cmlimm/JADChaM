@@ -1,5 +1,7 @@
 # TODO: move to util.py or something
-from typing import TypeGuard
+from typing import Any, TypeGuard
+
+from pydantic import TypeAdapter, ValidationError
 
 import character_sheet_types
 
@@ -22,3 +24,12 @@ def isSpeedName(string: int | str) -> TypeGuard[character_sheet_types.SpeedNameT
     if string in ["walking", "climbing", "swimming", "flying"]:
         return True
     return False
+
+
+def isRollableStatType(dictionary: Any | Any) -> TypeGuard[character_sheet_types.RollableStatType]:
+    rollable_stat_adapter = TypeAdapter(character_sheet_types.RollableStatType)
+    try:
+        rollable_stat_adapter.validate_python(dictionary)
+        return True
+    except ValidationError:
+        return False
