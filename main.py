@@ -200,8 +200,8 @@ def draw_saves(static: character_sheet_types.MainWindowProtocol):
 
 
 def draw_rollable_stat(stat_name: str, path_to_stat: list[str], static: character_sheet_types.MainWindowProtocol) -> None:
-    # Access a part of static.data dictionary that stores the stat.
-    # We use a path to stat instead of directly calling static.data[something][something][something]
+    # Access the part of the `static.data` dictionary that stores the stat.
+    # We use a path to stat instead of directly calling `static.data[something][something][something]`
     # because rollable stats can be anywhere in the character sheet tree.
     # TODO: figure out proper typing for this
     stat_dict = static.data
