@@ -25,8 +25,13 @@ def main_window() -> None:
 
     # Only draw the main interface if the character file is loaded
     if hasattr(static, "character_file"):
+        imgui.text("Abilities: ")
+        imgui.same_line()
         draw_abilities(static)
         draw_misc(static)
+        imgui.text("Saves: ")
+        imgui.same_line()
+        draw_saves(static)
 
         # Clear file and dump current data
         # TODO: move to util.py or something
@@ -165,6 +170,31 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
 
         imgui.table_next_column()
         draw_ability_button("CHA", "cha", static)
+
+        imgui.end_table()
+
+
+def draw_saves(static: character_sheet_types.MainWindowProtocol):
+    if imgui.begin_table("abilities_table", 6, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+        imgui.table_next_row()
+
+        imgui.table_next_column()
+        draw_rollable_stat("STR", ["saves", "str"], static)
+
+        imgui.table_next_column()
+        draw_rollable_stat("DEX", ["saves", "dex"], static)
+
+        imgui.table_next_column()
+        draw_rollable_stat("CON", ["saves", "con"], static)
+
+        imgui.table_next_column()
+        draw_rollable_stat("WIS", ["saves", "wis"], static)
+
+        imgui.table_next_column()
+        draw_rollable_stat("INT", ["saves", "int"], static)
+
+        imgui.table_next_column()
+        draw_rollable_stat("CHA", ["saves", "cha"], static)
 
         imgui.end_table()
 

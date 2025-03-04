@@ -34,10 +34,10 @@
             "mod_bonuses": []
         },
         "int": {
-            "total": 0,
+            "total": 4,
             "forced_total_base_scores": [],
             "base_score": 10,
-            "custom_mod": 0,
+            "custom_mod": 4,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
@@ -48,6 +48,86 @@
             "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
+        }
+    },
+    "saves": {
+        "str": {
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "str"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        "dex": {
+            "total": 2,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "dex"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        "con": {
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "con"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        "wis": {
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "wis"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        "int": {
+            "total": 8,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "int"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": true,
+            "custom_proficiency": true
+        },
+        "cha": {
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "cha"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
         }
     },
     "proficiency": {
