@@ -57,16 +57,16 @@ class AcType(IntStatType):
 type SpeedNameType = Literal["walking", "climbing", "swimming", "flying"]
 
 
-class SpeedType(IntStatType):
+class StaticStatType(IntStatType):
     base: int
     forced_bases: list[IntOrStrBonusType]
 
 
 class SpeedDictType(TypedDict):
-    walking: SpeedType
-    climbing: SpeedType
-    swimming: SpeedType
-    flying: SpeedType
+    walking: StaticStatType
+    climbing: StaticStatType
+    swimming: StaticStatType
+    flying: StaticStatType
 
 
 class RollableStatType(IntStatType):
@@ -82,7 +82,7 @@ class CharacterDataType(TypedDict):
     initiative: RollableStatType
     skills: dict[str, RollableStatType]
     ac: AcType
-    speed: dict[str, SpeedType]
+    speed: dict[str, StaticStatType]
 
 
 class MainWindowProtocol(Protocol):

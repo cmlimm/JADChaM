@@ -33,3 +33,12 @@ def isRollableStatType(dictionary: Any | Any) -> TypeGuard[character_sheet_types
         return True
     except ValidationError:
         return False
+
+
+def isStaticStatType(dictionary: Any | Any) -> TypeGuard[character_sheet_types.StaticStatType]:
+    static_stat_adapter = TypeAdapter(character_sheet_types.StaticStatType)
+    try:
+        static_stat_adapter.validate_python(dictionary)
+        return True
+    except ValidationError:
+        return False

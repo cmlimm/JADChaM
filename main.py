@@ -32,6 +32,9 @@ def main_window() -> None:
         imgui.text("Saves: ")
         imgui.same_line()
         draw_saves(static)
+        imgui.text("Passives: ")
+        imgui.same_line()
+        draw_passives(static)
 
         # Clear file and dump current data
         # TODO: move to util.py or something
@@ -298,7 +301,7 @@ def draw_proficiency(static: character_sheet_types.MainWindowProtocol) -> None:
     bonus = sum([bonus["value"] for bonus in bonuses])
     static.data["proficiency"]["total"] = custom_mod + bonus
 
-    if imgui.button(f"PROF: {static.data["proficiency"]["total"]:+}"):
+    if imgui.button(f"Proficiency: {static.data["proficiency"]["total"]:+}"):
         imgui.open_popup(f"prof_popup")
 
     if imgui.begin_popup(f"prof_popup"):
@@ -391,95 +394,6 @@ def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
         imgui.end_popup()
 
 
-def draw_speed_button(
-    speed_name: str, dict_key: character_sheet_types.SpeedNameType, static: character_sheet_types.MainWindowProtocol
-) -> None:
-    base = static.data["speed"][dict_key]["base"]
-    forced_bases = static.data["speed"][dict_key]["forced_bases"]
-    custom_mod = static.data["speed"][dict_key]["custom_mod"]
-    bonuses = static.data["speed"][dict_key]["bonuses"]
-
-    # Override the speed base
-    forced_base_max_idx = -1
-    is_forced_base = False
-    if forced_bases:
-        for idx, forced_base in enumerate(forced_bases):
-            value = 0
-            if util.isSpeedName(forced_base["value"]):
-                value = static.data["speed"][forced_base["value"]]["total"]
-            elif util.isRepresentInt(forced_base["value"]):
-                value = forced_base["value"]
-
-            if base < value:
-                base = value
-                forced_base_max_idx = idx
-                is_forced_base = True
-
-    total_bonus = 0
-    for bonus in bonuses:
-        if util.isSpeedName(bonus["value"]):
-            total_bonus += static.data["speed"][bonus["value"]]["total"]
-        elif util.isRepresentInt(bonus["value"]):
-            total_bonus += bonus["value"]
-
-    static.data["speed"][dict_key]["total"] = base + total_bonus + custom_mod
-
-    if imgui.button(f"{speed_name}: {static.data["speed"][dict_key]["total"]}"):
-        imgui.open_popup(f"{dict_key}_popup")
-
-    if imgui.begin_popup(f"{dict_key}_popup"):
-        if imgui.begin_table(f"{dict_key}_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-            imgui.table_next_row()
-            imgui.table_next_column()
-            imgui.text("Base: ")
-            imgui.same_line()
-            imgui.table_next_column()
-            imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-            _, static.data["speed"][dict_key]["base"] = imgui.input_int(
-                f"##{dict_key}", static.data["speed"][dict_key]["base"], 1
-            )
-
-            imgui.table_next_row()
-            imgui.table_next_column()
-            imgui.text("Custom Mod: ")
-            imgui.same_line()
-            imgui.table_next_column()
-            imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-            _, static.data["speed"][dict_key]["custom_mod"] = imgui.input_int(
-                f"##{dict_key}_custom_mod", static.data["speed"][dict_key]["custom_mod"], 1
-            )
-            imgui.end_table()
-
-        if forced_bases:
-            if is_forced_base:
-                imgui.text_colored(FORCED_OVERRIDE_COLOR, f"Forced base ({base}):")
-            else:
-                imgui.text_disabled(f"Forced total (Not applied):")
-
-            for idx, forced_base in enumerate(static.data["speed"][dict_key]["forced_bases"]):
-                display_value = ""
-                if util.isSpeedName(forced_base["value"]):
-                    speed_value = static.data["speed"][forced_base["value"]]["total"]
-                    display_value = f"{dict_key} ({speed_value})"
-                elif util.isRepresentInt(forced_base["value"]):
-                    display_value = str(forced_base["value"])
-
-                if (idx == forced_base_max_idx) and is_forced_base:
-                    imgui.text(f"\t{forced_base["name"]}: {display_value}")
-                else:
-                    imgui.text_disabled(f"\t{forced_base["name"]}: {display_value}")
-
-        if bonuses:
-            imgui.text(f"Additional bonus ({total_bonus}):")
-            for bonus in bonuses:
-                if util.isSpeedName(bonus["value"]):
-                    imgui.text(f"\t{bonus["name"]}: {bonus["value"].capitalize()} ({static.data["speed"][dict_key]["total"]})")
-                elif util.isRepresentInt(bonus["value"]):
-                    imgui.text(f"\t{bonus["name"]}: {bonus["value"]}")
-
-        imgui.end_popup()
-
-
 def draw_speed(static: character_sheet_types.MainWindowProtocol) -> None:
     if imgui.begin_table("speed_table", 5, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
         imgui.table_next_row()
@@ -487,15 +401,138 @@ def draw_speed(static: character_sheet_types.MainWindowProtocol) -> None:
         imgui.text("Speed: ")
 
         imgui.table_next_column()
-        draw_speed_button("Walking", "walking", static)
+        draw_static_stat("Walking", ["speed", "walking"], static)
         imgui.table_next_column()
-        draw_speed_button("Climbing", "climbing", static)
+        draw_static_stat("Climbing", ["speed", "climbing"], static)
         imgui.table_next_column()
-        draw_speed_button("Swimming", "swimming", static)
+        draw_static_stat("Swimming", ["speed", "swimming"], static)
         imgui.table_next_column()
-        draw_speed_button("Flying", "flying", static)
+        draw_static_stat("Flying", ["speed", "flying"], static)
 
         imgui.end_table()
+
+
+def draw_passives(static: character_sheet_types.MainWindowProtocol):
+    if imgui.begin_table("passives_table", 6, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+        imgui.table_next_row()
+
+        imgui.table_next_column()
+        draw_static_stat("Perception", ["passives", "perception"], static)
+
+        imgui.table_next_column()
+        draw_static_stat("Investigation", ["passives", "investigation"], static)
+
+        imgui.table_next_column()
+        draw_static_stat("Insight", ["passives", "insight"], static)
+
+        imgui.end_table()
+
+
+def draw_static_stat(stat_name: str, path_to_stat: list[str], static: character_sheet_types.MainWindowProtocol) -> None:
+    # Access the part of the `static.data` dictionary that stores the stat.
+    # We use a path to stat instead of directly calling `static.data[something][something][something]`
+    # because rollable stats can be anywhere in the character sheet tree.
+    # TODO: figure out proper typing for this
+    stat_dict = static.data
+    for key in path_to_stat:
+        if key in stat_dict:
+            stat_dict = stat_dict[key]  # type: ignore
+    dict_key = path_to_stat[-1]
+    is_speed = "speed" in path_to_stat
+
+    if util.isStaticStatType(stat_dict):
+        base = stat_dict["base"]
+        forced_bases = stat_dict["forced_bases"]
+        custom_mod = stat_dict["custom_mod"]
+        bonuses = stat_dict["bonuses"]
+
+        # Override the stat base
+        forced_base_max_idx = -1
+        is_forced_base = False
+        if forced_bases:
+            for idx, forced_base in enumerate(forced_bases):
+                value = 0
+                if is_speed and util.isSpeedName(forced_base["value"]):
+                    value = static.data["speed"][forced_base["value"]]["total"]
+                elif util.isRepresentInt(forced_base["value"]):
+                    value = forced_base["value"]
+
+                if base < value:
+                    base = value
+                    forced_base_max_idx = idx
+                    is_forced_base = True
+
+        total_bonus = 0
+        for bonus in bonuses:
+            if is_speed and util.isSpeedName(bonus["value"]):
+                total_bonus += static.data["speed"][bonus["value"]]["total"]
+            elif util.isAbilityName(bonus["value"]):
+                total_bonus += static.data["abilities"][bonus["value"]]["total"]
+            elif util.isRepresentInt(bonus["value"]):
+                total_bonus += bonus["value"]
+
+        stat_dict["total"] = base + total_bonus + custom_mod
+
+        if imgui.button(f"{stat_name}: {stat_dict["total"]}"):
+            imgui.open_popup(f"{dict_key}_popup")
+
+        if imgui.begin_popup(f"{dict_key}_popup"):
+            button_step = 1
+            if is_speed:
+                button_step = 5
+
+            if imgui.begin_table(f"{dict_key}_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.text("Base: ")
+                imgui.same_line()
+                imgui.table_next_column()
+                imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+                _, stat_dict["base"] = imgui.input_int(f"##{dict_key}", stat_dict["base"], button_step)
+
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.text("Custom Mod: ")
+                imgui.same_line()
+                imgui.table_next_column()
+                imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+                _, stat_dict["custom_mod"] = imgui.input_int(f"##{dict_key}_custom_mod", stat_dict["custom_mod"], button_step)
+                imgui.end_table()
+
+            if forced_bases:
+                if is_forced_base:
+                    imgui.text_colored(FORCED_OVERRIDE_COLOR, f"Forced base ({base}):")
+                else:
+                    imgui.text_disabled(f"Forced total (Not applied):")
+
+                for idx, forced_base in enumerate(stat_dict["forced_bases"]):
+                    display_value = ""
+                    if is_speed and util.isSpeedName(forced_base["value"]):
+                        speed_value = static.data["speed"][forced_base["value"]]["total"]
+                        display_value = f"{dict_key.capitalize()} ({speed_value})"
+                    elif util.isRepresentInt(forced_base["value"]):
+                        display_value = str(forced_base["value"])
+
+                    if (idx == forced_base_max_idx) and is_forced_base:
+                        imgui.text(f"\t{forced_base["name"]}: {display_value}")
+                    else:
+                        imgui.text_disabled(f"\t{forced_base["name"]}: {display_value}")
+
+            if bonuses:
+                imgui.text(f"Additional bonus ({total_bonus}):")
+                for bonus in bonuses:
+                    if is_speed and util.isSpeedName(bonus["value"]):
+                        imgui.text(
+                            f"\t{bonus["name"]}: {bonus["value"].capitalize()} ({static.data["speed"][dict_key]["total"]})"
+                        )
+                    elif util.isAbilityName(bonus["value"]):
+                        imgui.text(
+                            f"\t{bonus["name"]}: {bonus["value"].upper()} ({static.data["abilities"][bonus["value"]]["total"]})"
+                        )
+                    elif util.isRepresentInt(bonus["value"]):
+                        imgui.text(f"\t{bonus["name"]}: {bonus["value"]}")
+
+            imgui.end_popup()
 
 
 # Proficiency, initiative, walking speed, armor class
@@ -509,7 +546,7 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
 
         # Initiative
         imgui.table_next_column()
-        draw_rollable_stat("INIT", ["initiative"], static)
+        draw_rollable_stat("Initiative", ["initiative"], static)
 
         # AC
         imgui.table_next_column()

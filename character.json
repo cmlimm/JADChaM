@@ -10,10 +10,10 @@
             "mod_bonuses": []
         },
         "dex": {
-            "total": 2,
+            "total": 0,
             "forced_total_base_scores": [],
             "base_score": 10,
-            "custom_mod": 2,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
@@ -26,18 +26,18 @@
             "mod_bonuses": []
         },
         "wis": {
-            "total": 0,
+            "total": 3,
             "forced_total_base_scores": [],
             "base_score": 10,
-            "custom_mod": 0,
+            "custom_mod": 3,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "int": {
-            "total": 4,
+            "total": 2,
             "forced_total_base_scores": [],
             "base_score": 10,
-            "custom_mod": 4,
+            "custom_mod": 2,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
@@ -65,7 +65,7 @@
             "custom_proficiency": false
         },
         "dex": {
-            "total": 2,
+            "total": 0,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -91,7 +91,7 @@
             "custom_proficiency": false
         },
         "wis": {
-            "total": 0,
+            "total": 3,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -104,7 +104,7 @@
             "custom_proficiency": false
         },
         "int": {
-            "total": 8,
+            "total": 2,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -113,8 +113,8 @@
                 }
             ],
             "custom_advantage": false,
-            "custom_disadvantage": true,
-            "custom_proficiency": true
+            "custom_disadvantage": false,
+            "custom_proficiency": false
         },
         "cha": {
             "total": 0,
@@ -136,8 +136,8 @@
         "bonuses": []
     },
     "initiative": {
-        "total": 4,
-        "custom_mod": 2,
+        "total": 0,
+        "custom_mod": 0,
         "bonuses": [
             {
                 "name": "Basic Rules",
@@ -150,7 +150,7 @@
     },
     "skills": {},
     "ac": {
-        "total": 12,
+        "total": 10,
         "base": 10,
         "armor": {},
         "custom_mod": 0,
@@ -189,6 +189,44 @@
             "forced_bases": [],
             "custom_mod": 0,
             "bonuses": []
+        }
+    },
+    "passives": {
+        "perception": {
+            "total": 13,
+            "base": 10,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "wis"
+                }
+            ]
+        },
+        "investigation": {
+            "total": 12,
+            "base": 10,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "int"
+                }
+            ]
+        },
+        "insight": {
+            "total": 13,
+            "base": 10,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "wis"
+                }
+            ]
         }
     }
 }
