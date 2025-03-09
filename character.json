@@ -26,18 +26,18 @@
             "mod_bonuses": []
         },
         "wis": {
-            "total": 3,
+            "total": 0,
             "forced_total_base_scores": [],
             "base_score": 10,
-            "custom_mod": 3,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
         "int": {
-            "total": 2,
+            "total": 0,
             "forced_total_base_scores": [],
             "base_score": 10,
-            "custom_mod": 2,
+            "custom_mod": 0,
             "base_score_bonuses": [],
             "mod_bonuses": []
         },
@@ -91,7 +91,7 @@
             "custom_proficiency": false
         },
         "wis": {
-            "total": 3,
+            "total": 0,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -104,7 +104,7 @@
             "custom_proficiency": false
         },
         "int": {
-            "total": 2,
+            "total": 0,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -131,11 +131,12 @@
         }
     },
     "proficiency": {
-        "total": 4,
-        "custom_mod": 4,
+        "total": 0,
+        "custom_mod": 0,
         "bonuses": []
     },
     "initiative": {
+        "name": "initiative",
         "total": 0,
         "custom_mod": 0,
         "bonuses": [
@@ -148,7 +149,260 @@
         "custom_disadvantage": false,
         "custom_proficiency": false
     },
-    "skills": {},
+    "skills": [
+        {
+            "name": "acrobatics",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "dex"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "animal handling",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "wis"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "arcana",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "int"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "athletics",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "str"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "deception",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "cha"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "history",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "int"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "insight",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "wis"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "intimidation",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "cha"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "investigation",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "int"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "medicine",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "wis"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "nature",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "int"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "perception",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "wis"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "performance",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "cha"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "persuasion",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "cha"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "religion",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "int"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "sleight of hand",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "dex"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "stealth",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "dex"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        },
+        {
+            "name": "survival",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Basic Rules",
+                    "value": "wis"
+                }
+            ],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false
+        }
+    ],
     "ac": {
         "total": 10,
         "base": 10,
@@ -193,7 +447,7 @@
     },
     "passives": {
         "perception": {
-            "total": 13,
+            "total": 10,
             "base": 10,
             "forced_bases": [],
             "custom_mod": 0,
@@ -205,7 +459,7 @@
             ]
         },
         "investigation": {
-            "total": 12,
+            "total": 10,
             "base": 10,
             "forced_bases": [],
             "custom_mod": 0,
@@ -217,7 +471,7 @@
             ]
         },
         "insight": {
-            "total": 13,
+            "total": 10,
             "base": 10,
             "forced_bases": [],
             "custom_mod": 0,

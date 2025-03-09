@@ -1,4 +1,4 @@
-from typing import Any, Literal, Optional, Protocol, TextIO, TypedDict
+from typing import Any, Literal, Optional, Protocol, TypedDict
 
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
@@ -70,17 +70,35 @@ class SpeedDictType(TypedDict):
 
 
 class RollableStatType(IntStatType):
+    name: str
     custom_advantage: bool
     custom_disadvantage: bool
     custom_proficiency: bool
 
 
+class SavesDictType(TypedDict):
+    str: RollableStatType
+    dex: RollableStatType
+    con: RollableStatType
+    wis: RollableStatType
+    int: RollableStatType
+    cha: RollableStatType
+
+
+class PassivesDictType(TypedDict):
+    perception: StaticStatType
+    investigation: StaticStatType
+    insight: StaticStatType
+
+
 class CharacterDataType(TypedDict):
     name: str
     abilities: AbilitiesDictType
+    saves: SavesDictType
+    passives: PassivesDictType
     proficiency: ProficiencyType
     initiative: RollableStatType
-    skills: dict[str, RollableStatType]
+    skills: list[RollableStatType]
     ac: AcType
     speed: dict[str, StaticStatType]
 
@@ -89,7 +107,9 @@ class MainWindowProtocol(Protocol):
     theme: str
     data: CharacterDataType
     open_file_dialog: Optional[pfd.open_file]
-    character_file: TextIO
+    file_paths: list[str]
+    skill_name: str
+    skill_ability: int
 
     def __call__(self) -> None: ...
 

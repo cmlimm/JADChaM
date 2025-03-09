@@ -1,6 +1,6 @@
 import json
 
-from imgui_bundle import hello_imgui, imgui, immapp  # type: ignore
+from imgui_bundle import ImVec2, hello_imgui, imgui, immapp  # type: ignore
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 import character_sheet_types
@@ -24,7 +24,9 @@ def main_window() -> None:
     draw_file_button(static)
 
     # Only draw the main interface if the character file is loaded
-    if hasattr(static, "character_file"):
+    if hasattr(static, "file_paths"):
+        imgui.same_line()
+        draw_save_button(static)
         imgui.text("Abilities: ")
         imgui.same_line()
         draw_abilities(static)
@@ -35,12 +37,11 @@ def main_window() -> None:
         imgui.text("Passives: ")
         imgui.same_line()
         draw_passives(static)
+        imgui.text("Skills: ")
+        draw_skills(static)
 
-        # Clear file and dump current data
-        # TODO: move to util.py or something
-        static.character_file.seek(0)
-        static.character_file.truncate(0)
-        json.dump(static.data, static.character_file, indent=4)
+        # TODO: create a separate button somewhere for creating new stats/skills/etc
+        # draw_add_skill_button(static)
 
     if not hasattr(static, "theme"):
         hello_imgui.apply_theme(hello_imgui.ImGuiTheme_.imgui_colors_dark)
@@ -53,15 +54,22 @@ def draw_file_button(static: character_sheet_types.MainWindowProtocol) -> None:
     if imgui.button("Open file"):
         static.open_file_dialog = pfd.open_file("Select file")
     if static.open_file_dialog is not None and static.open_file_dialog.ready():
-        result = static.open_file_dialog.result()
-        if result:
-            if hasattr(static, "character_file"):
-                static.character_file.close()
-
-            static.character_file = open(result[0], "r+")
-            static.data = json.load(static.character_file)
+        static.file_paths = static.open_file_dialog.result()
+        if static.file_paths:
+            character_file = open(static.file_paths[0], "r+")
+            static.data = json.load(character_file)
+            character_file.close()
 
         static.open_file_dialog = None
+
+
+def draw_save_button(static: character_sheet_types.MainWindowProtocol) -> None:
+    if imgui.button("Save"):
+        character_file = open(static.file_paths[0], "r+")
+        character_file.seek(0)
+        character_file.truncate(0)
+        json.dump(static.data, character_file, indent=4)
+        character_file.close()
 
 
 def draw_ability_button(
@@ -182,118 +190,111 @@ def draw_saves(static: character_sheet_types.MainWindowProtocol):
         imgui.table_next_row()
 
         imgui.table_next_column()
-        draw_rollable_stat("STR", ["saves", "str"], static)
+        draw_rollable_stat("STR", static.data["saves"]["str"], "str", static)
 
         imgui.table_next_column()
-        draw_rollable_stat("DEX", ["saves", "dex"], static)
+        draw_rollable_stat("DEX", static.data["saves"]["dex"], "dex", static)
 
         imgui.table_next_column()
-        draw_rollable_stat("CON", ["saves", "con"], static)
+        draw_rollable_stat("CON", static.data["saves"]["con"], "con", static)
 
         imgui.table_next_column()
-        draw_rollable_stat("WIS", ["saves", "wis"], static)
+        draw_rollable_stat("WIS", static.data["saves"]["wis"], "wis", static)
 
         imgui.table_next_column()
-        draw_rollable_stat("INT", ["saves", "int"], static)
+        draw_rollable_stat("INT", static.data["saves"]["int"], "int", static)
 
         imgui.table_next_column()
-        draw_rollable_stat("CHA", ["saves", "cha"], static)
+        draw_rollable_stat("CHA", static.data["saves"]["cha"], "cha", static)
 
         imgui.end_table()
 
 
-def draw_rollable_stat(stat_name: str, path_to_stat: list[str], static: character_sheet_types.MainWindowProtocol) -> None:
-    # Access the part of the `static.data` dictionary that stores the stat.
-    # We use a path to stat instead of directly calling `static.data[something][something][something]`
-    # because rollable stats can be anywhere in the character sheet tree.
-    # TODO: figure out proper typing for this
-    stat_dict = static.data
-    for key in path_to_stat:
-        if key in stat_dict:
-            stat_dict = stat_dict[key]  # type: ignore
-    dict_key = path_to_stat[-1]
+# TODO: add ability to remove bonuses titled as "Basic Rules": e.g. removing cha mod from intimidation for barbarians
+def draw_rollable_stat(
+    stat_name: str,
+    stat_dict: character_sheet_types.RollableStatType,
+    dict_key: str,
+    static: character_sheet_types.MainWindowProtocol,
+) -> None:
+    total_bonus = 0
+    advantage = False
+    disadvantage = False
+    for bonus in stat_dict["bonuses"]:
+        name, value = bonus["name"], bonus["value"]
 
-    if util.isRollableStatType(stat_dict):
-        custom_mod, bonuses = stat_dict["custom_mod"], stat_dict["bonuses"]
+        # Advantages (disadvantages) don't stack, so we can just reassing the value
+        # instead of calculating a sum or something
+        if value == "adv":
+            advantage = True
+        elif value == "disadv":
+            disadvantage = True
+        elif value == "prof":
+            total_bonus += static.data["proficiency"]["total"]
+        elif util.isAbilityName(value):
+            total_bonus += static.data["abilities"][value]["total"]
+        elif util.isRepresentInt(value):
+            total_bonus += value
 
-        total_bonus = 0
-        advantage = False
-        disadvantage = False
-        for bonus in bonuses:
-            name, value = bonus["name"], bonus["value"]
+    custom_proficiency = 0
+    if stat_dict["custom_proficiency"]:
+        custom_proficiency = static.data["proficiency"]["total"]
 
-            # Advantages (disadvantages) don't stack, so we can just reassing the value
-            # instead of calculating a sum or something
-            if value == "adv":
-                advantage = True
-            elif value == "disadv":
-                disadvantage = True
-            elif value == "prof":
-                total_bonus += static.data["proficiency"]["total"]
-            elif util.isAbilityName(value):
-                total_bonus += static.data["abilities"][value]["total"]
-            elif util.isRepresentInt(value):
-                total_bonus += value
+    stat_dict["total"] = stat_dict["custom_mod"] + custom_proficiency + total_bonus
 
-        custom_proficiency = 0
-        if stat_dict.get("custom_proficiency"):
-            custom_proficiency = static.data["proficiency"]["total"]
+    advantage = advantage or stat_dict["custom_advantage"]
+    disadvantage = disadvantage or stat_dict["custom_disadvantage"]
 
-        stat_dict["total"] = custom_mod + custom_proficiency + total_bonus
+    # Color the skill button depending on having a (dis)advantage
+    # Advantage and Disadvantage override each other, so we use XOR instead of OR
+    button_color_applied = False
+    if advantage ^ disadvantage:
+        if advantage:
+            imgui.push_style_color(imgui.Col_.button.value, ADVANTAGE_COLOR)
+            imgui.push_style_color(imgui.Col_.button_hovered.value, ADVANTAGE_HOVER_COLOR)
+            imgui.push_style_color(imgui.Col_.button_active.value, ADVANTAGE_ACTIVE_COLOR)
+        elif disadvantage:
+            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+        button_color_applied = True
 
-        advantage = advantage or stat_dict["custom_advantage"]
-        disadvantage = disadvantage or stat_dict["custom_disadvantage"]
+    if imgui.button(f"{stat_name}: {stat_dict["total"]:+}"):
+        imgui.open_popup(f"{dict_key}_popup")
+    if button_color_applied:
+        imgui.pop_style_color(3)
 
-        # Color the skill button depending on having a (dis)advantage
-        # Advantage and Disadvantage override each other, so we use XOR instead of OR
-        button_color_applied = False
-        if advantage ^ disadvantage:
-            if advantage:
-                imgui.push_style_color(imgui.Col_.button.value, ADVANTAGE_COLOR)
-                imgui.push_style_color(imgui.Col_.button_hovered.value, ADVANTAGE_HOVER_COLOR)
-                imgui.push_style_color(imgui.Col_.button_active.value, ADVANTAGE_ACTIVE_COLOR)
-            elif disadvantage:
-                imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-            button_color_applied = True
+    if imgui.begin_popup(f"{dict_key}_popup"):
+        if imgui.begin_table(f"{dict_key}_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.text("Custom Mod: ")
+            imgui.same_line()
+            imgui.table_next_column()
+            imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+            _, stat_dict["custom_mod"] = imgui.input_int(f"##{dict_key}_custom_mod", stat_dict["custom_mod"], 1)
+            imgui.end_table()
 
-        if imgui.button(f"{stat_name}: {stat_dict["total"]:+}"):
-            imgui.open_popup(f"{dict_key}_popup")
-        if button_color_applied:
-            imgui.pop_style_color(3)
+        _, stat_dict["custom_advantage"] = imgui.checkbox("Custom Advantage", stat_dict["custom_advantage"])
+        _, stat_dict["custom_disadvantage"] = imgui.checkbox("Custom Disadvantage", stat_dict["custom_disadvantage"])
+        _, stat_dict["custom_proficiency"] = imgui.checkbox("Custom Proficiency", stat_dict["custom_proficiency"])
 
-        if imgui.begin_popup(f"{dict_key}_popup"):
-            if imgui.begin_table(f"{dict_key}_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.text("Custom Mod: ")
-                imgui.same_line()
-                imgui.table_next_column()
-                imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                _, stat_dict["custom_mod"] = imgui.input_int(f"##{dict_key}_custom_mod", stat_dict["custom_mod"], 1)
-                imgui.end_table()
+        if stat_dict["bonuses"]:
+            imgui.text(f"Additional bonus ({total_bonus}):")
+            for bonus in stat_dict["bonuses"]:
+                name, value = bonus["name"], bonus["value"]
 
-            _, stat_dict["custom_advantage"] = imgui.checkbox("Custom Advantage", stat_dict["custom_advantage"])
-            _, stat_dict["custom_disadvantage"] = imgui.checkbox("Custom Disadvantage", stat_dict["custom_disadvantage"])
-            _, stat_dict["custom_proficiency"] = imgui.checkbox("Custom Proficiency", stat_dict["custom_proficiency"])
-
-            if bonuses:
-                imgui.text(f"Additional bonus ({total_bonus}):")
-                for bonus in bonuses:
-                    name, value = bonus["name"], bonus["value"]
-
-                    if value == "adv":
-                        imgui.text_colored(ADVANTAGE_ACTIVE_COLOR, f"\t{name}: Advantage")
-                    elif value == "disadv":
-                        imgui.text_colored(DISADVANTAGE_ACTIVE_COLOR, f"\t{name}: Disadvantage")
-                    if value == "prof":
-                        imgui.text(f"\t{name}: {value} ({static.data["proficiency"]["total"]})")
-                    elif util.isAbilityName(value):
-                        imgui.text(f"\t{name}: {value.upper()} ({static.data["abilities"][value]["total"]})")
-                    elif util.isRepresentInt(value):
-                        imgui.text(f"\t{name}: {value}")
-            imgui.end_popup()
+                if value == "adv":
+                    imgui.text_colored(ADVANTAGE_ACTIVE_COLOR, f"\t{name}: Advantage")
+                elif value == "disadv":
+                    imgui.text_colored(DISADVANTAGE_ACTIVE_COLOR, f"\t{name}: Disadvantage")
+                if value == "prof":
+                    imgui.text(f"\t{name}: {value} ({static.data["proficiency"]["total"]})")
+                elif util.isAbilityName(value):
+                    imgui.text(f"\t{name}: {value.upper()} ({static.data["abilities"][value]["total"]})")
+                elif util.isRepresentInt(value):
+                    imgui.text(f"\t{name}: {value}")
+        imgui.end_popup()
 
 
 def draw_proficiency(static: character_sheet_types.MainWindowProtocol) -> None:
@@ -401,13 +402,13 @@ def draw_speed(static: character_sheet_types.MainWindowProtocol) -> None:
         imgui.text("Speed: ")
 
         imgui.table_next_column()
-        draw_static_stat("Walking", ["speed", "walking"], static)
+        draw_static_stat("Walking", static.data["speed"]["walking"], "walking", static)
         imgui.table_next_column()
-        draw_static_stat("Climbing", ["speed", "climbing"], static)
+        draw_static_stat("Climbing", static.data["speed"]["climbing"], "climbing", static)
         imgui.table_next_column()
-        draw_static_stat("Swimming", ["speed", "swimming"], static)
+        draw_static_stat("Swimming", static.data["speed"]["swimming"], "swimming", static)
         imgui.table_next_column()
-        draw_static_stat("Flying", ["speed", "flying"], static)
+        draw_static_stat("Flying", static.data["speed"]["flying"], "flying", static)
 
         imgui.end_table()
 
@@ -417,122 +418,162 @@ def draw_passives(static: character_sheet_types.MainWindowProtocol):
         imgui.table_next_row()
 
         imgui.table_next_column()
-        draw_static_stat("Perception", ["passives", "perception"], static)
+        draw_static_stat("Perception", static.data["passives"]["perception"], "perception", static)
 
         imgui.table_next_column()
-        draw_static_stat("Investigation", ["passives", "investigation"], static)
+        draw_static_stat("Investigation", static.data["passives"]["investigation"], "investigation", static)
 
         imgui.table_next_column()
-        draw_static_stat("Insight", ["passives", "insight"], static)
+        draw_static_stat("Insight", static.data["passives"]["insight"], "insight", static)
 
         imgui.end_table()
 
 
-def draw_static_stat(stat_name: str, path_to_stat: list[str], static: character_sheet_types.MainWindowProtocol) -> None:
-    # Access the part of the `static.data` dictionary that stores the stat.
-    # We use a path to stat instead of directly calling `static.data[something][something][something]`
-    # because rollable stats can be anywhere in the character sheet tree.
-    # TODO: figure out proper typing for this
-    stat_dict = static.data
-    for key in path_to_stat:
-        if key in stat_dict:
-            stat_dict = stat_dict[key]  # type: ignore
-    dict_key = path_to_stat[-1]
-    is_speed = "speed" in path_to_stat
+def draw_static_stat(
+    stat_name: str,
+    stat_dict: character_sheet_types.StaticStatType,
+    dict_key: str,
+    static: character_sheet_types.MainWindowProtocol,
+) -> None:
 
-    if util.isStaticStatType(stat_dict):
-        base = stat_dict["base"]
-        forced_bases = stat_dict["forced_bases"]
-        custom_mod = stat_dict["custom_mod"]
-        bonuses = stat_dict["bonuses"]
+    is_speed = util.isSpeedName(dict_key)
 
-        # Override the stat base
-        forced_base_max_idx = -1
-        is_forced_base = False
-        if forced_bases:
-            for idx, forced_base in enumerate(forced_bases):
-                value = 0
+    base = stat_dict["base"]
+
+    # Override the stat base
+    forced_base_max_idx = -1
+    is_forced_base = False
+    if stat_dict["forced_bases"]:
+        for idx, forced_base in enumerate(stat_dict["forced_bases"]):
+            value = 0
+            if is_speed and util.isSpeedName(forced_base["value"]):
+                value = static.data["speed"][forced_base["value"]]["total"]
+            elif util.isRepresentInt(forced_base["value"]):
+                value = forced_base["value"]
+
+            if base < value:
+                base = value
+                forced_base_max_idx = idx
+                is_forced_base = True
+
+    total_bonus = 0
+    for bonus in stat_dict["bonuses"]:
+        if is_speed and util.isSpeedName(bonus["value"]):
+            total_bonus += static.data["speed"][bonus["value"]]["total"]
+        elif util.isAbilityName(bonus["value"]):
+            total_bonus += static.data["abilities"][bonus["value"]]["total"]
+        elif util.isRepresentInt(bonus["value"]):
+            total_bonus += bonus["value"]
+
+    stat_dict["total"] = base + total_bonus + stat_dict["custom_mod"]
+
+    if imgui.button(f"{stat_name}: {stat_dict["total"]}"):
+        imgui.open_popup(f"{dict_key}_popup")
+
+    if imgui.begin_popup(f"{dict_key}_popup"):
+        button_step = 1
+        if is_speed:
+            button_step = 5
+
+        if imgui.begin_table(f"{dict_key}_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.text("Base: ")
+            imgui.same_line()
+            imgui.table_next_column()
+            imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+            _, stat_dict["base"] = imgui.input_int(f"##{dict_key}", stat_dict["base"], button_step)
+
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.text("Custom Mod: ")
+            imgui.same_line()
+            imgui.table_next_column()
+            imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+            _, stat_dict["custom_mod"] = imgui.input_int(f"##{dict_key}_custom_mod", stat_dict["custom_mod"], button_step)
+            imgui.end_table()
+
+        if stat_dict["forced_bases"]:
+            if is_forced_base:
+                imgui.text_colored(FORCED_OVERRIDE_COLOR, f"Forced base ({base}):")
+            else:
+                imgui.text_disabled(f"Forced total (Not applied):")
+
+            for idx, forced_base in enumerate(stat_dict["forced_bases"]):
+                display_value = ""
                 if is_speed and util.isSpeedName(forced_base["value"]):
-                    value = static.data["speed"][forced_base["value"]]["total"]
+                    speed_value = static.data["speed"][forced_base["value"]]["total"]
+                    display_value = f"{dict_key.capitalize()} ({speed_value})"
                 elif util.isRepresentInt(forced_base["value"]):
-                    value = forced_base["value"]
+                    display_value = str(forced_base["value"])
 
-                if base < value:
-                    base = value
-                    forced_base_max_idx = idx
-                    is_forced_base = True
-
-        total_bonus = 0
-        for bonus in bonuses:
-            if is_speed and util.isSpeedName(bonus["value"]):
-                total_bonus += static.data["speed"][bonus["value"]]["total"]
-            elif util.isAbilityName(bonus["value"]):
-                total_bonus += static.data["abilities"][bonus["value"]]["total"]
-            elif util.isRepresentInt(bonus["value"]):
-                total_bonus += bonus["value"]
-
-        stat_dict["total"] = base + total_bonus + custom_mod
-
-        if imgui.button(f"{stat_name}: {stat_dict["total"]}"):
-            imgui.open_popup(f"{dict_key}_popup")
-
-        if imgui.begin_popup(f"{dict_key}_popup"):
-            button_step = 1
-            if is_speed:
-                button_step = 5
-
-            if imgui.begin_table(f"{dict_key}_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.text("Base: ")
-                imgui.same_line()
-                imgui.table_next_column()
-                imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                _, stat_dict["base"] = imgui.input_int(f"##{dict_key}", stat_dict["base"], button_step)
-
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.text("Custom Mod: ")
-                imgui.same_line()
-                imgui.table_next_column()
-                imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                _, stat_dict["custom_mod"] = imgui.input_int(f"##{dict_key}_custom_mod", stat_dict["custom_mod"], button_step)
-                imgui.end_table()
-
-            if forced_bases:
-                if is_forced_base:
-                    imgui.text_colored(FORCED_OVERRIDE_COLOR, f"Forced base ({base}):")
+                if (idx == forced_base_max_idx) and is_forced_base:
+                    imgui.text(f"\t{forced_base["name"]}: {display_value}")
                 else:
-                    imgui.text_disabled(f"Forced total (Not applied):")
+                    imgui.text_disabled(f"\t{forced_base["name"]}: {display_value}")
 
-                for idx, forced_base in enumerate(stat_dict["forced_bases"]):
-                    display_value = ""
-                    if is_speed and util.isSpeedName(forced_base["value"]):
-                        speed_value = static.data["speed"][forced_base["value"]]["total"]
-                        display_value = f"{dict_key.capitalize()} ({speed_value})"
-                    elif util.isRepresentInt(forced_base["value"]):
-                        display_value = str(forced_base["value"])
+        if stat_dict["bonuses"]:
+            imgui.text(f"Additional bonus ({total_bonus}):")
+            for bonus in stat_dict["bonuses"]:
+                if is_speed and util.isSpeedName(bonus["value"]):
+                    imgui.text(f"\t{bonus["name"]}: {bonus["value"].capitalize()} ({static.data["speed"][dict_key]["total"]})")
+                elif util.isAbilityName(bonus["value"]):
+                    imgui.text(
+                        f"\t{bonus["name"]}: {bonus["value"].upper()} ({static.data["abilities"][bonus["value"]]["total"]})"
+                    )
+                elif util.isRepresentInt(bonus["value"]):
+                    imgui.text(f"\t{bonus["name"]}: {bonus["value"]}")
 
-                    if (idx == forced_base_max_idx) and is_forced_base:
-                        imgui.text(f"\t{forced_base["name"]}: {display_value}")
-                    else:
-                        imgui.text_disabled(f"\t{forced_base["name"]}: {display_value}")
+        imgui.end_popup()
 
-            if bonuses:
-                imgui.text(f"Additional bonus ({total_bonus}):")
-                for bonus in bonuses:
-                    if is_speed and util.isSpeedName(bonus["value"]):
-                        imgui.text(
-                            f"\t{bonus["name"]}: {bonus["value"].capitalize()} ({static.data["speed"][dict_key]["total"]})"
-                        )
-                    elif util.isAbilityName(bonus["value"]):
-                        imgui.text(
-                            f"\t{bonus["name"]}: {bonus["value"].upper()} ({static.data["abilities"][bonus["value"]]["total"]})"
-                        )
-                    elif util.isRepresentInt(bonus["value"]):
-                        imgui.text(f"\t{bonus["name"]}: {bonus["value"]}")
 
-            imgui.end_popup()
+def draw_skills(static: character_sheet_types.MainWindowProtocol) -> None:
+    for skill in static.data["skills"]:
+        draw_rollable_stat(skill["name"].title(), skill, skill["name"], static)
+
+
+# TODO: create a separate button somewhere for creating new stats/skills/etc
+def draw_add_skill_button(static: character_sheet_types.MainWindowProtocol) -> None:
+    if imgui.button("Add new skill.."):
+        imgui.open_popup("Add new skill")
+
+    center = imgui.get_main_viewport().get_center()
+    imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
+
+    if imgui.begin_popup_modal("Add new skill", None, imgui.WindowFlags_.always_auto_resize.value)[0]:
+        abilities = ["STR", "DEX", "CON", "WIS", "INT", "CHA"]
+
+        if not hasattr(static, "skill_name"):
+            static.skill_name = ""
+
+        if not hasattr(static, "skill_ability"):
+            static.skill_ability = 0
+
+        _, static.skill_name = imgui.input_text("Name", static.skill_name, 128)
+        _, static.skill_ability = imgui.combo("Ability", static.skill_ability, abilities, len(abilities))
+
+        if imgui.button("Cancel", ImVec2(120, 0)):
+            imgui.close_current_popup()
+        imgui.set_item_default_focus()
+        imgui.same_line()
+        if imgui.button("Add", ImVec2(120, 0)):
+            imgui.close_current_popup()
+
+            static.data["skills"].append(
+                {
+                    "name": static.skill_name,
+                    "total": 0,
+                    "custom_mod": 0,
+                    "bonuses": [{"name": "Basic Rules", "value": abilities[static.skill_ability].lower()}],
+                    "custom_advantage": False,
+                    "custom_disadvantage": False,
+                    "custom_proficiency": False,
+                }
+            )
+
+            static.skill_name = ""
+            static.skill_ability = 0
+        imgui.end_popup()
 
 
 # Proficiency, initiative, walking speed, armor class
@@ -546,7 +587,7 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
 
         # Initiative
         imgui.table_next_column()
-        draw_rollable_stat("Initiative", ["initiative"], static)
+        draw_rollable_stat("Initiative", static.data["initiative"], "initiative", static)
 
         # AC
         imgui.table_next_column()
