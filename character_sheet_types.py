@@ -91,6 +91,23 @@ class PassivesDictType(TypedDict):
     insight: StaticStatType
 
 
+class ToolProficienciesListItemDictType(TypedDict):
+    name: str
+    source: str
+    type: str
+    manual: bool
+
+
+class ToolProficiencySortingInEditModeDictType(TypedDict):
+    sort_by: str
+    sort_descending: bool
+
+
+class ToolProficiencyDictType(TypedDict):
+    sorting_in_edit_mode: ToolProficiencySortingInEditModeDictType
+    proficiencies: list[ToolProficienciesListItemDictType]
+
+
 class CharacterDataType(TypedDict):
     name: str
     abilities: AbilitiesDictType
@@ -101,6 +118,7 @@ class CharacterDataType(TypedDict):
     skills: list[RollableStatType]
     ac: AcType
     speed: dict[str, StaticStatType]
+    tool_proficiencies: ToolProficiencyDictType
 
 
 class MainWindowProtocol(Protocol):
@@ -110,6 +128,10 @@ class MainWindowProtocol(Protocol):
     file_paths: list[str]
     skill_name: str
     skill_ability: int
+    tool_proficiency_name: str
+    tool_proficiency_type: str
+    tool_proficiency_source: str
+    tool_proficiency_name_missing: bool
 
     def __call__(self) -> None: ...
 

@@ -482,5 +482,13 @@
                 }
             ]
         }
+    },
+    "tool_proficiencies": {
+        "sorting_in_edit_mode": {
+            "sort_by": "type",
+            "sort_descending": false
+        },
+        "proficiencies": [
+        ]
     }
 }
