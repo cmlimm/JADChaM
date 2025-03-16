@@ -23,12 +23,30 @@ FORCED_OVERRIDE_COLOR = imgui.ImColor.hsv(0.15, 0.8, 0.8).value
 @character_sheet_types.main_window_decorator
 def main_window() -> None:
     static = main_window
-    draw_file_button(static)
 
     # Only draw the main interface if the character file is loaded
-    if hasattr(static, "file_paths"):
-        imgui.same_line()
-        draw_save_button(static)
+    if hasattr(static, "file_paths") and static.file_paths:
+        if imgui.begin_main_menu_bar():
+            if imgui.begin_menu("File", True):
+                if imgui.menu_item_simple("Open", "Ctrl+N"):
+                    static.open_file_dialog = pfd.open_file("Select file")
+                if imgui.menu_item_simple("Save", "Ctrl+S"):
+                    save_file(static)
+                imgui.end_menu()
+            imgui.end_main_menu_bar()
+
+        if imgui.shortcut(imgui.Key.mod_ctrl | imgui.Key.n):  # type: ignore
+            static.open_file_dialog = pfd.open_file("Select file")
+        # We need to continously try to open a file, otherwise it is called
+        # once and the files has not yet been selected
+        open_file(static)
+
+        if imgui.shortcut(imgui.Key.mod_ctrl | imgui.Key.s):  # type: ignore
+            save_file(static)
+
+        imgui.new_line()
+        imgui.spacing()
+
         imgui.text("Abilities: ")
         imgui.same_line()
         draw_abilities(static)
@@ -46,17 +64,15 @@ def main_window() -> None:
 
         # TODO: create a separate button somewhere for creating new stats/skills/etc
         # draw_add_skill_button(static)
+    else:
+        draw_file_button(static)
 
     if not hasattr(static, "theme"):
         hello_imgui.apply_theme(hello_imgui.ImGuiTheme_.imgui_colors_dark)
         static.theme = hello_imgui.ImGuiTheme_.imgui_colors_dark.name
 
 
-def draw_file_button(static: character_sheet_types.MainWindowProtocol) -> None:
-    if not hasattr(static, "open_file_dialog"):
-        static.open_file_dialog = None
-    if imgui.button("Open file"):
-        static.open_file_dialog = pfd.open_file("Select file")
+def open_file(static: character_sheet_types.MainWindowProtocol) -> None:
     if static.open_file_dialog is not None and static.open_file_dialog.ready():
         static.file_paths = static.open_file_dialog.result()
         if static.file_paths:
@@ -67,13 +83,20 @@ def draw_file_button(static: character_sheet_types.MainWindowProtocol) -> None:
         static.open_file_dialog = None
 
 
-def draw_save_button(static: character_sheet_types.MainWindowProtocol) -> None:
-    if imgui.button("Save"):
-        character_file = open(static.file_paths[0], "r+")
-        character_file.seek(0)
-        character_file.truncate(0)
-        json.dump(static.data, character_file, indent=4)
-        character_file.close()
+def draw_file_button(static: character_sheet_types.MainWindowProtocol) -> None:
+    if not hasattr(static, "open_file_dialog"):
+        static.open_file_dialog = None
+    if imgui.button("Open file"):
+        static.open_file_dialog = pfd.open_file("Select file")
+    open_file(static)
+
+
+def save_file(static: character_sheet_types.MainWindowProtocol) -> None:
+    character_file = open(static.file_paths[0], "r+")
+    character_file.seek(0)
+    character_file.truncate(0)
+    json.dump(static.data, character_file, indent=4)
+    character_file.close()
 
 
 def draw_ability_button(
@@ -768,3 +791,21 @@ immapp.run(
     window_title="Just Another D&D Character Manager",
     window_restore_previous_geometry=True,
 )
+
+
+# def make_params() -> hello_imgui.RunnerParams:
+#     # Hello ImGui params (they hold the settings as well as the Gui callbacks)
+#     runner_params = hello_imgui.RunnerParams()
+#     # Window size and title
+#     runner_params.app_window_params.window_title = "Just Another D&D Character Manager"
+#     runner_params.app_window_params.window_geometry.size = (1400, 950)
+
+#     # Menu bar
+#     runner_params.imgui_window_params.show_menu_bar = True
+#     runner_params.callbacks.show_gui = main_window
+
+#     return runner_params
+
+
+# runner_params = make_params()
+# immapp.run(runner_params=runner_params)

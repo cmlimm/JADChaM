@@ -489,6 +489,36 @@
             "sort_descending": false
         },
         "proficiencies": [
+            {
+                "name": "Heavy Armor",
+                "source": "Paladin",
+                "type": "Armor",
+                "manual": true
+            },
+            {
+                "name": "Medium Armor",
+                "source": "Paladin",
+                "type": "Armor",
+                "manual": true
+            },
+            {
+                "name": "Common",
+                "source": "Basic",
+                "type": "Language",
+                "manual": true
+            },
+            {
+                "name": "Simple Weapon",
+                "source": "Paladin",
+                "type": "Weapon",
+                "manual": true
+            },
+            {
+                "name": "Martial Weapon",
+                "source": "Paladin",
+                "type": "Weapon",
+                "manual": true
+            }
         ]
     }
 }
