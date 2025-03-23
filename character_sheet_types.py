@@ -1,11 +1,14 @@
 from typing import Any, Literal, Optional, Protocol, TypedDict
 
+from imgui_bundle import imgui
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 
 class IntOrStrBonusType(TypedDict):
     name: str
     value: int | str
+    multiplier: float
+    manual: bool
 
 
 class IntBonusType(TypedDict):
@@ -121,19 +124,42 @@ class CharacterDataType(TypedDict):
     tool_proficiencies: ToolProficiencyDictType
 
 
+class FontHolder:
+    regular_font: imgui.ImFont
+    bold_font: imgui.ImFont
+
+
+class NewBonusDataType(TypedDict):
+    new_bonus_name: str
+    current_new_bonus_type_idx: int
+    current_new_bonus_ability_idx: int
+    new_bonus_numerical: int
+    current_new_bonus_speed_idx: int
+    current_new_bonus_mult_idx: int
+
+
 class MainWindowProtocol(Protocol):
     theme: str
+    regular_font: imgui.ImFont
+    bold_font: imgui.ImFont
     data: CharacterDataType
     open_file_dialog: Optional[pfd.open_file]
     file_paths: list[str]
     skill_name: str
     skill_ability: int
+    new_bonuses: dict[str, NewBonusDataType]
+    new_bonus_name: str
+    current_new_bonus_type_idx: int
+    current_new_bonus_ability_idx: int
+    new_bonus_numerical: int
+    current_new_bonus_speed_idx: int
+    current_new_bonus_mult_idx: int
     tool_proficiency_name: str
     tool_proficiency_type: str
     tool_proficiency_source: str
     tool_proficiency_name_missing: bool
 
-    def __call__(self) -> None: ...
+    def __call__(self, font_holder: FontHolder) -> None: ...
 
 
 def main_window_decorator(func: Any) -> MainWindowProtocol:
