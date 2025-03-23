@@ -945,6 +945,10 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
     # proficiencies were added
     proficiencies.sort(key=lambda x: x["type"])
 
+    imgui.same_line()
+    if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}"):
+        imgui.open_popup("Edit Tool and Language Proficiencies")
+
     table_flags = (  # type: ignore
         imgui.TableFlags_.sizing_fixed_fit  # type: ignore
         | imgui.TableFlags_.no_host_extend_x  # type: ignore
@@ -964,9 +968,6 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
             imgui.text("\n".join([item["name"] for item in items]))
 
         imgui.end_table()
-
-    if imgui.button("See more.../Edit"):
-        imgui.open_popup("Edit Tool and Language Proficiencies")
 
     center = imgui.get_main_viewport().get_center()
     imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
