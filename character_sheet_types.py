@@ -148,12 +148,6 @@ class MainWindowProtocol(Protocol):
     skill_name: str
     skill_ability: int
     new_bonuses: dict[str, NewBonusDataType]
-    new_bonus_name: str
-    current_new_bonus_type_idx: int
-    current_new_bonus_ability_idx: int
-    new_bonus_numerical: int
-    current_new_bonus_speed_idx: int
-    current_new_bonus_mult_idx: int
     tool_proficiency_name: str
     tool_proficiency_type: str
     tool_proficiency_source: str

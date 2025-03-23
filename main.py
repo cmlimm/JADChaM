@@ -308,13 +308,12 @@ def draw_add_bonus(
         )
 
     # PROFICICENCY BONUS
-    if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Proficiceny":
+    if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Proficiency":
         imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
         _, static.new_bonuses[id]["current_new_bonus_mult_idx"] = imgui.combo(
             f"##current_new_bonus_mult_{id}", static.new_bonuses[id]["current_new_bonus_mult_idx"], multipliers, len(multipliers)
         )
         new_bonus_value = "prof"
-    imgui.same_line()
 
     # SPEED BONUS
     if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Speed":
@@ -429,7 +428,7 @@ def draw_rollable_stat(
         _, stat_dict["custom_disadvantage"] = imgui.checkbox("Custom Disadvantage", stat_dict["custom_disadvantage"])
 
         imgui.text("Add new bonus:")
-        bonus_types = ["Numerical", "Ability", "Proficiceny"]
+        bonus_types = ["Numerical", "Ability", "Proficiency"]
         draw_add_bonus("rollable_bonus", stat_dict["bonuses"], bonus_types, static)
 
         if stat_dict["bonuses"]:
@@ -515,18 +514,18 @@ def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
     total_bonus_no_dex = 0
     dex_bonus = 0
     for bonus in bonuses:
-        name, value = bonus["name"], bonus["value"]
+        name, value, mult = bonus["name"], bonus["value"], bonus["multiplier"]
 
         if value == "prof":
-            total_bonus_no_dex += static.data["proficiency"]["total"]
+            total_bonus_no_dex += trunc(static.data["proficiency"]["total"] * mult)
         elif util.isAbilityName(value):
             if value == "dex":
                 if armor and armor["max_dex_bonus"]:
-                    dex_bonus = min(static.data["abilities"]["dex"]["total"], armor["max_dex_bonus"])
+                    dex_bonus = min(trunc(static.data["abilities"]["dex"]["total"] * mult), armor["max_dex_bonus"])
                 else:
-                    dex_bonus = static.data["abilities"]["dex"]["total"]
+                    dex_bonus = trunc(static.data["abilities"]["dex"]["total"] * mult)
             else:
-                total_bonus_no_dex += static.data["abilities"][value]["total"]
+                total_bonus_no_dex += trunc(static.data["abilities"][value]["total"] * mult)
         elif util.isRepresentInt(value):
             total_bonus_no_dex += value
 
@@ -555,20 +554,50 @@ def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
             else:
                 imgui.text(f"\t{armor["name"]}: {armor["value"]} + DEX ({dex_bonus})")
 
-        if bonuses:
-            imgui.text(f"Additional bonus ({total_bonus_no_dex + dex_bonus}):")
-            for bonus in bonuses:
-                name, value = bonus["name"], bonus["value"]
+        imgui.text("Add new bonus:")
+        bonus_types = ["Numerical", "Ability", "Proficiency"]
+        draw_add_bonus("ac_bonus", static.data["ac"]["bonuses"], bonus_types, static)
 
-                if value == "prof":
-                    imgui.text(f"\t{name}: {value} ({static.data["proficiency"]["total"]})")
-                elif util.isAbilityName(value):
-                    if value == "dex" and armor and armor["max_dex_bonus"]:
-                        imgui.text(f"\tBasic rules: DEX (max {armor["max_dex_bonus"]}) -> {dex_bonus}")
-                    else:
-                        imgui.text(f"\t{name}: {value.upper()} ({static.data["abilities"][value]["total"]})")
-                elif util.isRepresentInt(value):
-                    imgui.text(f"\t{name}: {value}")
+        if bonuses:
+            imgui.text(f"Bonuses ({total_bonus_no_dex + dex_bonus}):")
+            table_flags = (  # type: ignore
+                imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+                | imgui.TableFlags_.no_host_extend_x  # type: ignore
+                | imgui.TableFlags_.row_bg.value
+            )
+            if imgui.begin_table("additional_bonuses", 2, flags=table_flags):  # type: ignore
+                for idx, bonus in enumerate(bonuses):
+                    imgui.table_next_row()
+                    name, value, mult, manual = bonus["name"], bonus["value"], bonus["multiplier"], bonus["manual"]
+                    mult_str = str(trunc(mult) if mult != 0.5 else 0.5)
+
+                    imgui.table_next_column()
+                    if value == "prof":
+                        imgui.text(
+                            f"\t{name}: Proficiency ({static.data["proficiency"]["total"]}{" x" + mult_str if mult_str != "1" else ""})"
+                        )
+                    elif util.isAbilityName(value):
+                        if value == "dex" and armor and armor["max_dex_bonus"]:
+                            imgui.text(
+                                f"\tBasic rules: DEX ({static.data["abilities"]["dex"]["total"]}{" x" + mult_str if mult_str != "1" else ""}) (max {armor["max_dex_bonus"]})"
+                            )
+                        else:
+                            imgui.text(
+                                f"\t{name}: {value.upper()} ({static.data["abilities"][value]["total"]}{" x" + mult_str if mult_str != "1" else ""})"
+                            )
+                    elif util.isRepresentInt(value):
+                        imgui.text(f"\t{name}: {value}")
+
+                    imgui.table_next_column()
+                    if manual:
+                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                            del static.data["ac"]["bonuses"][idx]
+                        imgui.pop_style_color(3)
+
+                imgui.end_table()
         imgui.end_popup()
 
 
@@ -637,6 +666,8 @@ def draw_static_stat(
     for bonus in stat_dict["bonuses"]:
         if is_speed and util.isSpeedName(bonus["value"]):
             total_bonus += trunc(static.data["speed"][bonus["value"]]["total"] * bonus["multiplier"])
+        elif bonus["value"] == "prof":
+            total_bonus += trunc(static.data["proficiency"]["total"] * bonus["multiplier"])
         elif util.isAbilityName(bonus["value"]):
             total_bonus += trunc(static.data["abilities"][bonus["value"]]["total"] * bonus["multiplier"])
         elif util.isRepresentInt(bonus["value"]):
@@ -676,7 +707,7 @@ def draw_static_stat(
             # TODO: make numerical modifier for a speed bonus have a step of 5
             bonus_types = ["Numerical", "Speed"]
         else:
-            bonus_types = ["Numerical"]
+            bonus_types = ["Numerical", "Ability", "Proficiency"]
         imgui.text("Add new base override:")
         # TODO: rename the dict key to `base_overrides`
         draw_add_bonus("base_override", stat_dict["forced_bases"], bonus_types, static)
