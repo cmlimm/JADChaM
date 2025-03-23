@@ -42,3 +42,21 @@ def isStaticStatType(dictionary: Any | Any) -> TypeGuard[character_sheet_types.S
         return True
     except ValidationError:
         return False
+
+
+def isListIntBonusType(dictionary: Any | Any) -> TypeGuard[list[character_sheet_types.IntBonusType]]:
+    static_stat_adapter = TypeAdapter(list[character_sheet_types.IntBonusType])
+    try:
+        static_stat_adapter.validate_python(dictionary)
+        return True
+    except ValidationError:
+        return False
+
+
+def isListIntOrStrBonusType(dictionary: Any | Any) -> TypeGuard[list[character_sheet_types.IntOrStrBonusType]]:
+    static_stat_adapter = TypeAdapter(list[character_sheet_types.IntOrStrBonusType])
+    try:
+        static_stat_adapter.validate_python(dictionary)
+        return True
+    except ValidationError:
+        return False

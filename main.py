@@ -102,7 +102,6 @@ def save_file(static: character_sheet_types.MainWindowProtocol) -> None:
     character_file.close()
 
 
-# TODO: add GUI for adding bonuses and forced bases
 def draw_ability_button(
     ability_name: str, dict_key: character_sheet_types.AbilityNameType, static: character_sheet_types.MainWindowProtocol
 ) -> None:
@@ -162,17 +161,75 @@ def draw_ability_button(
             )
             imgui.end_table()
 
+        imgui.text("Add new base score bonus:")
+        bonus_types = ["Numerical"]
+        draw_add_bonus(
+            f"{dict_key}_base_score_bonus", static.data["abilities"][dict_key]["base_score_bonuses"], bonus_types, static
+        )
+
         if base_score_bonuses:
+            # TODO: extract the table + delete bonus boilerplate to some kind of wrapper
             imgui.text(f"Base Score bonus ({base_score_bonus} -> {base_score_bonus // 2}):")
-            for bonus in base_score_bonuses:
-                base_score_bonus_name, base_score_bonus_value = bonus["name"], bonus["value"]
-                imgui.text(f"\t{base_score_bonus_name}: {base_score_bonus_value} -> {base_score_bonus_value // 2}")
+            table_flags = (  # type: ignore
+                imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+                | imgui.TableFlags_.no_host_extend_x  # type: ignore
+                | imgui.TableFlags_.row_bg.value
+            )
+            if imgui.begin_table("base_score_bonuses", 2, flags=table_flags):  # type: ignore
+                for idx, bonus in enumerate(base_score_bonuses):
+                    imgui.table_next_row()
+                    base_score_bonus_name, base_score_bonus_value, base_score_bonus_manual = (
+                        bonus["name"],
+                        bonus["value"],
+                        bonus["manual"],
+                    )
+
+                    imgui.table_next_column()
+                    imgui.text(f"\t{base_score_bonus_name}: {base_score_bonus_value} -> {base_score_bonus_value // 2}")
+
+                    imgui.table_next_column()
+                    if base_score_bonus_manual:
+                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                            del static.data["abilities"][dict_key]["base_score_bonuses"][idx]
+                        imgui.pop_style_color(3)
+                imgui.end_table()
+
+        imgui.text("Add new bonus:")
+        bonus_types = ["Numerical"]
+        draw_add_bonus(f"{dict_key}_bonus", static.data["abilities"][dict_key]["mod_bonuses"], bonus_types, static)
 
         if mod_bonuses:
             imgui.text(f"Additional bonus ({mod_bonus}):")
-            for bonus in mod_bonuses:
-                mod_bonus_name, mod_bonus_value = bonus["name"], bonus["value"]
-                imgui.text(f"\t{mod_bonus_name}: {mod_bonus_value}")
+            table_flags = (  # type: ignore
+                imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+                | imgui.TableFlags_.no_host_extend_x  # type: ignore
+                | imgui.TableFlags_.row_bg.value
+            )
+            if imgui.begin_table("mod_bonuses", 2, flags=table_flags):  # type: ignore
+                for idx, bonus in enumerate(mod_bonuses):
+                    imgui.table_next_row()
+                    mod_bonus_name, mod_bonus_value, mod_bonus_manual = bonus["name"], bonus["value"], bonus["manual"]
+                    imgui.table_next_column()
+                    imgui.text(f"\t{mod_bonus_name}: {mod_bonus_value}")
+
+                    imgui.table_next_column()
+                    if mod_bonus_manual:
+                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                            del static.data["abilities"][dict_key]["mod_bonuses"][idx]
+                        imgui.pop_style_color(3)
+                imgui.end_table()
+
+        imgui.text("Add new base override:")
+        bonus_types = ["Numerical"]
+        draw_add_bonus(
+            f"{dict_key}_base_override", static.data["abilities"][dict_key]["forced_total_base_scores"], bonus_types, static
+        )
 
         if forced_total_max_idx != -1:
             if is_forced_total:
@@ -180,14 +237,31 @@ def draw_ability_button(
             else:
                 imgui.text_disabled(f"Forced total (Not applied):")
 
-            for idx, total in enumerate(forced_total_base_scores):
-                total_name, total_value = total["name"], total["value"]
+            table_flags = (  # type: ignore
+                imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+                | imgui.TableFlags_.no_host_extend_x  # type: ignore
+                | imgui.TableFlags_.row_bg.value
+            )
+            if imgui.begin_table("additional_bonuses", 2, flags=table_flags):  # type: ignore
+                for idx, total in enumerate(forced_total_base_scores):
+                    imgui.table_next_row()
+                    total_name, total_value, total_manual = total["name"], total["value"], total["manual"]
 
-                if (idx == forced_total_max_idx) and is_forced_total:
-                    imgui.text(f"\t{total_name}: {total_value}")
-                else:
-                    imgui.text_disabled(f"\t{total_name}: {total_value}")
+                    imgui.table_next_column()
+                    if (idx == forced_total_max_idx) and is_forced_total:
+                        imgui.text(f"\t{total_name}: {total_value}")
+                    else:
+                        imgui.text_disabled(f"\t{total_name}: {total_value}")
 
+                    imgui.table_next_column()
+                    if total_manual:
+                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                            del static.data["abilities"][dict_key]["forced_total_base_scores"][idx]
+                        imgui.pop_style_color(3)
+                imgui.end_table()
         imgui.end_popup()
 
 
@@ -241,9 +315,13 @@ def draw_saves(static: character_sheet_types.MainWindowProtocol):
         imgui.end_table()
 
 
+def clean_up_new_bonuses(ids: list[str], static: character_sheet_types.MainWindowProtocol):
+    pass
+
+
 def draw_add_bonus(
     id: str,
-    bonus_list: list[character_sheet_types.IntOrStrBonusType],
+    bonus_list: list[character_sheet_types.IntOrStrBonusType] | list[character_sheet_types.IntBonusType],
     bonus_types: list[str],
     static: character_sheet_types.MainWindowProtocol,
 ) -> None:
@@ -338,13 +416,18 @@ def draw_add_bonus(
 
     # ADD BONUS
     if imgui.button(f"{icons_fontawesome_6.ICON_FA_CHECK}##{id}"):
-        if multipliers[static.new_bonuses[id]["current_new_bonus_mult_idx"]] == "Single":
-            new_bonus_multiplier = 1.0
-        elif multipliers[static.new_bonuses[id]["current_new_bonus_mult_idx"]] == "Double":
-            new_bonus_multiplier = 2.0
-        else:
-            new_bonus_multiplier = 0.5
-        bonus_list.append({"name": new_bonus_name, "value": new_bonus_value, "multiplier": new_bonus_multiplier, "manual": True})
+        if util.isListIntOrStrBonusType(bonus_list):
+            if multipliers[static.new_bonuses[id]["current_new_bonus_mult_idx"]] == "Single":
+                new_bonus_multiplier = 1.0
+            elif multipliers[static.new_bonuses[id]["current_new_bonus_mult_idx"]] == "Double":
+                new_bonus_multiplier = 2.0
+            else:
+                new_bonus_multiplier = 0.5
+            bonus_list.append(
+                {"name": new_bonus_name, "value": new_bonus_value, "multiplier": new_bonus_multiplier, "manual": True}
+            )
+        elif util.isListIntBonusType(bonus_list) and isinstance(new_bonus_value, int):
+            bonus_list.append({"name": new_bonus_name, "value": new_bonus_value, "manual": True})
         static.new_bonuses[id]["new_bonus_name"] = ""
         static.new_bonuses[id]["current_new_bonus_type_idx"] = 0
         static.new_bonuses[id]["current_new_bonus_ability_idx"] = 0
@@ -429,7 +512,7 @@ def draw_rollable_stat(
 
         imgui.text("Add new bonus:")
         bonus_types = ["Numerical", "Ability", "Proficiency"]
-        draw_add_bonus("rollable_bonus", stat_dict["bonuses"], bonus_types, static)
+        draw_add_bonus(f"{dict_key}_rollable_bonus", stat_dict["bonuses"], bonus_types, static)
 
         if stat_dict["bonuses"]:
             imgui.text(f"Bonuses ({total_bonus}):")
@@ -709,8 +792,8 @@ def draw_static_stat(
         else:
             bonus_types = ["Numerical", "Ability", "Proficiency"]
         imgui.text("Add new base override:")
-        # TODO: rename the dict key to `base_overrides`
-        draw_add_bonus("base_override", stat_dict["forced_bases"], bonus_types, static)
+        # TODO: rename the stat_dict["forced_bases"] to stat_dict["base_overrides"]
+        draw_add_bonus(f"{dict_key}_base_override", stat_dict["forced_bases"], bonus_types, static)
 
         if stat_dict["forced_bases"]:
             if is_forced_base:
@@ -761,7 +844,7 @@ def draw_static_stat(
         else:
             bonus_types = ["Numerical", "Ability", "Proficiency"]
         imgui.text("Add new bonus:")
-        draw_add_bonus("static_bonus", stat_dict["bonuses"], bonus_types, static)
+        draw_add_bonus(f"{dict_key}_static_bonus", stat_dict["bonuses"], bonus_types, static)
 
         if stat_dict["bonuses"]:
             table_flags = (  # type: ignore

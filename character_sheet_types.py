@@ -14,6 +14,7 @@ class IntOrStrBonusType(TypedDict):
 class IntBonusType(TypedDict):
     name: str
     value: int
+    manual: bool
 
 
 class StatType(TypedDict):
