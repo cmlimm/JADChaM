@@ -9,7 +9,7 @@ from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 import character_sheet_types
 import util
 
-# BUG: when adding a new tool proficiency, do not enter the name
+# TODO[bug]: when adding a new tool proficiency, do not enter the name
 #      then close the popup and open the popup again
 #      a warning about the name is still there -- it should not be
 
@@ -113,7 +113,7 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
         if imgui.begin_table("speed_passives_skills", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
             imgui.table_next_row()
             imgui.table_next_column()
-            if imgui.begin_table("speed_passives", 1, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+            if imgui.begin_table("speed_passives_senses", 1, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
                 imgui.table_next_row()
                 imgui.table_next_column()
                 imgui.align_text_to_frame_padding()
@@ -125,10 +125,18 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
                 imgui.table_next_row()
                 imgui.table_next_column()
                 imgui.align_text_to_frame_padding()
-                imgui.text("Passive Senses")
+                imgui.text("Passive Skills")
                 imgui.table_next_row()
                 imgui.table_next_column()
                 draw_passives(static)
+
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text("Senses")
+                imgui.table_next_row()
+                imgui.table_next_column()
+                draw_senses(static)
 
                 imgui.table_next_row()
                 imgui.table_next_column()
@@ -256,7 +264,7 @@ def draw_ability_button(
         imgui.text("Add new base score bonus:")
         bonus_types = ["Numerical"]
         draw_add_bonus(
-            f"{dict_key}_base_score_bonus", static.data["abilities"][dict_key]["base_score_bonuses"], bonus_types, static
+            f"{dict_key}_base_score_bonus", static.data["abilities"][dict_key]["base_score_bonuses"], bonus_types, 1, static
         )
 
         if base_score_bonuses:
@@ -291,7 +299,7 @@ def draw_ability_button(
 
         imgui.text("Add new bonus:")
         bonus_types = ["Numerical"]
-        draw_add_bonus(f"{dict_key}_bonus", static.data["abilities"][dict_key]["mod_bonuses"], bonus_types, static)
+        draw_add_bonus(f"{dict_key}_bonus", static.data["abilities"][dict_key]["mod_bonuses"], bonus_types, 1, static)
 
         if mod_bonuses:
             imgui.text(f"Additional bonus ({mod_bonus}):")
@@ -320,7 +328,7 @@ def draw_ability_button(
         imgui.text("Add new base override:")
         bonus_types = ["Numerical"]
         draw_add_bonus(
-            f"{dict_key}_base_override", static.data["abilities"][dict_key]["forced_total_base_scores"], bonus_types, static
+            f"{dict_key}_base_override", static.data["abilities"][dict_key]["forced_total_base_scores"], bonus_types, 1, static
         )
 
         if forced_total_max_idx != -1:
@@ -403,14 +411,11 @@ def draw_saves(static: character_sheet_types.MainWindowProtocol):
         end_table_nested()
 
 
-def clean_up_new_bonuses(ids: list[str], static: character_sheet_types.MainWindowProtocol):
-    pass
-
-
 def draw_add_bonus(
     id: str,
     bonus_list: list[character_sheet_types.IntOrStrBonusType] | list[character_sheet_types.IntBonusType],
     bonus_types: list[str],
+    numerical_bonus_step: int,
     static: character_sheet_types.MainWindowProtocol,
 ) -> None:
     if not hasattr(static, "new_bonuses"):
@@ -423,6 +428,7 @@ def draw_add_bonus(
             "current_new_bonus_ability_idx": 0,
             "new_bonus_numerical": 0,
             "current_new_bonus_speed_idx": 0,
+            "current_new_bonus_sense_idx": 0,
             "current_new_bonus_mult_idx": 0,
         }
 
@@ -441,7 +447,7 @@ def draw_add_bonus(
     imgui.same_line()
 
     new_bonus_name = static.new_bonuses[id]["new_bonus_name"]
-    new_bonus_value: int | str = 0
+    new_bonus_value: int | str | character_sheet_types.StaticStatType = 0
     new_bonus_multiplier = 1.0
     multipliers = ["Single", "Half", "Double"]
 
@@ -449,7 +455,7 @@ def draw_add_bonus(
     if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Numerical":
         imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
         _, static.new_bonuses[id]["new_bonus_numerical"] = imgui.input_int(
-            f"##new_bonus_numerical_{id}", static.new_bonuses[id]["new_bonus_numerical"], 1
+            f"##new_bonus_numerical_{id}", static.new_bonuses[id]["new_bonus_numerical"], numerical_bonus_step
         )
         new_bonus_value = static.new_bonuses[id]["new_bonus_numerical"]
 
@@ -484,7 +490,7 @@ def draw_add_bonus(
     # SPEED BONUS
     if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Speed":
         # TODO: make a guard so that the user could not create cyclical speed references
-        speed_types = ["walking", "climbing", "swimming", "flying"]
+        speed_types = [speed["name"] for speed in static.data["speed"]]
         imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
         _, static.new_bonuses[id]["current_new_bonus_speed_idx"] = imgui.combo(
             f"##current_new_bonus_speed_{id}",
@@ -492,8 +498,27 @@ def draw_add_bonus(
             speed_types,
             len(speed_types),
         )
-        if util.isSpeedName(speed_types[static.new_bonuses[id]["current_new_bonus_speed_idx"]]):
-            new_bonus_value = speed_types[static.new_bonuses[id]["current_new_bonus_speed_idx"]]
+        new_bonus_value = static.data["speed"][static.new_bonuses[id]["current_new_bonus_speed_idx"]]
+
+        imgui.same_line()
+        imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+        _, static.new_bonuses[id]["current_new_bonus_mult_idx"] = imgui.combo(
+            f"##current_new_bonus_mult_{id}", static.new_bonuses[id]["current_new_bonus_mult_idx"], multipliers, len(multipliers)
+        )
+    imgui.same_line()
+
+    # SENSE BONUS
+    if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Sense":
+        # TODO: make a guard so that the user could not create cyclical sense references
+        sense_types = [sense["name"] for sense in static.data["senses"]]
+        imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+        _, static.new_bonuses[id]["current_new_bonus_sense_idx"] = imgui.combo(
+            f"##current_new_bonus_sense_{id}",
+            static.new_bonuses[id]["current_new_bonus_sense_idx"],
+            sense_types,
+            len(sense_types),
+        )
+        new_bonus_value = static.data["senses"][static.new_bonuses[id]["current_new_bonus_sense_idx"]]
 
         imgui.same_line()
         imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
@@ -602,7 +627,7 @@ def draw_rollable_stat_value(
 
         imgui.text("Add new bonus:")
         bonus_types = ["Numerical", "Ability", "Proficiency"]
-        draw_add_bonus(f"{dict_key}_rollable_bonus", stat_dict["bonuses"], bonus_types, static)
+        draw_add_bonus(f"{dict_key}_rollable_bonus", stat_dict["bonuses"], bonus_types, 1, static)
 
         if stat_dict["bonuses"]:
             imgui.text(f"Bonuses ({total_bonus}):")
@@ -729,7 +754,7 @@ def draw_ac_value(static: character_sheet_types.MainWindowProtocol) -> None:
 
         imgui.text("Add new bonus:")
         bonus_types = ["Numerical", "Ability", "Proficiency"]
-        draw_add_bonus("ac_bonus", static.data["ac"]["bonuses"], bonus_types, static)
+        draw_add_bonus("ac_bonus", static.data["ac"]["bonuses"], bonus_types, 1, static)
 
         if bonuses:
             imgui.text(f"Bonuses ({total_bonus_no_dex + dex_bonus}):")
@@ -782,14 +807,36 @@ def draw_speed(static: character_sheet_types.MainWindowProtocol) -> None:
         | imgui.TableFlags_.row_bg.value
     )
     if imgui.begin_table("speed_table", 2, flags=table_flags):  # type: ignore
-        for speed_name in ["walking", "climbing", "swimming", "flying"]:
+        for speed in static.data["speed"]:
             imgui.table_next_row()
             imgui.table_next_column()
             imgui.align_text_to_frame_padding()
-            imgui.text(f"{speed_name.title()}")
+            imgui.text(f"{speed["name"].title()}")
             imgui.table_next_column()
-            if util.isSpeedName(speed_name):
-                draw_static_stat(speed_name, static.data["speed"][speed_name], speed_name, static)
+            draw_static_stat(
+                speed["name"], speed, speed["name"], 5, ["Numerical", "Speed"], ["Numerical", "Ability", "Speed"], static
+            )
+
+        end_table_nested()
+
+
+def draw_senses(static: character_sheet_types.MainWindowProtocol) -> None:
+    table_flags = (  # type: ignore
+        imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+        | imgui.TableFlags_.no_host_extend_x  # type: ignore
+        | imgui.TableFlags_.borders.value
+        | imgui.TableFlags_.row_bg.value
+    )
+    if imgui.begin_table("senses_table", 2, flags=table_flags):  # type: ignore
+        for sense in static.data["senses"]:
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.align_text_to_frame_padding()
+            imgui.text(f"{sense["name"].title()}")
+            imgui.table_next_column()
+            draw_static_stat(
+                sense["name"], sense, sense["name"], 5, ["Numerical", "Sense"], ["Numerical", "Ability", "Sense"], static
+            )
 
         end_table_nested()
 
@@ -802,14 +849,21 @@ def draw_passives(static: character_sheet_types.MainWindowProtocol):
         | imgui.TableFlags_.row_bg.value
     )
     if imgui.begin_table("passives_table", 2, flags=table_flags):  # type: ignore
-        for passive_name in ["perception", "investigation", "insight"]:
+        for passive in static.data["passives"]:
             imgui.table_next_row()
             imgui.table_next_column()
             imgui.align_text_to_frame_padding()
-            imgui.text(f"{passive_name.title()}")
+            imgui.text(f"{passive["name"].title()}")
             imgui.table_next_column()
-            if util.isPassiveName(passive_name):
-                draw_static_stat(passive_name, static.data["passives"][passive_name], passive_name, static)
+            draw_static_stat(
+                passive["name"],
+                passive,
+                passive["name"],
+                1,
+                ["Numerical", "Ability", "Proficiency"],
+                ["Numerical", "Ability", "Proficiency"],
+                static,
+            )
         end_table_nested()
 
 
@@ -817,10 +871,11 @@ def draw_static_stat(
     stat_name: str,
     stat_dict: character_sheet_types.StaticStatType,
     dict_key: str,
+    numerical_bonus_step: int,
+    base_override_bonus_types: list[str],
+    bonus_types: list[str],
     static: character_sheet_types.MainWindowProtocol,
 ) -> None:
-
-    is_speed = util.isSpeedName(dict_key)
 
     base = stat_dict["base"]
 
@@ -830,10 +885,10 @@ def draw_static_stat(
     if stat_dict["forced_bases"]:
         for idx, forced_base in enumerate(stat_dict["forced_bases"]):
             value = 0
-            if is_speed and util.isSpeedName(forced_base["value"]):
-                value = trunc(static.data["speed"][forced_base["value"]]["total"] * forced_base["multiplier"])
+            if util.isStaticStatType(forced_base["value"]):
+                value = trunc(forced_base["value"]["total"] * forced_base["multiplier"])
             elif util.isRepresentInt(forced_base["value"]):
-                value = forced_base["value"]
+                value = trunc(forced_base["value"] * forced_base["multiplier"])
 
             if base < value:
                 base = value
@@ -842,14 +897,14 @@ def draw_static_stat(
 
     total_bonus = 0
     for bonus in stat_dict["bonuses"]:
-        if is_speed and util.isSpeedName(bonus["value"]):
-            total_bonus += trunc(static.data["speed"][bonus["value"]]["total"] * bonus["multiplier"])
-        elif bonus["value"] == "prof":
+        if bonus["value"] == "prof":
             total_bonus += trunc(static.data["proficiency"]["total"] * bonus["multiplier"])
+        if util.isStaticStatType(bonus["value"]):
+            total_bonus += trunc(bonus["value"]["total"] * bonus["multiplier"])
         elif util.isAbilityName(bonus["value"]):
             total_bonus += trunc(static.data["abilities"][bonus["value"]]["total"] * bonus["multiplier"])
         elif util.isRepresentInt(bonus["value"]):
-            total_bonus += bonus["value"]
+            total_bonus += trunc(bonus["value"] * bonus["multiplier"])
 
     stat_dict["total"] = base + total_bonus + stat_dict["custom_mod"]
 
@@ -857,10 +912,6 @@ def draw_static_stat(
         imgui.open_popup(f"{dict_key}_popup")
 
     if imgui.begin_popup(f"{dict_key}_popup"):
-        button_step = 1
-        if is_speed:
-            button_step = 5
-
         if imgui.begin_table(f"{dict_key}_table", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
             imgui.table_next_row()
             imgui.table_next_column()
@@ -868,7 +919,7 @@ def draw_static_stat(
             imgui.same_line()
             imgui.table_next_column()
             imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-            _, stat_dict["base"] = imgui.input_int(f"##{dict_key}", stat_dict["base"], button_step)
+            _, stat_dict["base"] = imgui.input_int(f"##{dict_key}", stat_dict["base"], numerical_bonus_step)
 
             imgui.table_next_row()
             imgui.table_next_column()
@@ -876,19 +927,18 @@ def draw_static_stat(
             imgui.same_line()
             imgui.table_next_column()
             imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-            _, stat_dict["custom_mod"] = imgui.input_int(f"##{dict_key}_custom_mod", stat_dict["custom_mod"], button_step)
+            _, stat_dict["custom_mod"] = imgui.input_int(
+                f"##{dict_key}_custom_mod", stat_dict["custom_mod"], numerical_bonus_step
+            )
             end_table_nested()
 
-        if is_speed:
-            # TODO: if there is an ability bonus to the speed, floor to the closest 5
-            # TODO: arbitrarty multipliers?
-            # TODO: make numerical modifier for a speed bonus have a step of 5
-            bonus_types = ["Numerical", "Speed"]
-        else:
-            bonus_types = ["Numerical", "Ability", "Proficiency"]
+        # TODO: if there is an ability bonus to the speed, floor to the closest 5
+        # TODO: arbitrarty multipliers?
         imgui.text("Add new base override:")
         # TODO: rename the stat_dict["forced_bases"] to stat_dict["base_overrides"]
-        draw_add_bonus(f"{dict_key}_base_override", stat_dict["forced_bases"], bonus_types, static)
+        draw_add_bonus(
+            f"{dict_key}_base_override", stat_dict["forced_bases"], base_override_bonus_types, numerical_bonus_step, static
+        )
 
         if stat_dict["forced_bases"]:
             if is_forced_base:
@@ -906,14 +956,15 @@ def draw_static_stat(
                     imgui.table_next_row()
                     imgui.table_next_column()
                     display_value = ""
-                    if is_speed and util.isSpeedName(forced_base["value"]):
-                        speed_value = static.data["speed"][forced_base["value"]]["total"]
-                        mult_str = str(trunc(forced_base["multiplier"]) if forced_base["multiplier"] != 0.5 else 0.5)
-                        display_value = (
-                            f"{forced_base["value"].capitalize()} ({speed_value}{" x" + mult_str if mult_str != "1" else ""})"
-                        )
+                    mult_str = str(trunc(forced_base["multiplier"]) if forced_base["multiplier"] != 0.5 else 0.5)
+                    forced_base_value: int = 0
+
+                    if util.isStaticStatType(forced_base["value"]):
+                        forced_base_value = forced_base["value"]["total"]
                     elif util.isRepresentInt(forced_base["value"]):
-                        display_value = str(forced_base["value"])
+                        forced_base_value = forced_base["value"]
+
+                    display_value = f"{forced_base_value}{" x" + mult_str if mult_str != "1" else ""}"
 
                     if (idx == forced_base_max_idx) and is_forced_base:
                         imgui.text(f"\t{forced_base["name"]}: {display_value}")
@@ -931,15 +982,10 @@ def draw_static_stat(
                         imgui.pop_style_color(3)
                 end_table_nested()
 
-        if is_speed:
-            # TODO: if there is an ability bonus to the speed, floor to the closest 5
-            # TODO: arbitrarty multipliers?
-            # TODO: make numerical modifier for a speed bonus have a step of 5
-            bonus_types = ["Numerical", "Ability", "Speed"]
-        else:
-            bonus_types = ["Numerical", "Ability", "Proficiency"]
+        # TODO: if there is an ability bonus to the speed, floor to the closest 5
+        # TODO: arbitrarty multipliers?
         imgui.text("Add new bonus:")
-        draw_add_bonus(f"{dict_key}_static_bonus", stat_dict["bonuses"], bonus_types, static)
+        draw_add_bonus(f"{dict_key}_static_bonus", stat_dict["bonuses"], bonus_types, numerical_bonus_step, static)
 
         if stat_dict["bonuses"]:
             imgui.text(f"Additional bonus ({total_bonus}):")
@@ -960,16 +1006,16 @@ def draw_static_stat(
                     )
                     bonus_mult_str = str(trunc(bonus_mult) if bonus_mult != 0.5 else 0.5)
 
-                    if is_speed and util.isSpeedName(bonus_value):
+                    if util.isStaticStatType(bonus_value):
                         imgui.text(
-                            f"\t{bonus_name}: {bonus_value.capitalize()} ({static.data["speed"][bonus_value]["total"]}{" x" + bonus_mult_str if bonus_mult_str != "1" else ""})"
+                            f"\t{bonus_name}: {bonus_value["total"]}{" x" + bonus_mult_str if bonus_mult_str != "1" else ""}"
                         )
                     elif util.isAbilityName(bonus_value):
                         imgui.text(
                             f"\t{bonus_name}: {bonus_value.upper()} ({static.data["abilities"][bonus_value]["total"]}{" x" + bonus_mult_str if bonus_mult_str != "1" else ""})"
                         )
                     elif util.isRepresentInt(bonus_value):
-                        imgui.text(f"\t{bonus_name}: {bonus_value}")
+                        imgui.text(f"\t{bonus_name}: {bonus_value}{" x" + bonus_mult_str if bonus_mult_str != "1" else ""}")
 
                     imgui.table_next_column()
                     if manual:

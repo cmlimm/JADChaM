@@ -6,7 +6,7 @@ from pydantic import TypeAdapter, ValidationError
 import character_sheet_types
 
 
-def isRepresentInt(value: int | str) -> TypeGuard[int]:
+def isRepresentInt(value: Any) -> TypeGuard[int]:
     if isinstance(value, int):
         return True
     if value[0] in ("-", "+"):
@@ -14,20 +14,8 @@ def isRepresentInt(value: int | str) -> TypeGuard[int]:
     return value.isdigit()
 
 
-def isAbilityName(string: int | str) -> TypeGuard[character_sheet_types.AbilityNameType]:
-    if string in ["str", "dex", "con", "wis", "int", "cha"]:
-        return True
-    return False
-
-
-def isSpeedName(string: int | str) -> TypeGuard[character_sheet_types.SpeedNameType]:
-    if string in ["walking", "climbing", "swimming", "flying"]:
-        return True
-    return False
-
-
-def isPassiveName(string: int | str) -> TypeGuard[character_sheet_types.PassiveNameType]:
-    if string in ["perception", "investigation", "insight"]:
+def isAbilityName(value: Any) -> TypeGuard[character_sheet_types.AbilityNameType]:
+    if value in ["str", "dex", "con", "wis", "int", "cha"]:
         return True
     return False
 

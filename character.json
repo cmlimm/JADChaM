@@ -467,38 +467,43 @@
             }
         ]
     },
-    "speed": {
-        "walking": {
+    "speed": [
+        {
+            "name": "walking", 
             "total": 30,
             "base": 30,
             "forced_bases": [],
             "custom_mod": 0,
             "bonuses": []
         },
-        "climbing": {
+        {
+            "name": "climbing",
             "total": 0,
             "base": 0,
             "forced_bases": [],
             "custom_mod": 0,
             "bonuses": []
         },
-        "swimming": {
+        {
+            "name": "swimming",
             "total": 0,
             "base": 0,
             "forced_bases": [],
             "custom_mod": 0,
             "bonuses": []
         },
-        "flying": {
+        {
+            "name": "flying",
             "total": 0,
             "base": 0,
             "forced_bases": [],
             "custom_mod": 0,
             "bonuses": []
         }
-    },
-    "passives": {
-        "perception": {
+    ],
+    "passives": [
+        {
+            "name": "perception",
             "total": 10,
             "base": 10,
             "forced_bases": [],
@@ -512,7 +517,8 @@
                 }
             ]
         },
-        "investigation": {
+        {
+            "name": "investigation",
             "total": 10,
             "base": 10,
             "forced_bases": [],
@@ -526,7 +532,8 @@
                 }
             ]
         },
-        "insight": {
+        {
+            "name": "insight",
             "total": 10,
             "base": 10,
             "forced_bases": [],
@@ -540,7 +547,41 @@
                 }
             ]
         }
-    },
+    ],
+    "senses": [
+        {
+            "name": "blindsight",
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        },
+        {
+            "name": "darkvision",
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        },
+        {
+            "name": "tremorsense",
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        },
+        {
+            "name": "truesight",
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": []
+        }
+    ],
     "tool_proficiencies": {
         "sorting_in_edit_mode": {
             "sort_by": "type",

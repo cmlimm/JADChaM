@@ -6,7 +6,7 @@ from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 class IntOrStrBonusType(TypedDict):
     name: str
-    value: int | str
+    value: "int | str | StaticStatType"
     multiplier: float
     manual: bool
 
@@ -58,19 +58,10 @@ class AcType(IntStatType):
     armor: ArmorType
 
 
-type SpeedNameType = Literal["walking", "climbing", "swimming", "flying"]
-
-
 class StaticStatType(IntStatType):
+    name: str
     base: int
     forced_bases: list[IntOrStrBonusType]
-
-
-class SpeedDictType(TypedDict):
-    walking: StaticStatType
-    climbing: StaticStatType
-    swimming: StaticStatType
-    flying: StaticStatType
 
 
 class RollableStatType(IntStatType):
@@ -87,15 +78,6 @@ class SavesDictType(TypedDict):
     wis: RollableStatType
     int: RollableStatType
     cha: RollableStatType
-
-
-type PassiveNameType = Literal["perception", "investigation", "insight"]
-
-
-class PassivesDictType(TypedDict):
-    perception: StaticStatType
-    investigation: StaticStatType
-    insight: StaticStatType
 
 
 class ToolProficienciesListItemDictType(TypedDict):
@@ -119,12 +101,13 @@ class CharacterDataType(TypedDict):
     name: str
     abilities: AbilitiesDictType
     saves: SavesDictType
-    passives: PassivesDictType
+    passives: list[StaticStatType]
     proficiency: ProficiencyType
     initiative: RollableStatType
     skills: list[RollableStatType]
     ac: AcType
-    speed: dict[str, StaticStatType]
+    speed: list[StaticStatType]
+    senses: list[StaticStatType]
     tool_proficiencies: ToolProficiencyDictType
 
 
@@ -139,6 +122,7 @@ class NewBonusDataType(TypedDict):
     current_new_bonus_ability_idx: int
     new_bonus_numerical: int
     current_new_bonus_speed_idx: int
+    current_new_bonus_sense_idx: int
     current_new_bonus_mult_idx: int
 
 
