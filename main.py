@@ -9,6 +9,10 @@ from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 import character_sheet_types
 import util
 
+# BUG: when adding a new tool proficiency, do not enter the name
+#      then close the popup and open the popup again
+#      a warning about the name is still there -- it should not be
+
 # TODO: move to const.py or something
 TWO_DIGIT_BUTTONS_INPUT_WIDTH = 75
 TWO_DIGIT_INPUT_WIDTH = 25
@@ -20,6 +24,16 @@ DISADVANTAGE_COLOR = imgui.ImColor.hsv(0, 0.6, 0.6).value
 DISADVANTAGE_HOVER_COLOR = imgui.ImColor.hsv(0, 0.7, 0.7).value
 DISADVANTAGE_ACTIVE_COLOR = imgui.ImColor.hsv(0, 0.8, 0.8).value
 FORCED_OVERRIDE_COLOR = imgui.ImColor.hsv(0.15, 0.8, 0.8).value
+
+
+# Local solution for squashed nested fixed fit tables
+# See https://github.com/ocornut/imgui/issues/6586#issuecomment-1631455446
+def end_table_nested():
+    table_width = imgui.get_current_context().current_table.columns_auto_fit_width
+    imgui.push_style_var(imgui.StyleVar_.item_spacing, imgui.ImVec2(0, 0))  # type: ignore
+    imgui.end_table()
+    imgui.dummy(imgui.ImVec2(table_width, 0))
+    imgui.pop_style_var()
 
 
 @character_sheet_types.main_window_decorator
@@ -50,23 +64,101 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
 
         imgui.spacing()
 
-        imgui.text("Abilities: ")
-        imgui.same_line()
         draw_abilities(static)
-        draw_misc(static)
-        imgui.text("Saves: ")
-        imgui.same_line()
-        draw_saves(static)
-        imgui.text("Passives: ")
-        imgui.same_line()
-        draw_passives(static)
-        imgui.text("Skills: ")
-        draw_skills(static)
-        imgui.text("Tool and Language Proficiencies")
-        draw_tool_proficiencies(static)
 
-        # TODO: create a separate button somewhere for creating new stats/skills/etc
-        # draw_add_skill_button(static)
+        if imgui.begin_table("saves_prof_init_ac", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.align_text_to_frame_padding()
+            imgui.text("Saving Throws")
+            imgui.table_next_column()
+
+            imgui.table_next_row()
+            imgui.table_next_column()
+            draw_saves(static)
+
+            imgui.table_next_column()
+            table_flags = (  # type: ignore
+                imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+                | imgui.TableFlags_.no_host_extend_x  # type: ignore
+                | imgui.TableFlags_.borders.value
+                | imgui.TableFlags_.row_bg.value
+            )
+            if imgui.begin_table("prof_init_ac", 2, flags=table_flags):  # type: ignore
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text("Proficiency")
+                imgui.table_next_column()
+                draw_proficiency_value(static)
+
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text("Initiative")
+                imgui.table_next_column()
+                draw_rollable_stat_value("Initiative", static.data["initiative"], "initiative", static)
+
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text("Armor Class")
+                imgui.table_next_column()
+                draw_ac_value(static)
+
+                end_table_nested()
+            end_table_nested()
+
+        # TODO: add + button to speed and passives
+        if imgui.begin_table("speed_passives_skills", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+            imgui.table_next_row()
+            imgui.table_next_column()
+            if imgui.begin_table("speed_passives", 1, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text("Speed")
+                imgui.table_next_row()
+                imgui.table_next_column()
+                draw_speed(static)
+
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text("Passive Senses")
+                imgui.table_next_row()
+                imgui.table_next_column()
+                draw_passives(static)
+
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text("Proficiencies & Training")
+                imgui.same_line()
+                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}"):
+                    imgui.open_popup("Edit Tool and Language Proficiencies")
+                imgui.table_next_row()
+                imgui.table_next_column()
+                draw_tool_proficiencies(static)
+
+                end_table_nested()
+
+            imgui.table_next_column()
+            if imgui.begin_table("skills_ext", 1, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text("Skills")
+                imgui.same_line()
+                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}"):
+                    imgui.open_popup("Add new skill")
+                imgui.table_next_row()
+                imgui.table_next_column()
+                draw_skills(static)
+
+                end_table_nested()
+
+            end_table_nested()
     else:
         draw_file_button(static)
 
@@ -131,7 +223,7 @@ def draw_ability_button(
     static.data["abilities"][dict_key]["total"] = (base_score_total - 10) // 2 + custom_mod + mod_bonus
 
     # Button with final ability modifier
-    if imgui.button(f"{ability_name.upper()}: {static.data["abilities"][dict_key]["total"]:+}"):
+    if imgui.button(f"{ability_name.upper()}[{base_score_total}]\n{static.data["abilities"][dict_key]["total"]:^+}"):
         imgui.open_popup(f"{dict_key}_popup")
 
     # Popup window where you can
@@ -159,7 +251,7 @@ def draw_ability_button(
             _, static.data["abilities"][dict_key]["custom_mod"] = imgui.input_int(
                 f"##{dict_key}_custom_mod", static.data["abilities"][dict_key]["custom_mod"], 1
             )
-            imgui.end_table()
+            end_table_nested()
 
         imgui.text("Add new base score bonus:")
         bonus_types = ["Numerical"]
@@ -195,7 +287,7 @@ def draw_ability_button(
                         if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
                             del static.data["abilities"][dict_key]["base_score_bonuses"][idx]
                         imgui.pop_style_color(3)
-                imgui.end_table()
+                end_table_nested()
 
         imgui.text("Add new bonus:")
         bonus_types = ["Numerical"]
@@ -223,7 +315,7 @@ def draw_ability_button(
                         if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
                             del static.data["abilities"][dict_key]["mod_bonuses"][idx]
                         imgui.pop_style_color(3)
-                imgui.end_table()
+                end_table_nested()
 
         imgui.text("Add new base override:")
         bonus_types = ["Numerical"]
@@ -261,7 +353,7 @@ def draw_ability_button(
                         if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
                             del static.data["abilities"][dict_key]["forced_total_base_scores"][idx]
                         imgui.pop_style_color(3)
-                imgui.end_table()
+                end_table_nested()
         imgui.end_popup()
 
 
@@ -287,32 +379,28 @@ def draw_abilities(static: character_sheet_types.MainWindowProtocol) -> None:
         imgui.table_next_column()
         draw_ability_button("CHA", "cha", static)
 
-        imgui.end_table()
+        end_table_nested()
 
 
 def draw_saves(static: character_sheet_types.MainWindowProtocol):
-    if imgui.begin_table("abilities_table", 6, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-        imgui.table_next_row()
+    table_flags = (  # type: ignore
+        imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+        | imgui.TableFlags_.no_host_extend_x  # type: ignore
+        | imgui.TableFlags_.borders.value  # type: ignore
+        | imgui.TableFlags_.no_borders_in_body.value
+    )
+    if imgui.begin_table("saves_table", 4, flags=table_flags):  # type: ignore
+        for save_pair in [["str", "dex"], ["con", "wis"], ["int", "cha"]]:
+            imgui.table_next_row()
+            for save_name in save_pair:
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text(f"{save_name.upper()}")
+                imgui.table_next_column()
+                if util.isAbilityName(save_name):
+                    draw_rollable_stat_value(save_name, static.data["saves"][save_name], save_name, static)
 
-        imgui.table_next_column()
-        draw_rollable_stat("STR", static.data["saves"]["str"], "str", static)
-
-        imgui.table_next_column()
-        draw_rollable_stat("DEX", static.data["saves"]["dex"], "dex", static)
-
-        imgui.table_next_column()
-        draw_rollable_stat("CON", static.data["saves"]["con"], "con", static)
-
-        imgui.table_next_column()
-        draw_rollable_stat("WIS", static.data["saves"]["wis"], "wis", static)
-
-        imgui.table_next_column()
-        draw_rollable_stat("INT", static.data["saves"]["int"], "int", static)
-
-        imgui.table_next_column()
-        draw_rollable_stat("CHA", static.data["saves"]["cha"], "cha", static)
-
-        imgui.end_table()
+        end_table_nested()
 
 
 def clean_up_new_bonuses(ids: list[str], static: character_sheet_types.MainWindowProtocol):
@@ -414,6 +502,8 @@ def draw_add_bonus(
         )
     imgui.same_line()
 
+    # TODO: advantage/disadvantage bonus
+
     # ADD BONUS
     if imgui.button(f"{icons_fontawesome_6.ICON_FA_CHECK}##{id}"):
         if util.isListIntOrStrBonusType(bonus_list):
@@ -435,7 +525,7 @@ def draw_add_bonus(
         static.new_bonuses[id]["current_new_bonus_mult_idx"] = 0
 
 
-def draw_rollable_stat(
+def draw_rollable_stat_value(
     stat_name: str,
     stat_dict: character_sheet_types.RollableStatType,
     dict_key: str,
@@ -491,7 +581,7 @@ def draw_rollable_stat(
     # imgui.text(f"{icons_fontawesome_6.ICON_FA_CIRCLE_HALF_STROKE}")
     # imgui.pop_font()
     # imgui.same_line()
-    if imgui.button(f"{stat_name}: {stat_dict["total"]:+}"):
+    if imgui.button(f"{stat_dict["total"]:+}##{stat_name}"):
         imgui.open_popup(f"{dict_key}_popup")
     if button_color_applied:
         imgui.pop_style_color(3)
@@ -505,7 +595,7 @@ def draw_rollable_stat(
             imgui.table_next_column()
             imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
             _, stat_dict["custom_mod"] = imgui.input_int(f"##{dict_key}_custom_mod", stat_dict["custom_mod"], 1)
-            imgui.end_table()
+            end_table_nested()
 
         _, stat_dict["custom_advantage"] = imgui.checkbox("Custom Advantage", stat_dict["custom_advantage"])
         _, stat_dict["custom_disadvantage"] = imgui.checkbox("Custom Disadvantage", stat_dict["custom_disadvantage"])
@@ -551,17 +641,17 @@ def draw_rollable_stat(
                         if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
                             del stat_dict["bonuses"][idx]
                         imgui.pop_style_color(3)
-                imgui.end_table()
+                end_table_nested()
 
         imgui.end_popup()
 
 
-def draw_proficiency(static: character_sheet_types.MainWindowProtocol) -> None:
+def draw_proficiency_value(static: character_sheet_types.MainWindowProtocol) -> None:
     custom_mod, bonuses = static.data["proficiency"]["custom_mod"], static.data["proficiency"]["bonuses"]
     bonus = sum([bonus["value"] for bonus in bonuses])
     static.data["proficiency"]["total"] = custom_mod + bonus
 
-    if imgui.button(f"Proficiency: {static.data["proficiency"]["total"]:+}"):
+    if imgui.button(f"{static.data["proficiency"]["total"]:+}"):
         imgui.open_popup(f"prof_popup")
 
     if imgui.begin_popup(f"prof_popup"):
@@ -573,7 +663,7 @@ def draw_proficiency(static: character_sheet_types.MainWindowProtocol) -> None:
             imgui.table_next_column()
             imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
             _, static.data["proficiency"]["custom_mod"] = imgui.input_int(f"##prof", static.data["proficiency"]["custom_mod"], 1)
-            imgui.end_table()
+            end_table_nested()
 
         if bonuses:
             imgui.text(f"Additional bonus ({bonus}):")
@@ -583,7 +673,7 @@ def draw_proficiency(static: character_sheet_types.MainWindowProtocol) -> None:
         imgui.end_popup()
 
 
-def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
+def draw_ac_value(static: character_sheet_types.MainWindowProtocol) -> None:
     base, armor, custom_mod, bonuses = (
         static.data["ac"]["base"],
         static.data["ac"]["armor"],
@@ -614,7 +704,7 @@ def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
 
     static.data["ac"]["total"] = base + total_bonus_no_dex + dex_bonus + custom_mod
 
-    if imgui.button(f"AC: {static.data["ac"]["total"]}"):
+    if imgui.button(f"{static.data["ac"]["total"]}"):
         imgui.open_popup(f"ac_popup")
 
     if imgui.begin_popup(f"ac_popup"):
@@ -626,7 +716,7 @@ def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
             imgui.table_next_column()
             imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
             _, static.data["ac"]["custom_mod"] = imgui.input_int(f"##ac_custom_mod", static.data["ac"]["custom_mod"], 1)
-            imgui.end_table()
+            end_table_nested()
 
         if armor:
             imgui.text(f"Armor:")
@@ -680,42 +770,47 @@ def draw_ac(static: character_sheet_types.MainWindowProtocol) -> None:
                             del static.data["ac"]["bonuses"][idx]
                         imgui.pop_style_color(3)
 
-                imgui.end_table()
+                end_table_nested()
         imgui.end_popup()
 
 
 def draw_speed(static: character_sheet_types.MainWindowProtocol) -> None:
-    if imgui.begin_table("speed_table", 5, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-        imgui.table_next_row()
-        imgui.table_next_column()
-        imgui.text("Speed: ")
+    table_flags = (  # type: ignore
+        imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+        | imgui.TableFlags_.no_host_extend_x  # type: ignore
+        | imgui.TableFlags_.borders.value
+        | imgui.TableFlags_.row_bg.value
+    )
+    if imgui.begin_table("speed_table", 2, flags=table_flags):  # type: ignore
+        for speed_name in ["walking", "climbing", "swimming", "flying"]:
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.align_text_to_frame_padding()
+            imgui.text(f"{speed_name.title()}")
+            imgui.table_next_column()
+            if util.isSpeedName(speed_name):
+                draw_static_stat(speed_name, static.data["speed"][speed_name], speed_name, static)
 
-        imgui.table_next_column()
-        draw_static_stat("Walking", static.data["speed"]["walking"], "walking", static)
-        imgui.table_next_column()
-        draw_static_stat("Climbing", static.data["speed"]["climbing"], "climbing", static)
-        imgui.table_next_column()
-        draw_static_stat("Swimming", static.data["speed"]["swimming"], "swimming", static)
-        imgui.table_next_column()
-        draw_static_stat("Flying", static.data["speed"]["flying"], "flying", static)
-
-        imgui.end_table()
+        end_table_nested()
 
 
 def draw_passives(static: character_sheet_types.MainWindowProtocol):
-    if imgui.begin_table("passives_table", 6, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-        imgui.table_next_row()
-
-        imgui.table_next_column()
-        draw_static_stat("Perception", static.data["passives"]["perception"], "perception", static)
-
-        imgui.table_next_column()
-        draw_static_stat("Investigation", static.data["passives"]["investigation"], "investigation", static)
-
-        imgui.table_next_column()
-        draw_static_stat("Insight", static.data["passives"]["insight"], "insight", static)
-
-        imgui.end_table()
+    table_flags = (  # type: ignore
+        imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+        | imgui.TableFlags_.no_host_extend_x  # type: ignore
+        | imgui.TableFlags_.borders.value
+        | imgui.TableFlags_.row_bg.value
+    )
+    if imgui.begin_table("passives_table", 2, flags=table_flags):  # type: ignore
+        for passive_name in ["perception", "investigation", "insight"]:
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.align_text_to_frame_padding()
+            imgui.text(f"{passive_name.title()}")
+            imgui.table_next_column()
+            if util.isPassiveName(passive_name):
+                draw_static_stat(passive_name, static.data["passives"][passive_name], passive_name, static)
+        end_table_nested()
 
 
 def draw_static_stat(
@@ -758,7 +853,7 @@ def draw_static_stat(
 
     stat_dict["total"] = base + total_bonus + stat_dict["custom_mod"]
 
-    if imgui.button(f"{stat_name}: {stat_dict["total"]}"):
+    if imgui.button(f"{stat_dict["total"]}##{stat_name}"):
         imgui.open_popup(f"{dict_key}_popup")
 
     if imgui.begin_popup(f"{dict_key}_popup"):
@@ -782,7 +877,7 @@ def draw_static_stat(
             imgui.table_next_column()
             imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
             _, stat_dict["custom_mod"] = imgui.input_int(f"##{dict_key}_custom_mod", stat_dict["custom_mod"], button_step)
-            imgui.end_table()
+            end_table_nested()
 
         if is_speed:
             # TODO: if there is an ability bonus to the speed, floor to the closest 5
@@ -834,7 +929,7 @@ def draw_static_stat(
                         if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
                             del stat_dict["forced_bases"][idx]
                         imgui.pop_style_color(3)
-                imgui.end_table()
+                end_table_nested()
 
         if is_speed:
             # TODO: if there is an ability bonus to the speed, floor to the closest 5
@@ -847,13 +942,13 @@ def draw_static_stat(
         draw_add_bonus(f"{dict_key}_static_bonus", stat_dict["bonuses"], bonus_types, static)
 
         if stat_dict["bonuses"]:
+            imgui.text(f"Additional bonus ({total_bonus}):")
             table_flags = (  # type: ignore
                 imgui.TableFlags_.sizing_fixed_fit  # type: ignore
                 | imgui.TableFlags_.no_host_extend_x  # type: ignore
                 | imgui.TableFlags_.row_bg.value
             )
             if imgui.begin_table("additional_bonuses", 2, flags=table_flags):  # type: ignore
-                imgui.text(f"Additional bonus ({total_bonus}):")
                 for idx, bonus in enumerate(stat_dict["bonuses"]):
                     imgui.table_next_row()
                     imgui.table_next_column()
@@ -884,20 +979,32 @@ def draw_static_stat(
                         if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
                             del stat_dict["bonuses"][idx]
                         imgui.pop_style_color(3)
-                imgui.end_table()
+                end_table_nested()
         imgui.end_popup()
 
 
 def draw_skills(static: character_sheet_types.MainWindowProtocol) -> None:
-    for skill in static.data["skills"]:
-        draw_rollable_stat(skill["name"].title(), skill, skill["name"], static)
+    table_flags = (  # type: ignore
+        imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+        | imgui.TableFlags_.no_host_extend_x  # type: ignore
+        | imgui.TableFlags_.borders.value
+        | imgui.TableFlags_.row_bg.value
+    )
+    if imgui.begin_table("skills", 2, flags=table_flags):  # type: ignore
+        for skill in static.data["skills"]:
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.align_text_to_frame_padding()
+            imgui.text(skill["name"].title())
+
+            imgui.table_next_column()
+            draw_rollable_stat_value(skill["name"].title(), skill, skill["name"], static)
+        end_table_nested()
+
+    draw_add_skill_button(static)
 
 
-# TODO: create a separate button somewhere for creating new stats/skills/etc
 def draw_add_skill_button(static: character_sheet_types.MainWindowProtocol) -> None:
-    if imgui.button("Add new skill.."):
-        imgui.open_popup("Add new skill")
-
     center = imgui.get_main_viewport().get_center()
     imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
 
@@ -945,10 +1052,6 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
     # proficiencies were added
     proficiencies.sort(key=lambda x: x["type"])
 
-    imgui.same_line()
-    if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}"):
-        imgui.open_popup("Edit Tool and Language Proficiencies")
-
     table_flags = (  # type: ignore
         imgui.TableFlags_.sizing_fixed_fit  # type: ignore
         | imgui.TableFlags_.no_host_extend_x  # type: ignore
@@ -967,7 +1070,7 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
             imgui.table_next_column()
             imgui.text("\n".join([item["name"] for item in items]))
 
-        imgui.end_table()
+        end_table_nested()
 
     center = imgui.get_main_viewport().get_center()
     imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
@@ -1029,7 +1132,7 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
                     static.tool_proficiency_name = ""
                     static.tool_proficiency_type = ""
                     static.tool_proficiency_source = ""
-            imgui.end_table()
+            end_table_nested()
 
         if imgui.begin_table("edit_tool_proficiencies", 4, flags=table_flags | imgui.TableFlags_.sortable):  # type: ignore
             imgui.table_setup_column("Name")
@@ -1095,7 +1198,7 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
                 proficiencies_for_table.sort(key=lambda x: x[sort_by], reverse=sort_descending)  # type: ignore
                 sort_specs.specs_dirty = False
 
-            imgui.end_table()
+            end_table_nested()
 
         if imgui.button("Close", ImVec2(120, 0)):
             imgui.close_current_popup()
@@ -1109,26 +1212,17 @@ def draw_misc(static: character_sheet_types.MainWindowProtocol) -> None:
 
         # Proficiency
         imgui.table_next_column()
-        draw_proficiency(static)
+        draw_proficiency_value(static)
 
         # Initiative
         imgui.table_next_column()
-        draw_rollable_stat("Initiative", static.data["initiative"], "initiative", static)
+        draw_rollable_stat_value("Initiative", static.data["initiative"], "initiative", static)
 
         # AC
         imgui.table_next_column()
-        draw_ac(static)
+        draw_ac_value(static)
 
-        imgui.end_table()
-
-    draw_speed(static)
-
-
-# immapp.run(
-#     gui_function=main_window,
-#     window_title="Just Another D&D Character Manager",
-#     window_restore_previous_geometry=True,
-# )
+        end_table_nested()
 
 
 def load_fonts(font_holder: character_sheet_types.FontHolder) -> None:

@@ -89,6 +89,9 @@ class SavesDictType(TypedDict):
     cha: RollableStatType
 
 
+type PassiveNameType = Literal["perception", "investigation", "insight"]
+
+
 class PassivesDictType(TypedDict):
     perception: StaticStatType
     investigation: StaticStatType

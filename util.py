@@ -26,6 +26,12 @@ def isSpeedName(string: int | str) -> TypeGuard[character_sheet_types.SpeedNameT
     return False
 
 
+def isPassiveName(string: int | str) -> TypeGuard[character_sheet_types.PassiveNameType]:
+    if string in ["perception", "investigation", "insight"]:
+        return True
+    return False
+
+
 def isRollableStatType(dictionary: Any | Any) -> TypeGuard[character_sheet_types.RollableStatType]:
     rollable_stat_adapter = TypeAdapter(character_sheet_types.RollableStatType)
     try:
