@@ -1,4 +1,3 @@
-# TODO: move to util.py or something
 from typing import Any, TypeGuard
 
 from pydantic import TypeAdapter, ValidationError
