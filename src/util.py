@@ -1,5 +1,3 @@
-# Local solution for squashed nested fixed fit table
-# See https://github.com/ocornut/imgui/issues/6586#issuecomment-1631455446
 import json
 
 from imgui_bundle import imgui
@@ -7,6 +5,8 @@ from imgui_bundle import imgui
 import character_sheet_types
 
 
+# Local solution for squashed nested fixed fit table
+# See https://github.com/ocornut/imgui/issues/6586#issuecomment-1631455446
 def end_table_nested() -> None:
     table_width = imgui.get_current_context().current_table.columns_auto_fit_width
     imgui.push_style_var(imgui.StyleVar_.item_spacing, imgui.ImVec2(0, 0))  # type: ignore

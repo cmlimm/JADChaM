@@ -69,8 +69,7 @@ def draw_add_bonus(
 
     # ABILITY BONUS
     if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Ability":
-        # TODO: extract to a constant or something, same with speed
-        abilities = ["str", "dex", "con", "wis", "int", "cha"]
+        abilities = list(static.data["abilities"].keys())
         imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
         _, static.new_bonuses[id]["current_new_bonus_ability_idx"] = imgui.combo(
             f"##current_new_bonus_ability_{id}",
@@ -135,6 +134,17 @@ def draw_add_bonus(
         )
     imgui.same_line()
 
+    # ADVANTAGE
+    if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Advantage":
+        new_bonus_value = "adv"
+        static.new_bonuses[id]["current_new_bonus_mult_idx"] = 0
+
+    # DISADVANTAGE
+    if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Disadvantage":
+        new_bonus_value = "disadv"
+        static.new_bonuses[id]["current_new_bonus_mult_idx"] = 0
+
+    imgui.same_line()
     # TODO: advantage/disadvantage bonus
 
     # ADD BONUS
@@ -234,7 +244,7 @@ def draw_rollable_stat_value(
         _, stat_dict["custom_disadvantage"] = imgui.checkbox("Custom Disadvantage", stat_dict["custom_disadvantage"])
 
         imgui.text("Add new bonus:")
-        bonus_types = ["Numerical", "Ability", "Proficiency"]
+        bonus_types = ["Numerical", "Ability", "Proficiency", "Advantage", "Disadvantage"]
         draw_add_bonus(f"{dict_key}_rollable_bonus", stat_dict["bonuses"], bonus_types, 1, static)
 
         if stat_dict["bonuses"]:
@@ -472,7 +482,7 @@ def draw_static_stat(
                     display_value = ""
                     mult_str = str(trunc(forced_base["multiplier"]) if forced_base["multiplier"] != 0.5 else 0.5)
                     forced_base_value: int = 0
-
+                    a = type_checking_guards.isStaticStatType(forced_base["value"])
                     if type_checking_guards.isStaticStatType(forced_base["value"]):
                         forced_base_value = forced_base["value"]["total"]
                     elif type_checking_guards.isRepresentInt(forced_base["value"]):

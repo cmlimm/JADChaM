@@ -96,7 +96,6 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
                 end_table_nested()
             end_table_nested()
 
-        # TODO: add + button to speed and passives
         if imgui.begin_table("speed_passives_skills", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
             imgui.table_next_row()
             imgui.table_next_column()
