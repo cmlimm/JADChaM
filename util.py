@@ -20,37 +20,55 @@ def isAbilityName(value: Any) -> TypeGuard[character_sheet_types.AbilityNameType
     return False
 
 
-def isRollableStatType(dictionary: Any | Any) -> TypeGuard[character_sheet_types.RollableStatType]:
+def isRollableStatType(item: Any) -> TypeGuard[character_sheet_types.RollableStatType]:
     rollable_stat_adapter = TypeAdapter(character_sheet_types.RollableStatType)
     try:
-        rollable_stat_adapter.validate_python(dictionary)
+        rollable_stat_adapter.validate_python(item)
         return True
     except ValidationError:
         return False
 
 
-def isStaticStatType(dictionary: Any | Any) -> TypeGuard[character_sheet_types.StaticStatType]:
+def isListRollableStatType(item: Any) -> TypeGuard[list[character_sheet_types.RollableStatType]]:
+    rollable_stat_adapter = TypeAdapter(list[character_sheet_types.RollableStatType])
+    try:
+        rollable_stat_adapter.validate_python(item)
+        return True
+    except ValidationError:
+        return False
+
+
+def isStaticStatType(item) -> TypeGuard[character_sheet_types.StaticStatType]:
     static_stat_adapter = TypeAdapter(character_sheet_types.StaticStatType)
     try:
-        static_stat_adapter.validate_python(dictionary)
+        static_stat_adapter.validate_python(item)
         return True
     except ValidationError:
         return False
 
 
-def isListIntBonusType(dictionary: Any | Any) -> TypeGuard[list[character_sheet_types.IntBonusType]]:
+def isListStaticStatType(item: Any) -> TypeGuard[list[character_sheet_types.StaticStatType]]:
+    rollable_stat_adapter = TypeAdapter(list[character_sheet_types.StaticStatType])
+    try:
+        rollable_stat_adapter.validate_python(item)
+        return True
+    except ValidationError:
+        return False
+
+
+def isListIntBonusType(item: Any) -> TypeGuard[list[character_sheet_types.IntBonusType]]:
     static_stat_adapter = TypeAdapter(list[character_sheet_types.IntBonusType])
     try:
-        static_stat_adapter.validate_python(dictionary)
+        static_stat_adapter.validate_python(item)
         return True
     except ValidationError:
         return False
 
 
-def isListIntOrStrBonusType(dictionary: Any | Any) -> TypeGuard[list[character_sheet_types.IntOrStrBonusType]]:
+def isListIntOrStrBonusType(item: Any) -> TypeGuard[list[character_sheet_types.IntOrStrBonusType]]:
     static_stat_adapter = TypeAdapter(list[character_sheet_types.IntOrStrBonusType])
     try:
-        static_stat_adapter.validate_python(dictionary)
+        static_stat_adapter.validate_python(item)
         return True
     except ValidationError:
         return False

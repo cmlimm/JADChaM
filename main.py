@@ -118,6 +118,9 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
                 imgui.table_next_column()
                 imgui.align_text_to_frame_padding()
                 imgui.text("Speed")
+                imgui.same_line()
+                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_speed"):
+                    imgui.open_popup("Edit Speed")
                 imgui.table_next_row()
                 imgui.table_next_column()
                 draw_speed(static)
@@ -126,6 +129,9 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
                 imgui.table_next_column()
                 imgui.align_text_to_frame_padding()
                 imgui.text("Passive Skills")
+                imgui.same_line()
+                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_passive_skills"):
+                    imgui.open_popup("Edit Passive Skills")
                 imgui.table_next_row()
                 imgui.table_next_column()
                 draw_passives(static)
@@ -134,6 +140,9 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
                 imgui.table_next_column()
                 imgui.align_text_to_frame_padding()
                 imgui.text("Senses")
+                imgui.same_line()
+                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_senses"):
+                    imgui.open_popup("Edit Senses")
                 imgui.table_next_row()
                 imgui.table_next_column()
                 draw_senses(static)
@@ -158,8 +167,8 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
                 imgui.align_text_to_frame_padding()
                 imgui.text("Skills")
                 imgui.same_line()
-                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}"):
-                    imgui.open_popup("Add new skill")
+                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_skills"):
+                    imgui.open_popup("Edit Skills")
                 imgui.table_next_row()
                 imgui.table_next_column()
                 draw_skills(static)
@@ -819,6 +828,8 @@ def draw_speed(static: character_sheet_types.MainWindowProtocol) -> None:
 
         end_table_nested()
 
+    draw_edit_list_popup(static.data["speed"], "Edit Speed", static)
+
 
 def draw_senses(static: character_sheet_types.MainWindowProtocol) -> None:
     table_flags = (  # type: ignore
@@ -839,6 +850,8 @@ def draw_senses(static: character_sheet_types.MainWindowProtocol) -> None:
             )
 
         end_table_nested()
+
+    draw_edit_list_popup(static.data["senses"], "Edit Senses", static)
 
 
 def draw_passives(static: character_sheet_types.MainWindowProtocol):
@@ -865,6 +878,110 @@ def draw_passives(static: character_sheet_types.MainWindowProtocol):
                 static,
             )
         end_table_nested()
+
+    draw_edit_list_popup(static.data["passives"], "Edit Passive Skills", static)
+
+
+def draw_edit_list_popup(
+    display_list: list[character_sheet_types.RollableStatType] | list[character_sheet_types.StaticStatType],
+    window_name: str,
+    static: character_sheet_types.MainWindowProtocol,
+):
+    center = imgui.get_main_viewport().get_center()
+    imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
+
+    table_flags = (  # type: ignore
+        imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+        | imgui.TableFlags_.no_host_extend_x  # type: ignore
+        | imgui.TableFlags_.borders.value
+        | imgui.TableFlags_.row_bg.value
+        | imgui.TableFlags_.no_borders_in_body.value
+    )
+
+    if imgui.begin_popup_modal(window_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
+        if imgui.begin_table(f"{window_name}_new_item_table", 2, flags=table_flags):  # type: ignore
+            imgui.table_setup_column("Name")
+            imgui.table_setup_column("##add")
+            imgui.table_headers_row()
+
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+
+            if not hasattr(static, "new_list_item_name"):
+                static.new_list_item_name = ""
+            if not hasattr(static, "new_list_item_name_missing"):
+                static.new_list_item_name_missing = False
+
+            _, static.new_list_item_name = imgui.input_text("##new_list_item_name", static.new_list_item_name, 128)
+
+            if static.new_list_item_name_missing:
+                imgui.push_style_color(imgui.Col_.text.value, DISADVANTAGE_ACTIVE_COLOR)
+                imgui.text("Enter the name")
+                imgui.pop_style_color()
+
+            imgui.table_next_column()
+            if imgui.button("Add##new_list_item"):
+                if static.new_list_item_name == "":
+                    static.new_list_item_name_missing = True
+                else:
+                    if util.isListStaticStatType(display_list):
+                        display_list.append(
+                            {
+                                "name": static.new_list_item_name,
+                                "total": 10,
+                                "base": 0,
+                                "forced_bases": [],
+                                "custom_mod": 0,
+                                "bonuses": [],
+                                "manual": True,
+                            }
+                        )
+                    elif util.isListRollableStatType(display_list):
+                        display_list.append(
+                            {
+                                "name": static.new_list_item_name,
+                                "total": 0,
+                                "custom_mod": 0,
+                                "bonuses": [],
+                                "custom_advantage": False,
+                                "custom_disadvantage": False,
+                                "custom_proficiency": False,
+                                "manual": True,
+                            }
+                        )
+                    static.new_list_item_name = ""
+                    static.new_list_item_name_missing = False
+            end_table_nested()
+
+        imgui.spacing()
+
+        if imgui.begin_table("display_list", 2, flags=table_flags):  # type: ignore
+            imgui.table_setup_column("Name")
+            imgui.table_setup_column("##delete")
+            imgui.table_headers_row()
+
+            for idx, list_item in enumerate(display_list):
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.text(list_item["name"].title())
+
+                imgui.table_next_column()
+                if list_item["manual"]:
+                    imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                    imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                    imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                    if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                        del display_list[idx]
+                    imgui.pop_style_color(3)
+
+            end_table_nested()
+
+        imgui.spacing()
+
+        if imgui.button("Close", ImVec2(120, 0)):
+            imgui.close_current_popup()
+        imgui.end_popup()
 
 
 def draw_static_stat(
@@ -1047,7 +1164,7 @@ def draw_skills(static: character_sheet_types.MainWindowProtocol) -> None:
             draw_rollable_stat_value(skill["name"].title(), skill, skill["name"], static)
         end_table_nested()
 
-    draw_add_skill_button(static)
+    draw_edit_list_popup(static.data["skills"], "Edit Skills", static)
 
 
 def draw_add_skill_button(static: character_sheet_types.MainWindowProtocol) -> None:
@@ -1084,6 +1201,7 @@ def draw_add_skill_button(static: character_sheet_types.MainWindowProtocol) -> N
                     "custom_advantage": False,
                     "custom_disadvantage": False,
                     "custom_proficiency": False,
+                    "manual": True,
                 }
             )
 
@@ -1126,7 +1244,7 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
             imgui.table_setup_column("Name")
             imgui.table_setup_column("Type")
             imgui.table_setup_column("Source")
-            imgui.table_setup_column("Add")
+            imgui.table_setup_column("##add")
             imgui.table_headers_row()
 
             imgui.table_next_row()
@@ -1139,8 +1257,7 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
             if not hasattr(static, "tool_proficiency_name"):
                 static.tool_proficiency_name = ""
             _, static.tool_proficiency_name = imgui.input_text("##tool_proficiency_name", static.tool_proficiency_name, 128)
-            if static.tool_proficiency_name != "":
-                static.tool_proficiency_name_missing = False
+
             if static.tool_proficiency_name_missing:
                 imgui.push_style_color(imgui.Col_.text.value, DISADVANTAGE_ACTIVE_COLOR)
                 imgui.text("Enter the name")
@@ -1178,13 +1295,16 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
                     static.tool_proficiency_name = ""
                     static.tool_proficiency_type = ""
                     static.tool_proficiency_source = ""
+                    static.tool_proficiency_name_missing = False
             end_table_nested()
+
+        imgui.spacing()
 
         if imgui.begin_table("edit_tool_proficiencies", 4, flags=table_flags | imgui.TableFlags_.sortable):  # type: ignore
             imgui.table_setup_column("Name")
             imgui.table_setup_column("Type")
             imgui.table_setup_column("Source")
-            imgui.table_setup_column("Delete")
+            imgui.table_setup_column("##delete")
             imgui.table_headers_row()
 
             # We need to copy the original list because otherwise sorting in the edit mode
@@ -1246,6 +1366,8 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
 
             end_table_nested()
 
+        imgui.spacing()
+
         if imgui.button("Close", ImVec2(120, 0)):
             imgui.close_current_popup()
         imgui.end_popup()
@@ -1293,7 +1415,8 @@ def make_params() -> hello_imgui.RunnerParams:
     runner_params = hello_imgui.RunnerParams()
     # Window size and title
     runner_params.app_window_params.window_title = "Just Another D&D Character Manager"
-    runner_params.app_window_params.window_geometry.size = (1400, 950)
+    # runner_params.app_window_params.window_geometry.size = (1400, 950)
+    runner_params.app_window_params.restore_previous_geometry = True
 
     # Menu bar
     runner_params.imgui_window_params.show_menu_bar = True

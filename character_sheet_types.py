@@ -62,6 +62,7 @@ class StaticStatType(IntStatType):
     name: str
     base: int
     forced_bases: list[IntOrStrBonusType]
+    manual: bool
 
 
 class RollableStatType(IntStatType):
@@ -69,6 +70,7 @@ class RollableStatType(IntStatType):
     custom_advantage: bool
     custom_disadvantage: bool
     custom_proficiency: bool
+    manual: bool
 
 
 class SavesDictType(TypedDict):
@@ -140,6 +142,8 @@ class MainWindowProtocol(Protocol):
     tool_proficiency_type: str
     tool_proficiency_source: str
     tool_proficiency_name_missing: bool
+    new_list_item_name: str
+    new_list_item_name_missing: bool
 
     def __call__(self, font_holder: FontHolder) -> None: ...
 

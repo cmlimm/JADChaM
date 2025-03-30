@@ -178,7 +178,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "animal handling",
@@ -194,7 +195,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "arcana",
@@ -210,7 +212,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "athletics",
@@ -226,7 +229,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "deception",
@@ -242,7 +246,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "history",
@@ -258,7 +263,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "insight",
@@ -274,7 +280,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "intimidation",
@@ -290,7 +297,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "investigation",
@@ -306,7 +314,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "medicine",
@@ -322,7 +331,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "nature",
@@ -338,7 +348,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "perception",
@@ -354,7 +365,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "performance",
@@ -370,7 +382,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "persuasion",
@@ -386,7 +399,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "religion",
@@ -402,7 +416,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "sleight of hand",
@@ -418,7 +433,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "stealth",
@@ -434,7 +450,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         },
         {
             "name": "survival",
@@ -450,7 +467,8 @@
             ],
             "custom_advantage": false,
             "custom_disadvantage": false,
-            "custom_proficiency": false
+            "custom_proficiency": false,
+            "manual": true
         }
     ],
     "ac": {
@@ -474,7 +492,8 @@
             "base": 30,
             "forced_bases": [],
             "custom_mod": 0,
-            "bonuses": []
+            "bonuses": [],
+            "manual": true
         },
         {
             "name": "climbing",
@@ -482,7 +501,8 @@
             "base": 0,
             "forced_bases": [],
             "custom_mod": 0,
-            "bonuses": []
+            "bonuses": [],
+            "manual": true
         },
         {
             "name": "swimming",
@@ -490,7 +510,8 @@
             "base": 0,
             "forced_bases": [],
             "custom_mod": 0,
-            "bonuses": []
+            "bonuses": [],
+            "manual": true
         },
         {
             "name": "flying",
@@ -498,7 +519,8 @@
             "base": 0,
             "forced_bases": [],
             "custom_mod": 0,
-            "bonuses": []
+            "bonuses": [],
+            "manual": true
         }
     ],
     "passives": [
@@ -515,7 +537,8 @@
                     "multiplier": 1,
                     "manual": true
                 }
-            ]
+            ],
+            "manual": true
         },
         {
             "name": "investigation",
@@ -530,7 +553,8 @@
                     "multiplier": 1,
                     "manual": true
                 }
-            ]
+            ],
+            "manual": true
         },
         {
             "name": "insight",
@@ -545,7 +569,8 @@
                     "multiplier": 1,
                     "manual": true
                 }
-            ]
+            ],
+            "manual": true
         }
     ],
     "senses": [
@@ -555,7 +580,8 @@
             "base": 0,
             "forced_bases": [],
             "custom_mod": 0,
-            "bonuses": []
+            "bonuses": [],
+            "manual": true
         },
         {
             "name": "darkvision",
@@ -563,7 +589,8 @@
             "base": 0,
             "forced_bases": [],
             "custom_mod": 0,
-            "bonuses": []
+            "bonuses": [],
+            "manual": true
         },
         {
             "name": "tremorsense",
@@ -571,7 +598,8 @@
             "base": 0,
             "forced_bases": [],
             "custom_mod": 0,
-            "bonuses": []
+            "bonuses": [],
+            "manual": true
         },
         {
             "name": "truesight",
@@ -579,7 +607,8 @@
             "base": 0,
             "forced_bases": [],
             "custom_mod": 0,
-            "bonuses": []
+            "bonuses": [],
+            "manual": true
         }
     ],
     "tool_proficiencies": {
