@@ -113,8 +113,10 @@ class LevelDictType(TypedDict):
 
 class HpDictType(TypedDict):
     current: int
-    max: int
+    max_total: int
+    max_base: int
     temp: int
+    max_hp_bonuses: list[IntBonusType]
 
 
 class CharacterDataType(TypedDict):
@@ -162,6 +164,7 @@ class MainWindowProtocol(Protocol):
     skill_name: str
     skill_ability: int
 
+    hp_add: str  # cannot be int because we use input_text to avoid +/- buttons
     class_dice_type_idx: int
     new_bonuses: dict[str, NewBonusDataType]
     tool_proficiency_name: str

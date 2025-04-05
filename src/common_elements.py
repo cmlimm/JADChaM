@@ -9,6 +9,7 @@ from util import end_table_nested
 # TODO: move to const.py or something
 TWO_DIGIT_BUTTONS_INPUT_WIDTH = 75
 TWO_DIGIT_INPUT_WIDTH = 25
+THREE_DIGIT_BUTTONS_INPUT_WIDTH = 100
 SHORT_STRING_INPUT_WIDTH = 110
 MIDDLE_STRING_INPUT_WIDTH = 150
 ADVANTAGE_COLOR = imgui.ImColor.hsv(0.3, 0.6, 0.6).value
@@ -49,11 +50,15 @@ def draw_add_bonus(
     imgui.same_line()
 
     # NEW BONUS TYPE
-    imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-    _, static.new_bonuses[id]["current_new_bonus_type_idx"] = imgui.combo(
-        f"##current_new_bonus_type_{id}", static.new_bonuses[id]["current_new_bonus_type_idx"], bonus_types, len(bonus_types)
-    )
-    imgui.same_line()
+    if bonus_types == ["Numerical"]:
+        # Do not draw a dropdown with a single "Numerical" element
+        static.new_bonuses[id]["current_new_bonus_type_idx"] = 0
+    else:
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+        _, static.new_bonuses[id]["current_new_bonus_type_idx"] = imgui.combo(
+            f"##current_new_bonus_type_{id}", static.new_bonuses[id]["current_new_bonus_type_idx"], bonus_types, len(bonus_types)
+        )
+        imgui.same_line()
 
     new_bonus_name = static.new_bonuses[id]["new_bonus_name"]
     new_bonus_value: int | str | character_sheet_types.StaticStatType = 0

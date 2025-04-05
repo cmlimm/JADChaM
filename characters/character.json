@@ -20,7 +20,8 @@
     },
     "hp": {
         "current": 33,
-        "max": 116,
+        "max_total": 0,
+        "max_base": 116,
         "temp": 10,
         "max_hp_bonuses": []
     },

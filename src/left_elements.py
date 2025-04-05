@@ -6,13 +6,18 @@ from imgui_bundle import ImVec2, icons_fontawesome_6, imgui
 import character_sheet_types
 import type_checking_guards
 from common_elements import (
+    ADVANTAGE_ACTIVE_COLOR,
+    ADVANTAGE_COLOR,
+    ADVANTAGE_HOVER_COLOR,
     DISADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
     FORCED_OVERRIDE_COLOR,
     MIDDLE_STRING_INPUT_WIDTH,
     SHORT_STRING_INPUT_WIDTH,
+    THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
+    TWO_DIGIT_INPUT_WIDTH,
     draw_add_bonus,
     draw_edit_list_popup,
     draw_rollable_stat_value,
@@ -43,6 +48,8 @@ def draw_level_class(static: character_sheet_types.MainWindowProtocol) -> None:
         for class_dict in static.data["level"]["classes"]:
             imgui.table_next_row()
             imgui.table_next_column()
+
+            imgui.align_text_to_frame_padding()
             imgui.text(f"{class_dict["name"]}")
 
             imgui.table_next_column()
@@ -85,6 +92,114 @@ def draw_level_class(static: character_sheet_types.MainWindowProtocol) -> None:
     draw_edit_list_popup(static.data["level"]["classes"], "Edit Classes", static)
 
 
+def draw_hp(static: character_sheet_types.MainWindowProtocol) -> None:
+    table_flags = (  # type: ignore
+        imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+        | imgui.TableFlags_.no_host_extend_x  # type: ignore
+        | imgui.TableFlags_.borders.value
+        | imgui.TableFlags_.row_bg.value
+    )
+    if imgui.begin_table("hp_table", 3, flags=table_flags):  # type: ignore
+        imgui.table_setup_column("Hit Points")
+        imgui.table_setup_column("Current / Max")
+        imgui.table_setup_column("Temp")
+        imgui.table_headers_row()
+
+        imgui.table_next_row()
+        imgui.table_next_column()
+
+        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+        if imgui.button("Damage"):
+            if type_checking_guards.isRepresentInt(static.hp_add):
+                int_hp_add = int(static.hp_add)
+                if static.data["hp"]["temp"] != 0:
+                    if int_hp_add <= static.data["hp"]["temp"]:
+                        static.data["hp"]["temp"] -= int_hp_add
+                        int_hp_add = 0
+                    else:
+                        int_hp_add -= static.data["hp"]["temp"]
+                        static.data["hp"]["temp"] = 0
+                static.data["hp"]["current"] -= int_hp_add
+                if static.data["hp"]["current"] < 0:
+                    static.data["hp"]["current"] = 0
+            static.hp_add = ""
+        imgui.pop_style_color(3)
+        imgui.same_line()
+
+        if not hasattr(static, "hp_add"):
+            static.hp_add = ""
+        imgui.push_item_width(TWO_DIGIT_INPUT_WIDTH)
+        _, static.hp_add = imgui.input_text("##hp_add", static.hp_add, 128)
+        imgui.same_line()
+
+        imgui.push_style_color(imgui.Col_.button.value, ADVANTAGE_COLOR)
+        imgui.push_style_color(imgui.Col_.button_hovered.value, ADVANTAGE_HOVER_COLOR)
+        imgui.push_style_color(imgui.Col_.button_active.value, ADVANTAGE_ACTIVE_COLOR)
+        if imgui.button("Heal"):
+            if type_checking_guards.isRepresentInt(static.hp_add):
+                static.data["hp"]["current"] += int(static.hp_add)
+                if static.data["hp"]["current"] >= static.data["hp"]["max_total"]:
+                    static.data["hp"]["current"] = static.data["hp"]["max_total"]
+            static.hp_add = ""
+        imgui.pop_style_color(3)
+
+        imgui.table_next_column()
+        total_bonus = 0
+        for bonus in static.data["hp"]["max_hp_bonuses"]:
+            total_bonus += bonus["value"]
+        static.data["hp"]["max_total"] = static.data["hp"]["max_base"] + total_bonus
+
+        imgui.align_text_to_frame_padding()
+        imgui.text(f"{static.data["hp"]["current"]} / {static.data["hp"]["max_total"]}")
+        imgui.same_line()
+        if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}"):
+            imgui.open_popup("max_hp_edit")
+
+        if imgui.begin_popup("max_hp_edit"):
+            imgui.text(f"Max HP")
+            imgui.same_line()
+            imgui.push_item_width(THREE_DIGIT_BUTTONS_INPUT_WIDTH)
+            _, static.data["hp"]["max_base"] = imgui.input_int("##max_hp", static.data["hp"]["max_base"])
+
+            imgui.text(f"Add new Max HP bonus:")
+            draw_add_bonus("max_hp_bonus", static.data["hp"]["max_hp_bonuses"], ["Numerical"], 1, static)
+
+            if static.data["hp"]["max_hp_bonuses"]:
+                imgui.text(f"Max HP bonuses ({total_bonus}):")
+                table_flags = (  # type: ignore
+                    imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+                    | imgui.TableFlags_.no_host_extend_x  # type: ignore
+                    | imgui.TableFlags_.row_bg.value
+                )
+                if imgui.begin_table("additional_bonuses", 2, flags=table_flags):  # type: ignore
+                    for idx, bonus in enumerate(static.data["hp"]["max_hp_bonuses"]):
+                        imgui.table_next_row()
+                        name, value, manual = bonus["name"], bonus["value"], bonus["manual"]
+
+                        imgui.table_next_column()
+                        imgui.text(f"\t{name}: {value}")
+
+                        imgui.table_next_column()
+                        if manual:
+                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                                del static.data["hp"]["max_hp_bonuses"][idx]
+                            imgui.pop_style_color(3)
+                    end_table_nested()
+
+            imgui.end_popup()
+
+        imgui.table_next_column()
+        imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+        _, static.data["hp"]["temp"] = imgui.input_int("##hp_temp", static.data["hp"]["temp"])
+
+        end_table_nested()
+
+
 def draw_name_level_class(static: character_sheet_types.MainWindowProtocol) -> None:
     if imgui.begin_table("name_level_class", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
         imgui.table_next_row()
@@ -93,10 +208,6 @@ def draw_name_level_class(static: character_sheet_types.MainWindowProtocol) -> N
         _, static.data["name"] = imgui.input_text("##name", static.data["name"], 128)
         imgui.same_line()
 
-        imgui.table_next_column()
-        imgui.text("HP placeholder")
-
-        imgui.table_next_row()
         imgui.table_next_column()
         draw_level_class(static)
 

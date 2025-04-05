@@ -7,6 +7,7 @@ from common_elements import draw_rollable_stat_value
 from left_elements import (
     draw_abilities,
     draw_ac_value,
+    draw_hp,
     draw_name_level_class,
     draw_passives,
     draw_proficiency_value,
@@ -54,7 +55,9 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
         imgui.spacing()
 
         draw_name_level_class(static)
-
+        imgui.spacing()
+        draw_hp(static)
+        imgui.spacing()
         draw_abilities(static)
 
         if imgui.begin_table("saves_prof_init_ac", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
