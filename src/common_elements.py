@@ -9,7 +9,8 @@ from util import end_table_nested
 # TODO: move to const.py or something
 TWO_DIGIT_BUTTONS_INPUT_WIDTH = 75
 TWO_DIGIT_INPUT_WIDTH = 25
-SHORT_STRING_INPUT_WINDTH = 110
+SHORT_STRING_INPUT_WIDTH = 110
+MIDDLE_STRING_INPUT_WIDTH = 150
 ADVANTAGE_COLOR = imgui.ImColor.hsv(0.3, 0.6, 0.6).value
 ADVANTAGE_HOVER_COLOR = imgui.ImColor.hsv(0.3, 0.7, 0.7).value
 ADVANTAGE_ACTIVE_COLOR = imgui.ImColor.hsv(0.3, 0.8, 0.8).value
@@ -41,14 +42,14 @@ def draw_add_bonus(
         }
 
     # NEW BONUS NAME
-    imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+    imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
     _, static.new_bonuses[id]["new_bonus_name"] = imgui.input_text_with_hint(
         f"##new_bonus_name_{id}", "Name", static.new_bonuses[id]["new_bonus_name"], 128
     )
     imgui.same_line()
 
     # NEW BONUS TYPE
-    imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+    imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
     _, static.new_bonuses[id]["current_new_bonus_type_idx"] = imgui.combo(
         f"##current_new_bonus_type_{id}", static.new_bonuses[id]["current_new_bonus_type_idx"], bonus_types, len(bonus_types)
     )
@@ -70,7 +71,7 @@ def draw_add_bonus(
     # ABILITY BONUS
     if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Ability":
         abilities = list(static.data["abilities"].keys())
-        imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.new_bonuses[id]["current_new_bonus_ability_idx"] = imgui.combo(
             f"##current_new_bonus_ability_{id}",
             static.new_bonuses[id]["current_new_bonus_ability_idx"],
@@ -81,14 +82,14 @@ def draw_add_bonus(
             new_bonus_value = abilities[static.new_bonuses[id]["current_new_bonus_ability_idx"]]
 
         imgui.same_line()
-        imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.new_bonuses[id]["current_new_bonus_mult_idx"] = imgui.combo(
             f"##current_new_bonus_mult_{id}", static.new_bonuses[id]["current_new_bonus_mult_idx"], multipliers, len(multipliers)
         )
 
     # PROFICICENCY BONUS
     if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Proficiency":
-        imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.new_bonuses[id]["current_new_bonus_mult_idx"] = imgui.combo(
             f"##current_new_bonus_mult_{id}", static.new_bonuses[id]["current_new_bonus_mult_idx"], multipliers, len(multipliers)
         )
@@ -98,7 +99,7 @@ def draw_add_bonus(
     if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Speed":
         # TODO: make a guard so that the user could not create cyclical speed references
         speed_types = [speed["name"] for speed in static.data["speed"]]
-        imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.new_bonuses[id]["current_new_bonus_speed_idx"] = imgui.combo(
             f"##current_new_bonus_speed_{id}",
             static.new_bonuses[id]["current_new_bonus_speed_idx"],
@@ -108,7 +109,7 @@ def draw_add_bonus(
         new_bonus_value = static.data["speed"][static.new_bonuses[id]["current_new_bonus_speed_idx"]]
 
         imgui.same_line()
-        imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.new_bonuses[id]["current_new_bonus_mult_idx"] = imgui.combo(
             f"##current_new_bonus_mult_{id}", static.new_bonuses[id]["current_new_bonus_mult_idx"], multipliers, len(multipliers)
         )
@@ -118,7 +119,7 @@ def draw_add_bonus(
     if bonus_types[static.new_bonuses[id]["current_new_bonus_type_idx"]] == "Sense":
         # TODO: make a guard so that the user could not create cyclical sense references
         sense_types = [sense["name"] for sense in static.data["senses"]]
-        imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.new_bonuses[id]["current_new_bonus_sense_idx"] = imgui.combo(
             f"##current_new_bonus_sense_{id}",
             static.new_bonuses[id]["current_new_bonus_sense_idx"],
@@ -128,7 +129,7 @@ def draw_add_bonus(
         new_bonus_value = static.data["senses"][static.new_bonuses[id]["current_new_bonus_sense_idx"]]
 
         imgui.same_line()
-        imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.new_bonuses[id]["current_new_bonus_mult_idx"] = imgui.combo(
             f"##current_new_bonus_mult_{id}", static.new_bonuses[id]["current_new_bonus_mult_idx"], multipliers, len(multipliers)
         )
@@ -290,7 +291,11 @@ def draw_rollable_stat_value(
 
 
 def draw_edit_list_popup(
-    display_list: list[character_sheet_types.RollableStatType] | list[character_sheet_types.StaticStatType],
+    display_list: (
+        list[character_sheet_types.RollableStatType]
+        | list[character_sheet_types.StaticStatType]
+        | list[character_sheet_types.ClassDictType]
+    ),
     window_name: str,
     static: character_sheet_types.MainWindowProtocol,
 ):
@@ -313,7 +318,7 @@ def draw_edit_list_popup(
 
             imgui.table_next_row()
             imgui.table_next_column()
-            imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+            imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
 
             if not hasattr(static, "new_list_item_name"):
                 static.new_list_item_name = ""
@@ -357,6 +362,8 @@ def draw_edit_list_popup(
                                 "manual": True,
                             }
                         )
+                    elif type_checking_guards.isListClassStatType(display_list):
+                        display_list.append({"name": static.new_list_item_name, "level": 1, "dice": 10, "manual": True})
                     static.new_list_item_name = ""
                     static.new_list_item_name_missing = False
             end_table_nested()

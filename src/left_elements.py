@@ -10,7 +10,8 @@ from common_elements import (
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
     FORCED_OVERRIDE_COLOR,
-    SHORT_STRING_INPUT_WINDTH,
+    MIDDLE_STRING_INPUT_WIDTH,
+    SHORT_STRING_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
     draw_add_bonus,
     draw_edit_list_popup,
@@ -18,6 +19,88 @@ from common_elements import (
     draw_static_stat,
 )
 from util import end_table_nested
+
+
+def calculate_level(static: character_sheet_types.MainWindowProtocol) -> None:
+    total = sum([item["level"] for item in static.data["level"]["classes"]])
+    static.data["level"]["total"] = total
+
+
+def draw_level_class(static: character_sheet_types.MainWindowProtocol) -> None:
+    table_flags = (  # type: ignore
+        imgui.TableFlags_.sizing_fixed_fit  # type: ignore
+        | imgui.TableFlags_.no_host_extend_x  # type: ignore
+        | imgui.TableFlags_.borders.value
+        | imgui.TableFlags_.row_bg.value
+    )
+    calculate_level(static)
+    imgui.text(f"Level {static.data["level"]["total"]}, Classes")
+    imgui.same_line()
+    if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_classes"):
+        imgui.open_popup("Edit Classes")
+
+    if imgui.begin_table("classes", 2, flags=table_flags):
+        for class_dict in static.data["level"]["classes"]:
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.text(f"{class_dict["name"]}")
+
+            imgui.table_next_column()
+            if imgui.button(f"{class_dict["level"]}"):
+                imgui.open_popup(f"##{class_dict["name"]}_edit_class")
+
+            if imgui.begin_popup(f"##{class_dict["name"]}_edit_class"):
+                if imgui.begin_table("class_settings", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+                    imgui.table_next_row()
+                    imgui.table_next_column()
+                    imgui.text("Class")
+                    imgui.table_next_column()
+                    imgui.push_item_width(MIDDLE_STRING_INPUT_WIDTH)
+                    _, class_dict["name"] = imgui.input_text("##class", class_dict["name"], 128)
+
+                    imgui.table_next_row()
+                    imgui.table_next_column()
+                    imgui.text("Level")
+                    imgui.table_next_column()
+                    imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+                    _, class_dict["level"] = imgui.input_int("##level", class_dict["level"])
+
+                    imgui.table_next_row()
+                    imgui.table_next_column()
+                    imgui.text(f"HP dice type ({class_dict["level"]}d{class_dict["dice"]})")
+                    imgui.table_next_column()
+                    dice_types = [4, 6, 8, 10, 12, 20]
+                    if not hasattr(static, "class_dice_type_idx"):
+                        static.class_dice_type_idx = 0
+                    imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+                    _, static.class_dice_type_idx = imgui.combo(
+                        f"##dice_combo", dice_types.index(class_dict["dice"]), [str(item) for item in dice_types], len(dice_types)
+                    )
+                    class_dict["dice"] = dice_types[static.class_dice_type_idx]
+
+                    end_table_nested()
+                imgui.end_popup()
+        end_table_nested()
+
+    draw_edit_list_popup(static.data["level"]["classes"], "Edit Classes", static)
+
+
+def draw_name_level_class(static: character_sheet_types.MainWindowProtocol) -> None:
+    if imgui.begin_table("name_level_class", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+        imgui.table_next_row()
+        imgui.table_next_column()
+        imgui.push_item_width(MIDDLE_STRING_INPUT_WIDTH)
+        _, static.data["name"] = imgui.input_text("##name", static.data["name"], 128)
+        imgui.same_line()
+
+        imgui.table_next_column()
+        imgui.text("HP placeholder")
+
+        imgui.table_next_row()
+        imgui.table_next_column()
+        draw_level_class(static)
+
+        end_table_nested()
 
 
 def draw_add_skill_button(static: character_sheet_types.MainWindowProtocol) -> None:
@@ -536,7 +619,7 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
 
             imgui.table_next_column()
 
-            imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+            imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
             if not hasattr(static, "tool_proficiency_name_missing"):
                 static.tool_proficiency_name_missing = False
             if not hasattr(static, "tool_proficiency_name"):
@@ -551,7 +634,7 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
             imgui.table_next_column()
             if not hasattr(static, "tool_proficiency_type"):
                 static.tool_proficiency_type = ""
-            imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+            imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
             _, static.tool_proficiency_type = imgui.input_text_with_hint(
                 "##tool_proficiency_type", "Other", static.tool_proficiency_type, 128
             )
@@ -559,7 +642,7 @@ def draw_tool_proficiencies(static: character_sheet_types.MainWindowProtocol) ->
             imgui.table_next_column()
             if not hasattr(static, "tool_proficiency_source"):
                 static.tool_proficiency_source = ""
-            imgui.push_item_width(SHORT_STRING_INPUT_WINDTH)
+            imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
             _, static.tool_proficiency_source = imgui.input_text_with_hint(
                 "##tool_proficiency_source", "optional", static.tool_proficiency_source, 128
             )

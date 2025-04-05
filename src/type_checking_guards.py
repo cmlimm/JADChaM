@@ -37,6 +37,15 @@ def isListRollableStatType(item: Any) -> TypeGuard[list[character_sheet_types.Ro
         return False
 
 
+def isListClassStatType(item: Any) -> TypeGuard[list[character_sheet_types.ClassDictType]]:
+    adapter = TypeAdapter(list[character_sheet_types.ClassDictType])
+    try:
+        adapter.validate_python(item)
+        return True
+    except ValidationError:
+        return False
+
+
 def isStaticStatType(item: Any) -> TypeGuard[character_sheet_types.StaticStatType]:
     adapter = TypeAdapter(character_sheet_types.StaticStatType)
     try:

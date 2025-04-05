@@ -7,6 +7,7 @@ from common_elements import draw_rollable_stat_value
 from left_elements import (
     draw_abilities,
     draw_ac_value,
+    draw_name_level_class,
     draw_passives,
     draw_proficiency_value,
     draw_saves,
@@ -31,6 +32,7 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
 
     # Only draw the main interface if the character file is loaded
     if hasattr(static, "file_paths") and static.file_paths:
+        # TODO: move to toolbar.py
         if imgui.begin_main_menu_bar():
             if imgui.begin_menu("File", True):
                 if imgui.menu_item_simple("Open", "Ctrl+N"):
@@ -50,6 +52,8 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
             save_file(static)
 
         imgui.spacing()
+
+        draw_name_level_class(static)
 
         draw_abilities(static)
 

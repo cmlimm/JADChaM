@@ -1,5 +1,29 @@
 {
-    "name": "Cool Name",
+    "name": "Mirkezim",
+    "race": "Human",
+    "level": {
+        "total": 0,
+        "classes": [
+            {
+                "name": "Paladin",
+                "level": 6,
+                "dice": 10,
+                "manual": true
+            },
+            {
+                "name": "Warlock",
+                "level": 5,
+                "dice": 8,
+                "manual": true
+            }
+        ]
+    },
+    "hp": {
+        "current": 33,
+        "max": 116,
+        "temp": 10,
+        "max_hp_bonuses": []
+    },
     "abilities": {
         "str": {
             "total": 0,

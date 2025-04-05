@@ -99,15 +99,39 @@ class ToolProficiencyDictType(TypedDict):
     proficiencies: list[ToolProficienciesListItemDictType]
 
 
+class ClassDictType(TypedDict):
+    name: str
+    level: int
+    dice: int
+    manual: bool
+
+
+class LevelDictType(TypedDict):
+    total: int
+    classes: list[ClassDictType]
+
+
+class HpDictType(TypedDict):
+    current: int
+    max: int
+    temp: int
+
+
 class CharacterDataType(TypedDict):
     name: str
-    abilities: AbilitiesDictType
-    saves: SavesDictType
-    passives: list[StaticStatType]
+    race: str
+    level: LevelDictType
+    hp: HpDictType
+
+    ac: AcType
     proficiency: ProficiencyType
     initiative: RollableStatType
+
+    abilities: AbilitiesDictType
+    saves: SavesDictType
     skills: list[RollableStatType]
-    ac: AcType
+    passives: list[StaticStatType]
+
     speed: list[StaticStatType]
     senses: list[StaticStatType]
     tool_proficiencies: ToolProficiencyDictType
@@ -137,6 +161,8 @@ class MainWindowProtocol(Protocol):
     file_paths: list[str]
     skill_name: str
     skill_ability: int
+
+    class_dice_type_idx: int
     new_bonuses: dict[str, NewBonusDataType]
     tool_proficiency_name: str
     tool_proficiency_type: str
