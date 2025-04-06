@@ -1,7 +1,11 @@
 import itertools
+import os
+import shutil
 from math import trunc
 
-from imgui_bundle import ImVec2, icons_fontawesome_6, imgui
+from imgui_bundle import hello_imgui  # type: ignore
+from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, immapp  # type: ignore
+from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 import character_sheet_types
 import type_checking_guards
@@ -13,7 +17,7 @@ from common_elements import (
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
     FORCED_OVERRIDE_COLOR,
-    MIDDLE_STRING_INPUT_WIDTH,
+    MEDIUM_STRING_INPUT_WIDTH,
     SHORT_STRING_INPUT_WIDTH,
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
@@ -39,7 +43,7 @@ def draw_level_class(static: character_sheet_types.MainWindowProtocol) -> None:
         | imgui.TableFlags_.row_bg.value
     )
     calculate_level(static)
-    imgui.text(f"Level {static.data["level"]["total"]}, Classes")
+    imgui.text(f"Level {static.data["level"]["total"]}")
     imgui.same_line()
     if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_classes"):
         imgui.open_popup("Edit Classes")
@@ -62,7 +66,7 @@ def draw_level_class(static: character_sheet_types.MainWindowProtocol) -> None:
                     imgui.table_next_column()
                     imgui.text("Class")
                     imgui.table_next_column()
-                    imgui.push_item_width(MIDDLE_STRING_INPUT_WIDTH)
+                    imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
                     _, class_dict["name"] = imgui.input_text("##class", class_dict["name"], 128)
 
                     imgui.table_next_row()
@@ -200,18 +204,33 @@ def draw_hp(static: character_sheet_types.MainWindowProtocol) -> None:
         end_table_nested()
 
 
-def draw_name_level_class(static: character_sheet_types.MainWindowProtocol) -> None:
-    if imgui.begin_table("name_level_class", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-        imgui.table_next_row()
-        imgui.table_next_column()
-        imgui.push_item_width(MIDDLE_STRING_INPUT_WIDTH)
-        _, static.data["name"] = imgui.input_text("##name", static.data["name"], 128)
-        imgui.same_line()
+def draw_name(static: character_sheet_types.MainWindowProtocol) -> None:
+    imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+    _, static.data["name"] = imgui.input_text("##name", static.data["name"], 128)
 
-        imgui.table_next_column()
-        draw_level_class(static)
 
-        end_table_nested()
+def draw_image(static: character_sheet_types.MainWindowProtocol) -> None:
+    if not hasattr(static, "open_image_dialog"):
+        static.open_image_dialog = None
+
+    if static.open_image_dialog is not None and static.open_image_dialog.ready():
+        if static.file_paths:
+            file_path = static.open_image_dialog.result()[0]
+            static.data["image_path"] = f"images/{os.path.basename(file_path)}"
+            try:
+                shutil.copy(file_path, f"{os.getcwd()}/assets/{static.data["image_path"]}")
+            except shutil.SameFileError:
+                pass
+            static.open_image_dialog = None
+
+    if static.data["image_path"] == "":
+        if imgui.button(f"{icons_fontawesome_6.ICON_FA_IMAGE}"):
+            static.open_image_dialog = pfd.open_file("Select file", filters=["Image Files", "*.png *.jpg *.jpeg *.bmp"])
+    else:
+        hello_imgui.image_from_asset(static.data["image_path"], immapp.em_to_vec2(0.0, 10.0))
+
+        if imgui.button("Remove Image"):
+            static.data["image_path"] = ""
 
 
 def draw_add_skill_button(static: character_sheet_types.MainWindowProtocol) -> None:

@@ -1,28 +1,23 @@
 {
-    "name": "Mirkezim",
+    "name": "",
+    "image_path": "",
     "race": "Human",
     "level": {
         "total": 0,
         "classes": [
             {
                 "name": "Paladin",
-                "level": 6,
+                "level": 1,
                 "dice": 10,
-                "manual": true
-            },
-            {
-                "name": "Warlock",
-                "level": 5,
-                "dice": 8,
                 "manual": true
             }
         ]
     },
     "hp": {
-        "current": 33,
+        "current": 0,
         "max_total": 0,
-        "max_base": 116,
-        "temp": 10,
+        "max_base": 0,
+        "temp": 0,
         "max_hp_bonuses": []
     },
     "abilities": {
@@ -512,7 +507,7 @@
     },
     "speed": [
         {
-            "name": "walking", 
+            "name": "walking",
             "total": 30,
             "base": 30,
             "forced_bases": [],

@@ -120,6 +120,8 @@ class HpDictType(TypedDict):
 
 
 class CharacterDataType(TypedDict):
+    image_path: str
+
     name: str
     race: str
     level: LevelDictType
@@ -160,6 +162,7 @@ class MainWindowProtocol(Protocol):
     bold_font: imgui.ImFont
     data: CharacterDataType
     open_file_dialog: Optional[pfd.open_file]
+    open_image_dialog: Optional[pfd.open_file]
     file_paths: list[str]
     skill_name: str
     skill_ability: int

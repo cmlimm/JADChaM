@@ -8,9 +8,11 @@ import character_sheet_types
 def isRepresentInt(value: Any) -> TypeGuard[int]:
     if isinstance(value, int):
         return True
-    if value[0] in ("-", "+"):
-        return value[1:].isdigit()
-    return value.isdigit()
+    if isinstance(value, str):
+        if value[0] in ("-", "+"):
+            return value[1:].isdigit()
+        return value.isdigit()
+    return False
 
 
 def isAbilityName(value: Any) -> TypeGuard[character_sheet_types.AbilityNameType]:

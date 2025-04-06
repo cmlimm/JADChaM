@@ -11,7 +11,7 @@ TWO_DIGIT_BUTTONS_INPUT_WIDTH = 75
 TWO_DIGIT_INPUT_WIDTH = 25
 THREE_DIGIT_BUTTONS_INPUT_WIDTH = 100
 SHORT_STRING_INPUT_WIDTH = 110
-MIDDLE_STRING_INPUT_WIDTH = 150
+MEDIUM_STRING_INPUT_WIDTH = 150
 ADVANTAGE_COLOR = imgui.ImColor.hsv(0.3, 0.6, 0.6).value
 ADVANTAGE_HOVER_COLOR = imgui.ImColor.hsv(0.3, 0.7, 0.7).value
 ADVANTAGE_ACTIVE_COLOR = imgui.ImColor.hsv(0.3, 0.8, 0.8).value
@@ -343,6 +343,7 @@ def draw_edit_list_popup(
                     static.new_list_item_name_missing = True
                 else:
                     if type_checking_guards.isListStaticStatType(display_list):
+                        print("CAUGHT")
                         display_list.append(
                             {
                                 "name": static.new_list_item_name,

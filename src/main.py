@@ -1,3 +1,5 @@
+import os
+
 from imgui_bundle import hello_imgui  # type: ignore
 from imgui_bundle import icons_fontawesome_6, imgui, immapp  # type: ignore
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
@@ -8,7 +10,9 @@ from left_elements import (
     draw_abilities,
     draw_ac_value,
     draw_hp,
-    draw_name_level_class,
+    draw_image,
+    draw_level_class,
+    draw_name,
     draw_passives,
     draw_proficiency_value,
     draw_saves,
@@ -37,14 +41,14 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
         if imgui.begin_main_menu_bar():
             if imgui.begin_menu("File", True):
                 if imgui.menu_item_simple("Open", "Ctrl+N"):
-                    static.open_file_dialog = pfd.open_file("Select file")
+                    static.open_file_dialog = pfd.open_file("Select file", os.getcwd())
                 if imgui.menu_item_simple("Save", "Ctrl+S"):
                     save_file(static)
                 imgui.end_menu()
             imgui.end_main_menu_bar()
 
         if imgui.shortcut(imgui.Key.mod_ctrl | imgui.Key.n):  # type: ignore
-            static.open_file_dialog = pfd.open_file("Select file")
+            static.open_file_dialog = pfd.open_file("Select file", os.getcwd())
         # We need to continously try to open a file, otherwise it is called
         # once when the files have not yet been selected
         open_file(static)
@@ -54,7 +58,26 @@ def main_window(font_holder: character_sheet_types.FontHolder) -> None:
 
         imgui.spacing()
 
-        draw_name_level_class(static)
+        if imgui.begin_table("name_image_level_class", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+            imgui.table_next_row()
+            imgui.table_next_column()
+
+            # if imgui.begin_table("name_image", 1, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+            #     imgui.table_next_row()
+            #     imgui.table_next_column()
+            draw_name(static)
+
+            imgui.table_next_row()
+            imgui.table_next_column()
+            draw_image(static)
+
+            # end_table_nested()
+
+            imgui.table_next_column()
+            draw_level_class(static)
+
+            end_table_nested()
+
         imgui.spacing()
         draw_hp(static)
         imgui.spacing()
