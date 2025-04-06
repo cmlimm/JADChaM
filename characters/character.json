@@ -7,8 +7,8 @@
         "classes": [
             {
                 "name": "no display",
-                "level": 1,
-                "dice": 4,
+                "level": 0,
+                "dice": 0,
                 "manual": false
             }
         ]
