@@ -58,7 +58,7 @@ def draw_level_class(static: character_sheet_types.MainWindowProtocol) -> None:
                 imgui.text(f"{class_dict["name"]}")
 
                 imgui.table_next_column()
-                if imgui.button(f"{class_dict["level"]}"):
+                if imgui.button(f"{class_dict["level"]}##{class_dict["name"]}"):
                     imgui.open_popup(f"##{class_dict["name"]}_edit_class")
 
                 if imgui.begin_popup(f"##{class_dict["name"]}_edit_class"):
