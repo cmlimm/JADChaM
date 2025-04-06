@@ -295,6 +295,8 @@ def draw_rollable_stat_value(
         imgui.end_popup()
 
 
+# An item with the name "no display" should always be
+# present in the `display_list` to correctly type the list with Type Guards
 def draw_edit_list_popup(
     display_list: (
         list[character_sheet_types.RollableStatType]
@@ -342,6 +344,8 @@ def draw_edit_list_popup(
                 if static.new_list_item_name == "":
                     static.new_list_item_name_missing = True
                 else:
+                    # An item with the name "no display" should always be
+                    # present in the `display_list` to correctly type the list with Type Guards
                     if type_checking_guards.isListStaticStatType(display_list):
                         print("CAUGHT")
                         display_list.append(
@@ -382,18 +386,19 @@ def draw_edit_list_popup(
             imgui.table_headers_row()
 
             for idx, list_item in enumerate(display_list):
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.text(list_item["name"].title())
+                if list_item["name"] != "no display":
+                    imgui.table_next_row()
+                    imgui.table_next_column()
+                    imgui.text(list_item["name"].title())
 
-                imgui.table_next_column()
-                if list_item["manual"]:
-                    imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                    imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                    imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                    if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
-                        del display_list[idx]
-                    imgui.pop_style_color(3)
+                    imgui.table_next_column()
+                    if list_item["manual"]:
+                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                            del display_list[idx]
+                        imgui.pop_style_color(3)
 
             end_table_nested()
 

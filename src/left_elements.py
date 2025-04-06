@@ -50,47 +50,51 @@ def draw_level_class(static: character_sheet_types.MainWindowProtocol) -> None:
 
     if imgui.begin_table("classes", 2, flags=table_flags):
         for class_dict in static.data["level"]["classes"]:
-            imgui.table_next_row()
-            imgui.table_next_column()
+            if class_dict["name"] != "no display":
+                imgui.table_next_row()
+                imgui.table_next_column()
 
-            imgui.align_text_to_frame_padding()
-            imgui.text(f"{class_dict["name"]}")
+                imgui.align_text_to_frame_padding()
+                imgui.text(f"{class_dict["name"]}")
 
-            imgui.table_next_column()
-            if imgui.button(f"{class_dict["level"]}"):
-                imgui.open_popup(f"##{class_dict["name"]}_edit_class")
+                imgui.table_next_column()
+                if imgui.button(f"{class_dict["level"]}"):
+                    imgui.open_popup(f"##{class_dict["name"]}_edit_class")
 
-            if imgui.begin_popup(f"##{class_dict["name"]}_edit_class"):
-                if imgui.begin_table("class_settings", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-                    imgui.table_next_row()
-                    imgui.table_next_column()
-                    imgui.text("Class")
-                    imgui.table_next_column()
-                    imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
-                    _, class_dict["name"] = imgui.input_text("##class", class_dict["name"], 128)
+                if imgui.begin_popup(f"##{class_dict["name"]}_edit_class"):
+                    if imgui.begin_table("class_settings", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
+                        imgui.table_next_row()
+                        imgui.table_next_column()
+                        imgui.text("Class")
+                        imgui.table_next_column()
+                        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+                        _, class_dict["name"] = imgui.input_text("##class", class_dict["name"], 128)
 
-                    imgui.table_next_row()
-                    imgui.table_next_column()
-                    imgui.text("Level")
-                    imgui.table_next_column()
-                    imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                    _, class_dict["level"] = imgui.input_int("##level", class_dict["level"])
+                        imgui.table_next_row()
+                        imgui.table_next_column()
+                        imgui.text("Level")
+                        imgui.table_next_column()
+                        imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+                        _, class_dict["level"] = imgui.input_int("##level", class_dict["level"])
 
-                    imgui.table_next_row()
-                    imgui.table_next_column()
-                    imgui.text(f"HP dice type ({class_dict["level"]}d{class_dict["dice"]})")
-                    imgui.table_next_column()
-                    dice_types = [4, 6, 8, 10, 12, 20]
-                    if not hasattr(static, "class_dice_type_idx"):
-                        static.class_dice_type_idx = 0
-                    imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-                    _, static.class_dice_type_idx = imgui.combo(
-                        f"##dice_combo", dice_types.index(class_dict["dice"]), [str(item) for item in dice_types], len(dice_types)
-                    )
-                    class_dict["dice"] = dice_types[static.class_dice_type_idx]
+                        imgui.table_next_row()
+                        imgui.table_next_column()
+                        imgui.text(f"HP dice type ({class_dict["level"]}d{class_dict["dice"]})")
+                        imgui.table_next_column()
+                        dice_types = [4, 6, 8, 10, 12, 20]
+                        if not hasattr(static, "class_dice_type_idx"):
+                            static.class_dice_type_idx = 0
+                        imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+                        _, static.class_dice_type_idx = imgui.combo(
+                            f"##dice_combo",
+                            dice_types.index(class_dict["dice"]),
+                            [str(item) for item in dice_types],
+                            len(dice_types),
+                        )
+                        class_dict["dice"] = dice_types[static.class_dice_type_idx]
 
-                    end_table_nested()
-                imgui.end_popup()
+                        end_table_nested()
+                    imgui.end_popup()
         end_table_nested()
 
     draw_edit_list_popup(static.data["level"]["classes"], "Edit Classes", static)
@@ -622,14 +626,15 @@ def draw_speed(static: character_sheet_types.MainWindowProtocol) -> None:
     )
     if imgui.begin_table("speed_table", 2, flags=table_flags):  # type: ignore
         for speed in static.data["speed"]:
-            imgui.table_next_row()
-            imgui.table_next_column()
-            imgui.align_text_to_frame_padding()
-            imgui.text(f"{speed["name"].title()}")
-            imgui.table_next_column()
-            draw_static_stat(
-                speed["name"], speed, speed["name"], 5, ["Numerical", "Speed"], ["Numerical", "Ability", "Speed"], static
-            )
+            if speed["name"] != "no display":
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text(f"{speed["name"].title()}")
+                imgui.table_next_column()
+                draw_static_stat(
+                    speed["name"], speed, speed["name"], 5, ["Numerical", "Speed"], ["Numerical", "Ability", "Speed"], static
+                )
 
         end_table_nested()
 
@@ -645,14 +650,15 @@ def draw_senses(static: character_sheet_types.MainWindowProtocol) -> None:
     )
     if imgui.begin_table("senses_table", 2, flags=table_flags):  # type: ignore
         for sense in static.data["senses"]:
-            imgui.table_next_row()
-            imgui.table_next_column()
-            imgui.align_text_to_frame_padding()
-            imgui.text(f"{sense["name"].title()}")
-            imgui.table_next_column()
-            draw_static_stat(
-                sense["name"], sense, sense["name"], 5, ["Numerical", "Sense"], ["Numerical", "Ability", "Sense"], static
-            )
+            if sense["name"] != "no display":
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text(f"{sense["name"].title()}")
+                imgui.table_next_column()
+                draw_static_stat(
+                    sense["name"], sense, sense["name"], 5, ["Numerical", "Sense"], ["Numerical", "Ability", "Sense"], static
+                )
 
         end_table_nested()
 
@@ -668,20 +674,21 @@ def draw_passives(static: character_sheet_types.MainWindowProtocol):
     )
     if imgui.begin_table("passives_table", 2, flags=table_flags):  # type: ignore
         for passive in static.data["passives"]:
-            imgui.table_next_row()
-            imgui.table_next_column()
-            imgui.align_text_to_frame_padding()
-            imgui.text(f"{passive["name"].title()}")
-            imgui.table_next_column()
-            draw_static_stat(
-                passive["name"],
-                passive,
-                passive["name"],
-                1,
-                ["Numerical", "Ability", "Proficiency"],
-                ["Numerical", "Ability", "Proficiency"],
-                static,
-            )
+            if passive["name"] != "no display":
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text(f"{passive["name"].title()}")
+                imgui.table_next_column()
+                draw_static_stat(
+                    passive["name"],
+                    passive,
+                    passive["name"],
+                    1,
+                    ["Numerical", "Ability", "Proficiency"],
+                    ["Numerical", "Ability", "Proficiency"],
+                    static,
+                )
         end_table_nested()
 
     draw_edit_list_popup(static.data["passives"], "Edit Passive Skills", static)
@@ -696,13 +703,14 @@ def draw_skills(static: character_sheet_types.MainWindowProtocol) -> None:
     )
     if imgui.begin_table("skills", 2, flags=table_flags):  # type: ignore
         for skill in static.data["skills"]:
-            imgui.table_next_row()
-            imgui.table_next_column()
-            imgui.align_text_to_frame_padding()
-            imgui.text(skill["name"].title())
+            if skill["name"] != "no display":
+                imgui.table_next_row()
+                imgui.table_next_column()
+                imgui.align_text_to_frame_padding()
+                imgui.text(skill["name"].title())
 
-            imgui.table_next_column()
-            draw_rollable_stat_value(skill["name"].title(), skill, skill["name"], static)
+                imgui.table_next_column()
+                draw_rollable_stat_value(skill["name"].title(), skill, skill["name"], static)
         end_table_nested()
 
     draw_edit_list_popup(static.data["skills"], "Edit Skills", static)

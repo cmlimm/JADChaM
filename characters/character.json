@@ -3,13 +3,13 @@
     "image_path": "",
     "race": "Human",
     "level": {
-        "total": 0,
+        "total": 1,
         "classes": [
             {
-                "name": "Paladin",
+                "name": "no display",
                 "level": 1,
-                "dice": 10,
-                "manual": true
+                "dice": 4,
+                "manual": false
             }
         ]
     },
@@ -184,6 +184,16 @@
         "custom_proficiency": false
     },
     "skills": [
+        {
+            "name": "no display",
+            "total": 0,
+            "custom_mod": 0,
+            "bonuses": [],
+            "custom_advantage": false,
+            "custom_disadvantage": false,
+            "custom_proficiency": false,
+            "manual": false
+        },
         {
             "name": "acrobatics",
             "total": 0,
@@ -507,6 +517,15 @@
     },
     "speed": [
         {
+            "name": "no display",
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": [],
+            "manual": false
+        },
+        {
             "name": "walking",
             "total": 30,
             "base": 30,
@@ -544,6 +563,15 @@
         }
     ],
     "passives": [
+        {
+            "name": "no display",
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": [],
+            "manual": false
+        },
         {
             "name": "perception",
             "total": 10,
@@ -594,6 +622,15 @@
         }
     ],
     "senses": [
+        {
+            "name": "no display",
+            "total": 0,
+            "base": 0,
+            "forced_bases": [],
+            "custom_mod": 0,
+            "bonuses": [],
+            "manual": false
+        },
         {
             "name": "blindsight",
             "total": 0,
