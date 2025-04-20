@@ -293,11 +293,11 @@ def draw_armor_class_button(static: MainWindowProtocol) -> None:
         if armor_class["armor"]:
             armor = armor_class["armor"]
             imgui.text("Armor:")
-            imgui.text(f"{armor["name"]} " + \
+            imgui.text(f"    {armor["name"]} " + \
                        f"(AC {armor["armor_class"]}" + \
                        f"{", Max DEX " + str(armor["max_dex_bonus"]) if armor["max_dex_bonus"] != 100 else ""})")
+            imgui.spacing()
 
-        imgui.align_text_to_frame_padding();
         imgui.text(f"New bonus:"); imgui.same_line()
         draw_add_bonus(f"ac_bonus", armor_class["bonuses"], 
                        ["Numerical", "Level", "Ability", 
