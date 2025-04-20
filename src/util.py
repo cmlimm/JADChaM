@@ -1,34 +1,79 @@
 import json
+import os
+import shutil
 
-from imgui_bundle import imgui
-
-import character_sheet_types
-
-
-# Local solution for squashed nested fixed fit table
-# See https://github.com/ocornut/imgui/issues/6586#issuecomment-1631455446
-def end_table_nested() -> None:
-    table_width = imgui.get_current_context().current_table.columns_auto_fit_width
-    imgui.push_style_var(imgui.StyleVar_.item_spacing, imgui.ImVec2(0, 0))  # type: ignore
-    imgui.end_table()
-    imgui.dummy(imgui.ImVec2(table_width, 0))
-    imgui.pop_style_var()
+from cs_types import MainWindowProtocol
 
 
-def open_file(static: character_sheet_types.MainWindowProtocol) -> None:
+def open_file(static: MainWindowProtocol) -> None:
     if static.open_file_dialog is not None and static.open_file_dialog.ready():
-        static.file_paths = static.open_file_dialog.result()
-        if static.file_paths:
-            character_file = open(static.file_paths[0], "r+")
+        static.file_path = static.open_file_dialog.result()
+        if static.file_path:
+            character_file = open(static.file_path[0], "r+")
+
             static.data = json.load(character_file)
+            process_character(static)
+            static.is_character_loaded = True
+    
             character_file.close()
 
         static.open_file_dialog = None
 
 
-def save_file(static: character_sheet_types.MainWindowProtocol) -> None:
-    character_file = open(static.file_paths[0], "r+")
+def save_file(static: MainWindowProtocol) -> None:
+    character_file = open(static.file_path[0], "r+")
     character_file.seek(0)
     character_file.truncate(0)
     json.dump(static.data, character_file, indent=4)
     character_file.close()
+
+
+def open_image(static: MainWindowProtocol) -> None:
+    if static.open_image_dialog is not None and static.open_image_dialog.ready():
+        file_path = static.open_image_dialog.result()
+        if file_path:
+            static.data["image_path"] = f"images/{os.path.basename(file_path[0])}"
+            try:
+                shutil.copy(file_path[0], f"{os.getcwd()}/assets/{static.data["image_path"]}")
+            except shutil.SameFileError:
+                pass
+        
+        static.open_image_dialog = None
+
+
+# Create a dict that stores references to complex objects, i. e:
+# "abilities:animal_handling": reference to static.data["abilities"]["animal_handling"]
+#
+# This allows us to quickly access an object without searching through a dict.
+def process_character(static: MainWindowProtocol) -> None:
+    static.data_refs = {}
+    
+    # Classes
+    for class_dict in static.data["level"]["classes"]:
+        static.data_refs[f"level:{class_dict["name"]}"] = class_dict
+
+    # Abilities
+    for ability in static.data["abilities"]:
+        static.data_refs[f"ability:{ability["name"]}"] = ability
+
+    # Saves
+    for save in static.data["saves"]:
+        static.data_refs[f"save:{save["name"]}"] = save
+        
+    # Skills
+    for skill in static.data["skills"]:
+        static.data_refs[f"skill:{skill["name"]}"] = skill
+
+    # Speed
+    for speed in static.data["speed"]:
+        static.data_refs[f"speed:{speed["name"]}"] = speed
+
+    # Passives
+    for passive in static.data["passive_skill"]:
+        static.data_refs[f"passive:{passive["name"]}"] = passive
+
+    # Senses
+    for sense in static.data["sense"]:
+        static.data_refs[f"sense:{sense["name"]}"] = sense
+
+    # Tools

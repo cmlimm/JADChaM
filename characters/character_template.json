@@ -1,0 +1,881 @@
+{
+    "name": "Mirkezim",
+    "image_path": "images/Mirkezim.jpeg",
+    "level": {
+        "total": 11,
+        "classes": [
+            {
+                "name": "no_display",
+                "level": 0,
+                "dice": 0,
+                "total": 0,
+                "manual": false
+            },
+            {
+                "name": "Paladin",
+                "level": 6,
+                "dice": 10,
+                "total": 6,
+                "manual": true
+            },
+            {
+                "name": "Warlock",
+                "level": 5,
+                "dice": 10,
+                "total": 5,
+                "manual": true
+            }
+        ]
+    },
+    "hp": {
+        "current": 20,
+        "max_total": 20,
+        "max_base": 20,
+        "temp": 0,
+        "max_hp_bonuses": []
+    },
+    "proficiency": {
+        "total": 0
+    },
+    "initiative": {
+        "name": "Initiative",
+        "total": 0,
+        "bonuses": [
+            {
+                "name": "Manual",
+                "value": 0,
+                "multiplier": 1.0,
+                "manual": false
+            },
+            {
+                "name": "DEX (Basic Rules)",
+                "value": "ability:DEX",
+                "multiplier": 1.0,
+                "manual": true
+            }
+        ],
+        "manual_advantage": false,
+        "manual_disadvantage": false,
+        "manual": false
+    },
+    "armor_class": {
+        "total": 0,
+        "base": 10,
+        "armor": {
+            "name": "Half Plate",
+            "armor_class": 15,
+            "max_dex_bonus": 2
+        },
+        "bonuses": [
+            {
+                "name": "DEX (Basic Rules)",
+                "value": "ability:DEX",
+                "multiplier": 1.0,
+                "manual": true
+            }
+        ]
+    },
+    "abilities": [
+        {
+            "name": "no_display",
+            "total": 0,
+            "total_base_score": 0,
+            "base_score_overrides": [],
+            "base_score_bonuses": [],
+            "base_score": 0,
+            "modifier_bonuses": [],
+            "manual": false
+        },
+        {
+            "name": "STR",
+            "total": 0,
+            "total_base_score": 10,
+            "base_score_overrides": [],
+            "base_score_bonuses": [],
+            "base_score": 10,
+            "modifier_bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "DEX",
+            "total": 0,
+            "total_base_score": 10,
+            "base_score_overrides": [],
+            "base_score_bonuses": [],
+            "base_score": 10,
+            "modifier_bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "CON",
+            "total": 0,
+            "total_base_score": 10,
+            "base_score_overrides": [],
+            "base_score_bonuses": [],
+            "base_score": 10,
+            "modifier_bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "INT",
+            "total": 0,
+            "total_base_score": 10,
+            "base_score_overrides": [],
+            "base_score_bonuses": [],
+            "base_score": 10,
+            "modifier_bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "WIS",
+            "total": 0,
+            "total_base_score": 10,
+            "base_score_overrides": [],
+            "base_score_bonuses": [],
+            "base_score": 10,
+            "modifier_bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "CHA",
+            "total": 0,
+            "total_base_score": 10,
+            "base_score_overrides": [],
+            "base_score_bonuses": [],
+            "base_score": 10,
+            "modifier_bonuses": [],
+            "manual": true
+        }
+    ],
+    "saves": [
+        {
+            "name": "no_display",
+            "total": 0,
+            "bonuses": [],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": false
+        },
+        {
+            "name": "STR",
+            "total": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "STR (Basic Rules)",
+                    "value": "ability:STR",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "DEX",
+            "total": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "DEX (Basic Rules)",
+                    "value": "ability:DEX",
+                    "multiplier": 1.0,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "CON",
+            "total": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "CON (Basic Rules)",
+                    "value": "ability:CON",
+                    "multiplier": 1.0,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "INT",
+            "total": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "INT (Basic Rules)",
+                    "value": "ability:INT",
+                    "multiplier": 1.0,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "WIS",
+            "total": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "WIS (Basic Rules)",
+                    "value": "ability:WIS",
+                    "multiplier": 1.0,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "CHA",
+            "total": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "CHA (Basic Rules)",
+                    "value": "ability:CHA",
+                    "multiplier": 1.0,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        }
+    ],
+    "skills": [
+        {
+            "name": "no_display",
+            "total": 0,
+            "bonuses": [],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": false
+        },
+        {
+            "name": "Acrobatics",
+            "total": 1,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "DEX (Basic Rules)",
+                    "value": "ability:DEX",
+                    "multiplier": 1.0,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Animal Handling",
+            "total": 3,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "WIS (Basic Rules)",
+                    "value": "ability:WIS",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Arcana",
+            "total": -1,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "INT (Basic Rules)",
+                    "value": "ability:INT",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Athletics",
+            "total": 6,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "STR (Basic Rules)",
+                    "value": "ability:STR",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Deception",
+            "total": 5,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "CHA (Basic Rules)",
+                    "value": "ability:CHA",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "History",
+            "total": -1,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "INT (Basic Rules)",
+                    "value": "ability:INT",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Insight",
+            "total": 3,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "WIS (Basic Rules)",
+                    "value": "ability:WIS",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Intimidation",
+            "total": 5,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "CHA (Basic Rules)",
+                    "value": "ability:CHA",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Investigation",
+            "total": -1,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "INT (Basic Rules)",
+                    "value": "ability:INT",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Medicine",
+            "total": -1,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "WIS (Basic Rules)",
+                    "value": "ability:WIS",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Nature",
+            "total": -1,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "INT (Basic Rules)",
+                    "value": "ability:INT",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Perception",
+            "total": 3,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "WIS (Basic Rules)",
+                    "value": "ability:WIS",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Performance",
+            "total": 5,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "CHA (Basic Rules)",
+                    "value": "ability:CHA",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Persuasion",
+            "total": 9,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "CHA (Basic Rules)",
+                    "value": "ability:CHA",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Religion",
+            "total": -1,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "INT (Basic Rules)",
+                    "value": "ability:INT",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Sleight of Hand",
+            "total": 1,
+            "custom_mod": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "DEX (Basic Rules)",
+                    "value": "ability:DEX",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Stealth",
+            "total": 1,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "DEX (Basic Rules)",
+                    "value": "ability:DEX",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Survival",
+            "total": -1,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "WIS (Basic Rules)",
+                    "value": "ability:WIS",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        }
+    ],
+    "speed": [
+        {
+            "name": "no_display",
+            "total": 0,
+            "base": 0,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": false
+        },
+        {
+            "name": "Walking",
+            "total": 0,
+            "base": 30,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "Climbing",
+            "total": 0,
+            "base": 0,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "Swimming",
+            "total": 0,
+            "base": 0,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "Flying",
+            "total": 0,
+            "base": 0,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": true
+        }
+    ],
+    "passive_skill": [
+        {
+            "name": "no_display",
+            "total": 0,
+            "base": 0,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": false
+        },
+        {
+            "name": "Perception",
+            "total": 0,
+            "base": 10,
+            "base_overrides": [],
+            "bonuses": [
+                {
+                    "name": "WIS (Basic Rules)",
+                    "value": "ability:WIS",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual": true
+        },
+        {
+            "name": "Investigation",
+            "total": 0,
+            "base": 10,
+            "base_overrides": [],
+            "bonuses": [
+                {
+                    "name": "INT (Basic Rules)",
+                    "value": "ability:INT",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual": true
+        },
+        {
+            "name": "Insight",
+            "total": 0,
+            "base": 10,
+            "base_overrides": [],
+            "bonuses": [
+                {
+                    "name": "WIS (Basic Rules)",
+                    "value": "ability:WIS",
+                    "multiplier": 1,
+                    "manual": true
+                }
+            ],
+            "manual": true
+        }
+    ],
+    "sense": [
+        {
+            "name": "no_display",
+            "total": 0,
+            "base": 0,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": false
+        },
+        {
+            "name": "Blindsight",
+            "total": 0,
+            "base": 30,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "Darkvision",
+            "total": 0,
+            "base": 0,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "Tremorsense",
+            "total": 0,
+            "base": 0,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": true
+        },
+        {
+            "name": "Truesight",
+            "total": 0,
+            "base": 0,
+            "base_overrides": [],
+            "bonuses": [],
+            "manual": true
+        }
+    ],
+    "training": [
+        {
+            "name": "Heavy Armor",
+            "source": "Paladin",
+            "type": "Armor",
+            "manual": true
+        },
+        {
+            "name": "Medium Armor",
+            "source": "Paladin",
+            "type": "Armor",
+            "manual": true
+        },
+        {
+            "name": "Light Armor",
+            "source": "Paladin",
+            "type": "Armor",
+            "manual": true
+        },
+        {
+            "name": "Shields",
+            "source": "Paladin",
+            "type": "Armor",
+            "manual": true
+        },
+        {
+            "name": "Common",
+            "source": "Basic",
+            "type": "Language",
+            "manual": true
+        },
+        {
+            "name": "Dwarvish",
+            "source": "Basic",
+            "type": "Language",
+            "manual": true
+        },
+        {
+            "name": "Elvish",
+            "source": "Basic",
+            "type": "Language",
+            "manual": true
+        },
+        {
+            "name": "Navigator's Tools",
+            "source": "Background",
+            "type": "Tools",
+            "manual": true
+        },
+        {
+            "name": "Martial Weapons",
+            "source": "Paladin",
+            "type": "Weapons",
+            "manual": true
+        },
+        {
+            "name": "Simple Weapons",
+            "source": "Paladin",
+            "type": "Weapons",
+            "manual": true
+        }
+    ]
+}

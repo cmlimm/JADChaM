@@ -1,206 +1,172 @@
-import os
-
 from imgui_bundle import hello_imgui  # type: ignore
 from imgui_bundle import icons_fontawesome_6, imgui, immapp  # type: ignore
-from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
-import character_sheet_types
-from common_elements import draw_rollable_stat_value
-from left_elements import (
+from base_sheet import (
     draw_abilities,
-    draw_ac_value,
+    draw_armor_class_button,
+    draw_class,
     draw_hp,
     draw_image,
-    draw_level_class,
+    draw_initiative_button,
     draw_name,
     draw_passives,
-    draw_proficiency_value,
+    draw_proficiency_button,
     draw_saves,
     draw_senses,
     draw_skills,
     draw_speed,
-    draw_tool_proficiencies,
+    draw_training,
 )
-from toolbar import draw_file_button
-from util import end_table_nested, open_file, save_file
+from cs_types import FontHolder, MainWindowProtocol, main_window_decorator
+from settings import INVISIBLE_TABLE_FLAGS, STRIPED_TABLE_FLAGS
+from util_gui import (
+    draw_open_file_button,
+    draw_text_cell,
+    draw_toolbar,
+    end_table_nested,
+)
 
-# TODO[bug]: when adding a new tool proficiency, do not enter the name
-#      then close the popup and open the popup again
-#      a warning about the name is still there -- it should not be
+# TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus) 
 
-
-@character_sheet_types.main_window_decorator
-def main_window(font_holder: character_sheet_types.FontHolder) -> None:
+@main_window_decorator
+def main_window(font_holder: FontHolder) -> None:
     static = main_window
     static.regular_font = font_holder.regular_font
     static.bold_font = font_holder.bold_font
+    
+    if not hasattr(static, "states"):
+        static.states = {
+            "hp_dice_idx": 0,
+            "new_item_name": "",
+            "hp_add": "",
+            "new_bonuses": {},
+            "new_training": {
+                "name": "",
+                "type": "",
+                "source": "",
+                "manual": True
+            }
+        }
 
-    # Only draw the main interface if the character file is loaded
-    if hasattr(static, "file_paths") and static.file_paths:
-        # TODO: move to toolbar.py
-        if imgui.begin_main_menu_bar():
-            if imgui.begin_menu("File", True):
-                if imgui.menu_item_simple("Open", "Ctrl+N"):
-                    static.open_file_dialog = pfd.open_file("Select file", os.getcwd())
-                if imgui.menu_item_simple("Save", "Ctrl+S"):
-                    save_file(static)
-                imgui.end_menu()
-            imgui.end_main_menu_bar()
+    if not hasattr(static, "is_character_loaded"):
+        static.is_character_loaded = False
 
-        if imgui.shortcut(imgui.Key.mod_ctrl | imgui.Key.n):  # type: ignore
-            static.open_file_dialog = pfd.open_file("Select file", os.getcwd())
-        # We need to continously try to open a file, otherwise it is called
-        # once when the files have not yet been selected
-        open_file(static)
-
-        if imgui.shortcut(imgui.Key.mod_ctrl | imgui.Key.s):  # type: ignore
-            save_file(static)
-
-        imgui.spacing()
-
-        if imgui.begin_table("name_image_level_class", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-            imgui.table_next_row()
-            imgui.table_next_column()
-
-            # if imgui.begin_table("name_image", 1, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-            #     imgui.table_next_row()
-            #     imgui.table_next_column()
-            draw_name(static)
-
-            imgui.table_next_row()
-            imgui.table_next_column()
-            draw_image(static)
-
-            # end_table_nested()
-
-            imgui.table_next_column()
-            draw_level_class(static)
-
-            end_table_nested()
-
-        imgui.spacing()
-        draw_hp(static)
-        imgui.spacing()
-        draw_abilities(static)
-
-        if imgui.begin_table("saves_prof_init_ac", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-            imgui.table_next_row()
-            imgui.table_next_column()
-            imgui.align_text_to_frame_padding()
-            imgui.text("Saving Throws")
-            imgui.table_next_column()
-
-            imgui.table_next_row()
-            imgui.table_next_column()
-            draw_saves(static)
-
-            imgui.table_next_column()
-            table_flags = (  # type: ignore
-                imgui.TableFlags_.sizing_fixed_fit  # type: ignore
-                | imgui.TableFlags_.no_host_extend_x  # type: ignore
-                | imgui.TableFlags_.borders.value
-                | imgui.TableFlags_.row_bg.value
-            )
-            if imgui.begin_table("prof_init_ac", 2, flags=table_flags):  # type: ignore
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.align_text_to_frame_padding()
-                imgui.text("Proficiency")
-                imgui.table_next_column()
-                draw_proficiency_value(static)
-
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.align_text_to_frame_padding()
-                imgui.text("Initiative")
-                imgui.table_next_column()
-                draw_rollable_stat_value("Initiative", static.data["initiative"], "initiative", static)
-
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.align_text_to_frame_padding()
-                imgui.text("Armor Class")
-                imgui.table_next_column()
-                draw_ac_value(static)
-
-                end_table_nested()
-            end_table_nested()
-
-        if imgui.begin_table("speed_passives_skills", 2, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-            imgui.table_next_row()
-            imgui.table_next_column()
-            if imgui.begin_table("speed_passives_senses", 1, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.align_text_to_frame_padding()
-                imgui.text("Speed")
-                imgui.same_line()
-                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_speed"):
-                    imgui.open_popup("Edit Speed")
-                imgui.table_next_row()
-                imgui.table_next_column()
-                draw_speed(static)
-
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.align_text_to_frame_padding()
-                imgui.text("Passive Skills")
-                imgui.same_line()
-                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_passive_skills"):
-                    imgui.open_popup("Edit Passive Skills")
-                imgui.table_next_row()
-                imgui.table_next_column()
-                draw_passives(static)
-
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.align_text_to_frame_padding()
-                imgui.text("Senses")
-                imgui.same_line()
-                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_senses"):
-                    imgui.open_popup("Edit Senses")
-                imgui.table_next_row()
-                imgui.table_next_column()
-                draw_senses(static)
-
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.align_text_to_frame_padding()
-                imgui.text("Proficiencies & Training")
-                imgui.same_line()
-                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}"):
-                    imgui.open_popup("Edit Tool and Language Proficiencies")
-                imgui.table_next_row()
-                imgui.table_next_column()
-                draw_tool_proficiencies(static)
-
-                end_table_nested()
-
-            imgui.table_next_column()
-            if imgui.begin_table("skills_ext", 1, flags=imgui.TableFlags_.sizing_fixed_fit):  # type: ignore
-                imgui.table_next_row()
-                imgui.table_next_column()
-                imgui.align_text_to_frame_padding()
-                imgui.text("Skills")
-                imgui.same_line()
-                if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_skills"):
-                    imgui.open_popup("Edit Skills")
-                imgui.table_next_row()
-                imgui.table_next_column()
-                draw_skills(static)
-
-                end_table_nested()
-
-            end_table_nested()
+    if not static.is_character_loaded:
+        draw_main_menu(static)
     else:
-        draw_file_button(static)
+        draw_character_sheet(static)
 
     if not hasattr(static, "theme"):
         hello_imgui.apply_theme(hello_imgui.ImGuiTheme_.imgui_colors_dark)
         static.theme = hello_imgui.ImGuiTheme_.imgui_colors_dark.name
 
 
-def load_fonts(font_holder: character_sheet_types.FontHolder) -> None:
+def draw_main_menu(static: MainWindowProtocol) -> None:
+    draw_open_file_button(static)
+
+
+def draw_character_sheet(static: MainWindowProtocol) -> None:
+    draw_toolbar(static)
+
+    table_id = "name_image_class"
+    if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+        imgui.table_next_row(); imgui.table_next_column()
+        draw_name(static)
+
+        imgui.table_next_row(); imgui.table_next_column()
+        draw_image(static)
+
+        imgui.table_next_column()
+        draw_class(static)
+
+        end_table_nested()
+
+    imgui.spacing()
+    draw_hp(static)
+
+    imgui.spacing()
+
+    imgui.align_text_to_frame_padding()
+    imgui.text("Abilities"); imgui.same_line()
+    if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_abilities"):
+        imgui.open_popup("Edit Abilities")
+    draw_abilities(static)
+
+    table_id = "saves_prof_init_ac"
+    if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+        draw_text_cell("Saving Throws"); imgui.same_line()
+        if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_saves"):
+            imgui.open_popup("Edit Saves") 
+        imgui.table_next_column()
+
+        imgui.table_next_row(); imgui.table_next_column()
+        draw_saves(static); imgui.table_next_column()
+        
+        table_id = "prof_init_ac"
+        if imgui.begin_table("prof_init_ac", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
+            draw_text_cell("Proficiency"); imgui.table_next_column()
+            draw_proficiency_button(static)
+            
+            draw_text_cell("Initiative"); imgui.table_next_column()
+            draw_initiative_button(static)
+
+            draw_text_cell("Armor Class"); imgui.table_next_column()
+            draw_armor_class_button(static)
+
+            end_table_nested()
+        end_table_nested()
+
+    table_id = "speed_passives_proficiencies_skills"
+    if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS):  # type: ignore
+        imgui.table_next_row()
+        imgui.table_next_column()
+        table_id = "speed_passives_senses"
+        if imgui.begin_table(table_id, 1, flags=INVISIBLE_TABLE_FLAGS):  # type: ignore
+            imgui.align_text_to_frame_padding()
+            draw_text_cell("Speed"); imgui.same_line()
+            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_speed"):
+                imgui.open_popup("Edit Speed")
+            imgui.table_next_row(); imgui.table_next_column()
+            draw_speed(static)
+
+            imgui.align_text_to_frame_padding()
+            draw_text_cell("Passive Skills"); imgui.same_line()
+            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_passive_skills"):
+                imgui.open_popup("Edit Passive Skills")
+            imgui.table_next_row(); imgui.table_next_column()
+            draw_passives(static)
+
+            imgui.align_text_to_frame_padding()
+            draw_text_cell("Senses"); imgui.same_line()
+            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_senses"):
+                imgui.open_popup("Edit Senses")
+            imgui.table_next_row(); imgui.table_next_column()
+            draw_senses(static)
+
+            imgui.align_text_to_frame_padding()
+            draw_text_cell("Proficiencies & Training"); imgui.same_line()
+            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}"):
+                imgui.open_popup("Edit Tool and Language Proficiencies")
+            imgui.table_next_row(); imgui.table_next_column()
+            draw_training(static)
+
+            end_table_nested()
+
+        imgui.table_next_column()
+        table_id = "skills"
+        if imgui.begin_table(table_id, 1, flags=INVISIBLE_TABLE_FLAGS):  # type: ignore
+            imgui.align_text_to_frame_padding()
+            draw_text_cell("Skills"); imgui.same_line()
+            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_skills"):
+                imgui.open_popup("Edit Skills")
+            imgui.table_next_row(); imgui.table_next_column()
+            draw_skills(static)
+
+            end_table_nested()
+
+        end_table_nested()
+
+def load_fonts(font_holder: FontHolder) -> None:
     hello_imgui.get_runner_params().callbacks.default_icon_font = hello_imgui.DefaultIconFont.font_awesome6
     hello_imgui.imgui_default_settings.load_default_font_with_font_awesome_icons()
 
@@ -216,7 +182,7 @@ def load_fonts(font_holder: character_sheet_types.FontHolder) -> None:
 
 
 def make_params() -> hello_imgui.RunnerParams:
-    font_holder = character_sheet_types.FontHolder()
+    font_holder = FontHolder()
 
     # Hello ImGui params (they hold the settings as well as the Gui callbacks)
     runner_params = hello_imgui.RunnerParams()
