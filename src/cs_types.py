@@ -18,6 +18,7 @@ class Bonus(TypedDict):
 
 class CharacterClass(TypedDict):
     name: str
+    subclass: str
     total: int
     level: int
     dice: int

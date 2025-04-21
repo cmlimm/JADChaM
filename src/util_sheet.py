@@ -325,6 +325,7 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, popup_name
                 if isClassList(editable_list):
                     editable_list.append({
                         "name": static.states["new_item_name"],
+                        "subclass": "",
                         "total": 0,
                         "level": 0,
                         "dice": 6,

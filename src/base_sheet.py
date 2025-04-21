@@ -71,6 +71,10 @@ def draw_class(static: MainWindowProtocol) -> None:
                         imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
                         _, class_dict["name"] = imgui.input_text("##class", class_dict["name"], 128)
 
+                        draw_text_cell("Subclass"); imgui.table_next_column()
+                        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+                        _, class_dict["subclass"] = imgui.input_text("##subclass", class_dict["subclass"], 128)
+
                         draw_text_cell("Level"); imgui.table_next_column()
                         imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
                         _, class_dict["level"] = imgui.input_int("##level", class_dict["level"])
