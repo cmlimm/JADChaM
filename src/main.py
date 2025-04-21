@@ -18,7 +18,7 @@ from base_sheet import (
     draw_training,
 )
 from cs_types import FontHolder, MainWindowProtocol, main_window_decorator
-from settings import INVISIBLE_TABLE_FLAGS, STRIPED_TABLE_FLAGS
+from settings import INVISIBLE_TABLE_FLAGS, STRIPED_TABLE_FLAGS  # type: ignore
 from util_gui import (
     draw_open_file_button,
     draw_text_cell,

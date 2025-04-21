@@ -92,7 +92,7 @@ def draw_static_stat_button(stat_id: str, stat: StaticStat,
                             possible_overrides: list[str],
                             possible_bonuses: list[str],
                             static: MainWindowProtocol,
-                            numerical_step=1) -> None:
+                            numerical_step: int = 1) -> None:
     override_idx, override_value = find_max_override(stat["base_overrides"], static)
     bonus_total, _ = sum_bonuses(stat["bonuses"], static)
 

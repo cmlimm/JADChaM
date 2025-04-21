@@ -1,13 +1,13 @@
 from imgui_bundle import imgui
 
 INVISIBLE_TABLE_FLAGS = imgui.TableFlags_.sizing_fixed_fit
-STRIPED_TABLE_FLAGS = (
+STRIPED_TABLE_FLAGS = ( # type: ignore
     imgui.TableFlags_.sizing_fixed_fit
     | imgui.TableFlags_.no_host_extend_x  # type: ignore
     | imgui.TableFlags_.borders.value
     | imgui.TableFlags_.row_bg.value
 )
-STRIPED_NO_BORDERS_TABLE_FLAGS = (
+STRIPED_NO_BORDERS_TABLE_FLAGS = ( # type: ignore
     imgui.TableFlags_.sizing_fixed_fit
     | imgui.TableFlags_.no_host_extend_x  # type: ignore
     | imgui.TableFlags_.row_bg.value

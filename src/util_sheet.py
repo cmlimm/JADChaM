@@ -4,6 +4,8 @@ from typing import Any
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui  # type: ignore
 
 from cs_types import Bonus, MainWindowProtocol
+from settings import STRIPED_NO_BORDERS_TABLE_FLAGS  # type: ignore
+from settings import STRIPED_TABLE_FLAGS  # type: ignore
 from settings import (
     ADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_ACTIVE_COLOR,
@@ -12,8 +14,6 @@ from settings import (
     MEDIUM_STRING_INPUT_WIDTH,
     OVERRIDE_COLOR,
     SHORT_STRING_INPUT_WIDTH,
-    STRIPED_NO_BORDERS_TABLE_FLAGS,
-    STRIPED_TABLE_FLAGS,
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
 )
@@ -27,7 +27,7 @@ from util_cs_types import (
 from util_gui import draw_text_cell, end_table_nested
 
 
-def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus=100) -> int | float | str:
+def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus: int = 100) -> int | float | str:
     if isRepresentInt(value):
         return value
     elif isinstance(value, str):
@@ -54,7 +54,7 @@ def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus=
 
 
 # Returns (total_bonus, (-1 if advantage, 0 if straight, 1 if advantage))
-def sum_bonuses(bonus_list: list[Bonus], static: MainWindowProtocol, max_dex_bonus=100) -> tuple[int, int]:
+def sum_bonuses(bonus_list: list[Bonus], static: MainWindowProtocol, max_dex_bonus: int = 100) -> tuple[int, int]:
     total_bonus = 0
     advantage = False
     disadvantage = False
@@ -93,7 +93,7 @@ def find_max_override(override_list: list[Bonus], static: MainWindowProtocol) ->
 
 def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus], 
                    bonus_types: list[str], static: MainWindowProtocol,
-                   numerical_step=1) -> None:
+                   numerical_step: int = 1) -> None:
     if not bonus_id in static.states["new_bonuses"]:
         static.states["new_bonuses"][bonus_id] = {
             "new_bonus_name": "",
@@ -249,7 +249,7 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
 
 
 def draw_bonuses(list_id: str, bonus_list: list[Bonus], static: MainWindowProtocol) -> None:
-    if bonus_list != [] and imgui.begin_table(f"bonuses##{list_id}", 4, flags=STRIPED_NO_BORDERS_TABLE_FLAGS):
+    if bonus_list != [] and imgui.begin_table(f"bonuses##{list_id}", 4, flags=STRIPED_NO_BORDERS_TABLE_FLAGS): # type: ignore
         for idx, bonus in enumerate(bonus_list):
             name, value, mult, manual = bonus["name"], bonus["value"], bonus["multiplier"], bonus["manual"]
             
@@ -279,7 +279,7 @@ def draw_bonuses(list_id: str, bonus_list: list[Bonus], static: MainWindowProtoc
 
 
 def draw_overrides(list_id: str, override_list: list[Bonus], override_idx: int, is_override: bool, static: MainWindowProtocol) -> None:
-    if override_list != [] and imgui.begin_table(f"overrides##{list_id}", 4, flags=STRIPED_NO_BORDERS_TABLE_FLAGS):
+    if override_list != [] and imgui.begin_table(f"overrides##{list_id}", 4, flags=STRIPED_NO_BORDERS_TABLE_FLAGS): # type: ignore
         for idx, override in enumerate(override_list):
             name, value, mult, manual = override["name"], override["value"], override["multiplier"], override["manual"]
             

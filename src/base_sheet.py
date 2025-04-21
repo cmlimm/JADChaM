@@ -4,6 +4,7 @@ from imgui_bundle import hello_imgui  # type: ignore
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, immapp  # type: ignore
 
 from cs_types import MainWindowProtocol
+from settings import STRIPED_TABLE_FLAGS  # type: ignore
 from settings import (
     ADVANTAGE_ACTIVE_COLOR,
     ADVANTAGE_COLOR,
@@ -14,7 +15,6 @@ from settings import (
     INVISIBLE_TABLE_FLAGS,
     MEDIUM_STRING_INPUT_WIDTH,
     SHORT_STRING_INPUT_WIDTH,
-    STRIPED_TABLE_FLAGS,
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_INPUT_WIDTH,
@@ -56,7 +56,7 @@ def draw_class(static: MainWindowProtocol) -> None:
         imgui.open_popup("Edit Classes")
     draw_edit_list_popup(static.data["level"]["classes"], "level", "Edit Classes", static)
 
-    if imgui.begin_table("classes", 2, flags=STRIPED_TABLE_FLAGS):
+    if imgui.begin_table("classes", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
         for class_dict in static.data["level"]["classes"]:
             class_dict["total"] = class_dict["level"]
             if class_dict["name"] != "no_display":
