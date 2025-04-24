@@ -105,19 +105,14 @@ def draw_abilities_saves_misc(static: MainWindowProtocol) -> None:
             end_table_nested()
 
 
-def draw_speed_passive_sense(static: MainWindowProtocol) -> None:
+def draw_speed_sense(static: MainWindowProtocol) -> None:
     if static.is_character_loaded:
-        table_id = "speed_passives_proficiencies_skills"
-        if imgui.begin_table(table_id, 3, flags=INVISIBLE_TABLE_FLAGS):  # type: ignore
+        table_id = "speed_proficiencies_skills"
+        if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS):  # type: ignore
             imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()
             imgui.text("Speed"); imgui.same_line()
             if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_speed"):
                 imgui.open_popup("Edit Speed")
-            
-            imgui.table_next_column(); imgui.align_text_to_frame_padding()
-            imgui.text("Passive Skills"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_passive_skills"):
-                imgui.open_popup("Edit Passive Skills")
             
             imgui.table_next_column(); imgui.align_text_to_frame_padding()
             imgui.text("Senses"); imgui.same_line()
@@ -127,9 +122,6 @@ def draw_speed_passive_sense(static: MainWindowProtocol) -> None:
             imgui.table_next_row()
             imgui.table_next_column()
             draw_speed(static)
-            
-            imgui.table_next_column()
-            draw_passives(static)
             
             imgui.table_next_column()
             draw_senses(static)
@@ -158,6 +150,14 @@ def draw_skills_window(static: MainWindowProtocol) -> None:
 
             end_table_nested()
 
+        imgui.spacing()
+
+        imgui.align_text_to_frame_padding()
+        imgui.text("Passive Skills"); imgui.same_line()
+        if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_passive_skills"):
+            imgui.open_popup("Edit Passive Skills")
+        draw_passives(static)
+
 
 def create_default_docking_splits() -> list[hello_imgui.DockingSplit]:
     split_main = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
@@ -178,11 +178,11 @@ def create_default_docking_splits() -> list[hello_imgui.DockingSplit]:
     split_training.direction = imgui.Dir.down
     split_training.ratio = 0.25
 
-    split_speed_passive_sense = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
-    split_speed_passive_sense.initial_dock = "LeftSpace"
-    split_speed_passive_sense.new_dock = "SpeedPassiveSenseSpace"
-    split_speed_passive_sense.direction = imgui.Dir.down
-    split_speed_passive_sense.ratio = 0.25
+    split_speed_sense = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
+    split_speed_sense.initial_dock = "LeftSpace"
+    split_speed_sense.new_dock = "SpeedSenseSpace"
+    split_speed_sense.direction = imgui.Dir.down
+    split_speed_sense.ratio = 0.25
 
     split_abilities_saves_misc = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
     split_abilities_saves_misc.initial_dock = "LeftSpace"
@@ -199,7 +199,7 @@ def create_default_docking_splits() -> list[hello_imgui.DockingSplit]:
     splits = [split_main, 
               split_left, 
               split_training, 
-              split_speed_passive_sense, 
+              split_speed_sense, 
               split_abilities_saves_misc, 
               split_name_class_image_hp]
     return splits
@@ -216,10 +216,10 @@ def create_dockable_windows(static: MainWindowProtocol) -> list[hello_imgui.Dock
     abilities_saves_misc_window.dock_space_name = "AbilitiesSavesMiscSpace"
     abilities_saves_misc_window.gui_function = lambda: draw_abilities_saves_misc(static)
 
-    speed_passive_sense_window = hello_imgui.DockableWindow()
-    speed_passive_sense_window.label = "Speed Passive Sense"
-    speed_passive_sense_window.dock_space_name = "SpeedPassiveSenseSpace"
-    speed_passive_sense_window.gui_function = lambda: draw_speed_passive_sense(static)
+    speed_sense_window = hello_imgui.DockableWindow()
+    speed_sense_window.label = "Speed Sense"
+    speed_sense_window.dock_space_name = "SpeedSenseSpace"
+    speed_sense_window.gui_function = lambda: draw_speed_sense(static)
 
     training_window = hello_imgui.DockableWindow()
     training_window.label = "Training"
@@ -239,7 +239,7 @@ def create_dockable_windows(static: MainWindowProtocol) -> list[hello_imgui.Dock
     dockable_windows = [
         name_class_image_hp_window,
         abilities_saves_misc_window,
-        speed_passive_sense_window,
+        speed_sense_window,
         training_window,
         skills_window,
         right_window
