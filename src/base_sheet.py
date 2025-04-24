@@ -5,7 +5,7 @@ from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, immapp  # type: ign
 
 from cs_types import MainWindowProtocol
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
-from settings import (
+from settings import (  # type: ignore
     ADVANTAGE_ACTIVE_COLOR,
     ADVANTAGE_COLOR,
     ADVANTAGE_HOVER_COLOR,
@@ -13,12 +13,12 @@ from settings import (
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
     INVISIBLE_TABLE_FLAGS,
+    MAGICAL_WORD_WRAP_NUMBER,
     MEDIUM_STRING_INPUT_WIDTH,
     SHORT_STRING_INPUT_WIDTH,
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_INPUT_WIDTH,
-    WORD_WRAP_WIDTH,
 )
 from stats import draw_rollable_stat_button, draw_static_stat_button
 from util_cs_types import isRepresentInt
@@ -389,7 +389,8 @@ def draw_training(static: MainWindowProtocol) -> None:
             items = list(proficiencies_list)
             items.sort(key=lambda x: x["name"])
             imgui.table_next_column()
-            imgui.push_text_wrap_pos(imgui.get_cursor_pos()[0] + WORD_WRAP_WIDTH)
+            width = imgui.get_window_width()
+            imgui.push_text_wrap_pos(imgui.get_cursor_pos()[0] + width - MAGICAL_WORD_WRAP_NUMBER)
             imgui.text(", ".join([item["name"] for item in items]))
             imgui.pop_text_wrap_pos()
         end_table_nested()
