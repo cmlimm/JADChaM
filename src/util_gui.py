@@ -8,14 +8,12 @@ from util import open_file, open_image, save_file
 
 
 def draw_toolbar(static: MainWindowProtocol) -> None:
-    if imgui.begin_main_menu_bar():
-        if imgui.begin_menu("File", True):
-            if imgui.menu_item_simple("Open", "Ctrl+N"):
-                static.open_file_dialog = pfd.open_file("Select file", os.getcwd())
-            if imgui.menu_item_simple("Save", "Ctrl+S"):
-                save_file(static)
-            imgui.end_menu()
-        imgui.end_main_menu_bar()
+    if imgui.begin_menu("File", True):
+        if imgui.menu_item_simple("Open", "Ctrl+N"):
+            static.open_file_dialog = pfd.open_file("Select file", os.getcwd())
+        if imgui.menu_item_simple("Save", "Ctrl+S"):
+            save_file(static)
+        imgui.end_menu()
 
     if imgui.shortcut(imgui.Key.mod_ctrl | imgui.Key.n):  # type: ignore
         static.open_file_dialog = pfd.open_file("Select file", os.getcwd())

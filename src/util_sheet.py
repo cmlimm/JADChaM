@@ -119,7 +119,7 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
                     new_bonus["new_bonus_value"] = f"level:total"
                 for class_item in static.data["level"]["classes"]:
                     class_name = class_item["name"]
-                    if class_name != "no_display" and imgui.menu_item_simple(f"{class_name}##{bonus_id}"):
+                    if not class_name.startswith("no_display") and imgui.menu_item_simple(f"{class_name}##{bonus_id}"):
                         new_bonus["new_bonus_type"] = f"Level, {class_name}"
                         new_bonus["new_bonus_value"] = f"level:{class_name}"
                 imgui.end_menu()
@@ -134,7 +134,7 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
             elif bonus_type == "Ability" and imgui.begin_menu(f"Ability##{bonus_id}"):
                 for ability in static.data["abilities"]:
                     ability_name = ability["name"]
-                    if ability_name != "no_display" and imgui.menu_item_simple(ability_name):
+                    if not ability_name.startswith("no_display") and imgui.menu_item_simple(ability_name):
                         new_bonus["new_bonus_type"] = f"Ability Modifier, {ability_name}"
                         new_bonus["new_bonus_value"] = f"ability:{ability_name}"
                 imgui.end_menu()
@@ -142,7 +142,7 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
             elif bonus_type == "Ability Score" and imgui.begin_menu(f"Ability Score##{bonus_id}"):
                 for ability in static.data["abilities"]:
                     ability_name = ability["name"]
-                    if ability_name != "no_display" and imgui.menu_item_simple(ability_name):
+                    if not ability_name.startswith("no_display") and imgui.menu_item_simple(ability_name):
                         new_bonus["new_bonus_type"] = f"Ability Score, {ability_name}"
                         new_bonus["new_bonus_value"] = f"ability:{ability_name}:score"
                 imgui.end_menu()
@@ -150,7 +150,7 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
             elif bonus_type == "Saving Throw" and imgui.begin_menu(f"Save##{bonus_id}"):
                 for save in static.data["saves"]:
                     save_name = save["name"]
-                    if save_name != "no_display" and imgui.menu_item_simple(save_name):
+                    if not save_name.startswith("no_display") and imgui.menu_item_simple(save_name):
                         new_bonus["new_bonus_type"] = f"Saving Throw, {save_name}"
                         new_bonus["new_bonus_value"] = f"save:{save_name}"
                 imgui.end_menu()
@@ -158,7 +158,7 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
             elif bonus_type == "Skill" and imgui.begin_menu(f"Skill##{bonus_id}"):
                 for skill in static.data["skills"]:
                     skill_name = skill["name"]
-                    if skill_name != "no_display" and imgui.menu_item_simple(skill_name):
+                    if not skill_name.startswith("no_display") and imgui.menu_item_simple(skill_name):
                         new_bonus["new_bonus_type"] = f"Skill, {skill_name}"
                         new_bonus["new_bonus_value"] = f"skill:{skill_name}"
                 imgui.end_menu()
@@ -170,7 +170,7 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
             elif bonus_type == "Speed" and imgui.begin_menu(f"Speed##{bonus_id}"):
                 for speed in static.data["speed"]:
                     speed_name = speed["name"]
-                    if speed_name != "no_display" and imgui.menu_item_simple(speed_name):
+                    if not speed_name.startswith("no_display") and imgui.menu_item_simple(speed_name):
                         new_bonus["new_bonus_type"] = f"Speed, {speed_name}"
                         new_bonus["new_bonus_value"] = f"speed:{speed_name}"
                 imgui.end_menu()
@@ -178,7 +178,7 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
             elif bonus_type == "Passive Skill" and imgui.begin_menu(f"Passive Skill##{bonus_id}"):
                 for passive in static.data["passive_skill"]:
                     passive_name = passive["name"]
-                    if passive_name != "no_display" and imgui.menu_item_simple(passive_name):
+                    if not passive_name.startswith("no_display") and imgui.menu_item_simple(passive_name):
                         new_bonus["new_bonus_type"] = f"Passive Skill, {passive_name}"
                         new_bonus["new_bonus_value"] = f"passive:{passive_name}"
                 imgui.end_menu()
@@ -186,7 +186,7 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
             elif bonus_type == "Sense" and imgui.begin_menu(f"Sense##{bonus_id}"):
                 for sense in static.data["sense"]:
                     sense_name = sense["name"]
-                    if sense_name != "no_display" and imgui.menu_item_simple(sense_name):
+                    if not sense_name.startswith("no_display") and imgui.menu_item_simple(sense_name):
                         new_bonus["new_bonus_type"] = f"Sense, {sense_name}"
                         new_bonus["new_bonus_value"] = f"sense:{sense_name}"
                 imgui.end_menu()
@@ -371,7 +371,7 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, popup_name
             imgui.table_headers_row()
 
             for idx, item in enumerate(editable_list):
-                if item["name"] != "no_display":
+                if not item["name"].startswith("no_display"):
                     draw_text_cell(item["name"]); imgui.table_next_column()
                     if item["manual"]:
                         imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)

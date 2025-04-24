@@ -1,4 +1,4 @@
-from typing import Any, Optional, Protocol, TypedDict
+from typing import Any, Optional, TypedDict
 
 from imgui_bundle import imgui
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
@@ -93,6 +93,65 @@ class Training(TypedDict):
     manual: bool
 
 
+# class IntegerValue(TypedDict):
+#     name: str
+#     total: int
+#     bonuses: list[Bonus]
+#     manual: bool
+
+
+# class Property(TypedDict):
+#     name: str
+#     description: str
+
+
+# class Reference(TypedDict):
+#     name: str
+#     ref: str
+#     manual: bool
+
+
+# class CounterReference(Reference):
+#     amount: int
+
+
+# class Damage(TypedDict):
+#     name: str
+#     total: int
+#     dice_count: list[IntegerValue]
+#     manual: bool
+
+
+# class Attack(TypedDict):
+#     name: str
+#     description: str
+#     properties: list[Property]
+#     tags: list[str]
+
+#     action: str
+
+#     to_hit: IntegerValue
+#     damage: list[Damage]
+#     difficulty_class: list[IntegerValue]
+#     range: IntegerValue
+#     long_range: IntegerValue
+#     area_of_effect: IntegerValue
+
+#     uses: list[CounterReference]
+
+
+class BonusTo(TypedDict):
+    ref: str
+    bonus: Bonus
+    manual: bool
+
+
+class Feature(TypedDict):
+    name: str
+    description: str
+    bonuses: list[BonusTo]
+
+
 class CharacterData(TypedDict):
     name: str
     image_path: str
@@ -111,6 +170,11 @@ class CharacterData(TypedDict):
     sense: list[StaticStat]
 
     training: list[Training]
+
+    features: list[Feature]
+
+    # attacks: list[Attack]
+    # counters: list[IntegerValue]
 
 
 class NewBonus(TypedDict):
@@ -131,7 +195,7 @@ class States(TypedDict):
     new_training: Training
     
 
-class MainWindowProtocol(Protocol):
+class MainWindowProtocol():
     regular_font: imgui.ImFont
     bold_font: imgui.ImFont
     theme: str

@@ -62,7 +62,7 @@
         "manual": false
     },
     "armor_class": {
-        "total": 0,
+        "total": 15,
         "base": 10,
         "armor": {
             "name": "Half Plate",
@@ -297,7 +297,7 @@
         },
         {
             "name": "Acrobatics",
-            "total": 1,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -318,7 +318,7 @@
         },
         {
             "name": "Animal Handling",
-            "total": 3,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -339,7 +339,7 @@
         },
         {
             "name": "Arcana",
-            "total": -1,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -360,7 +360,7 @@
         },
         {
             "name": "Athletics",
-            "total": 6,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -381,7 +381,7 @@
         },
         {
             "name": "Deception",
-            "total": 5,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -402,7 +402,7 @@
         },
         {
             "name": "History",
-            "total": -1,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -423,7 +423,7 @@
         },
         {
             "name": "Insight",
-            "total": 3,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -444,7 +444,7 @@
         },
         {
             "name": "Intimidation",
-            "total": 5,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -465,7 +465,7 @@
         },
         {
             "name": "Investigation",
-            "total": -1,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -486,7 +486,7 @@
         },
         {
             "name": "Medicine",
-            "total": -1,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -507,7 +507,7 @@
         },
         {
             "name": "Nature",
-            "total": -1,
+            "total": 0,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -529,7 +529,7 @@
         },
         {
             "name": "Perception",
-            "total": 3,
+            "total": 0,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -551,7 +551,7 @@
         },
         {
             "name": "Performance",
-            "total": 5,
+            "total": 0,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -573,7 +573,7 @@
         },
         {
             "name": "Persuasion",
-            "total": 9,
+            "total": 0,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -595,7 +595,7 @@
         },
         {
             "name": "Religion",
-            "total": -1,
+            "total": 0,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -617,7 +617,7 @@
         },
         {
             "name": "Sleight of Hand",
-            "total": 1,
+            "total": 0,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -639,7 +639,7 @@
         },
         {
             "name": "Stealth",
-            "total": 1,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -660,7 +660,7 @@
         },
         {
             "name": "Survival",
-            "total": -1,
+            "total": 0,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -691,7 +691,7 @@
         },
         {
             "name": "Walking",
-            "total": 0,
+            "total": 30,
             "base": 30,
             "base_overrides": [],
             "bonuses": [],
@@ -733,7 +733,7 @@
         },
         {
             "name": "Perception",
-            "total": 0,
+            "total": 10,
             "base": 10,
             "base_overrides": [],
             "bonuses": [
@@ -748,7 +748,7 @@
         },
         {
             "name": "Investigation",
-            "total": 0,
+            "total": 10,
             "base": 10,
             "base_overrides": [],
             "bonuses": [
@@ -763,7 +763,7 @@
         },
         {
             "name": "Insight",
-            "total": 0,
+            "total": 10,
             "base": 10,
             "base_overrides": [],
             "bonuses": [
@@ -788,7 +788,7 @@
         },
         {
             "name": "Blindsight",
-            "total": 0,
+            "total": 30,
             "base": 30,
             "base_overrides": [],
             "bonuses": [],

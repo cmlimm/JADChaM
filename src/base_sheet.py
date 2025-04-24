@@ -59,7 +59,7 @@ def draw_class(static: MainWindowProtocol) -> None:
     if imgui.begin_table("classes", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
         for class_dict in static.data["level"]["classes"]:
             class_dict["total"] = class_dict["level"]
-            if class_dict["name"] != "no_display":
+            if not class_dict["name"].startswith("no_display"):
                 draw_text_cell(f"{class_dict["name"]}"); imgui.table_next_column()
 
                 if imgui.button(f"{class_dict["level"]}##class_{class_dict["name"]}"):
@@ -179,7 +179,7 @@ def draw_abilities(static: MainWindowProtocol) -> None:
     if abilities_list_length != 0 and imgui.begin_table("abilities_table", abilities_list_length, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
         imgui.table_next_row()
         for ability in static.data["abilities"]:
-            if ability["name"] != "no_display":
+            if not ability["name"].startswith("no_display"):
                 base_score_bonus_total, _ = sum_bonuses(ability["base_score_bonuses"], static)
                 no_override_base_score_total = ability["base_score"] + base_score_bonus_total
                 override_idx, override_value = find_max_override(ability["base_score_overrides"], static)
@@ -242,7 +242,7 @@ def draw_saves(static: MainWindowProtocol) -> None:
     saves_list_length = len(static.data["saves"])
     if saves_list_length != 0 and imgui.begin_table("saves_table", 4, flags=STRIPED_TABLE_FLAGS): # type: ignore
         for save in static.data["saves"]:
-            if save["name"] != "no_display":
+            if not save["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(save["name"]); imgui.table_next_column()
                 draw_rollable_stat_button(save["name"], save, 
@@ -321,7 +321,7 @@ def draw_speed(static: MainWindowProtocol) -> None:
     speed_list_length = len(static.data["speed"])
     if speed_list_length != 0 and imgui.begin_table("saves_table", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
         for speed in static.data["speed"]:
-            if speed["name"] != "no_display":
+            if not speed["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(speed["name"]); imgui.table_next_column()
                 draw_static_stat_button(speed["name"], speed, 
@@ -341,7 +341,7 @@ def draw_passives(static: MainWindowProtocol) -> None:
     passive_list_length = len(static.data["passive_skill"])
     if passive_list_length != 0 and imgui.begin_table("saves_table", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
         for passive in static.data["passive_skill"]:
-            if passive["name"] != "no_display":
+            if not passive["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(passive["name"]); imgui.table_next_column()
                 draw_static_stat_button(passive["name"], passive, 
@@ -361,7 +361,7 @@ def draw_senses(static: MainWindowProtocol) -> None:
     sense_list_length = len(static.data["sense"])
     if sense_list_length != 0 and imgui.begin_table("saves_table", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
         for sense in static.data["sense"]:
-            if sense["name"] != "no_display":
+            if not sense["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(sense["name"]); imgui.table_next_column()
                 draw_static_stat_button(sense["name"], sense, 
@@ -469,7 +469,7 @@ def draw_skills(static: MainWindowProtocol) -> None:
     skill_list_length = len(static.data["skills"])
     if skill_list_length != 0 and imgui.begin_table("skills_table", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
         for skill in static.data["skills"]:
-            if skill["name"] != "no_display":
+            if not skill["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(skill["name"]); imgui.table_next_column()
                 draw_rollable_stat_button(skill["name"], skill, 
