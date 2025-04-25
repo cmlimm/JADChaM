@@ -141,6 +141,7 @@ class Training(TypedDict):
 
 
 class BonusTo(TypedDict):
+    name: str
     ref: str
     bonus: Bonus
     manual: bool
@@ -149,7 +150,9 @@ class BonusTo(TypedDict):
 class Feature(TypedDict):
     name: str
     description: str
+    tags: list[str]
     bonuses: list[BonusTo]
+    manual: bool
 
 
 class CharacterData(TypedDict):
@@ -193,6 +196,13 @@ class States(TypedDict):
 
     new_bonuses: dict[str, NewBonus]
     new_training: Training
+
+    new_bonus_to_ref: str
+    new_bonus_list_type: str
+    new_bonus_to_name: str
+
+    feat_name: str
+    new_tag: str
     
 
 class MainWindowProtocol():
@@ -209,7 +219,7 @@ class MainWindowProtocol():
     data: CharacterData
     is_character_loaded: bool
 
-    data_refs: dict[str, CharacterClass | Ability | RollableStat | StaticStat]
+    data_refs: dict[str, CharacterClass | Ability | RollableStat | StaticStat | ArmorClass]
 
     def __call__(self, font_holder: FontHolder) -> None: ...
 

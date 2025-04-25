@@ -880,5 +880,70 @@
             "type": "Weapons",
             "manual": true
         }
+    ],
+    "features": [
+        {
+            "name": "no_display",
+            "description": "", 
+            "tags": [],
+            "bonuses": [],
+            "manual": false
+        },
+        {
+            "name": "Alert",
+            "description": "**Initiative Proficiency** When you roll Initiative, add +{proficiency} to the roll.\n**Initiative Swap** Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can't make this swap if you or the ally has the Incapacitated condition.",
+            "tags": ["Feat", "Human"],
+            "bonuses": [
+                {
+                    "name": "Initiative Proficiency",
+                    "ref": "initiative",
+                    "bonus": {
+                        "name": "Proficiency (Alert)",
+                        "value": "proficiency",
+                        "multiplier": 1.0,
+                        "manual": true
+                    }
+                },
+                {
+                    "name": "Stupid Bonus",
+                    "ref": "save:STR",
+                    "bonus": {
+                        "name": "DEX (Alert)",
+                        "value": "ability:DEX",
+                        "multiplier": 2.0,
+                        "manual": true
+                    }
+                }
+            ],
+            "manual": true
+        },
+        {
+            "name": "Tough",
+            "description": "When you take this feat, your HP maximum increases by {level:total, mult=2}. Whenever you gain a character level thereafter, your HP maximum increases an additional 2 HP.",
+            "tags": ["Feat", "Warlock"],
+            "bonuses": [
+                {
+                    "name": "Max HP Increase",
+                    "ref": "hp",
+                    "bonus": {
+                        "name": "Level x2 (Tough)",
+                        "value": "level:total",
+                        "multiplier": 2,
+                        "manual": true
+                    }
+                },
+                {
+                    "name": "Smart Bonus",
+                    "ref": "skill:acrobatics",
+                    "bonus": {
+                        "name": "INT (Tough)",
+                        "value": "ability:INT",
+                        "multiplier": 1,
+                        "manual": true
+                    }
+                }
+            ],
+            "manual": true
+        }
     ]
 }

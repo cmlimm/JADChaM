@@ -48,6 +48,9 @@ def open_image(static: MainWindowProtocol) -> None:
 def process_character(static: MainWindowProtocol) -> None:
     static.data_refs = {}
     
+    static.data_refs["armor_class"] = static.data["armor_class"]
+    static.data_refs["initiative"] = static.data["initiative"]
+
     # Classes
     for class_dict in static.data["level"]["classes"]:
         static.data_refs[f"level:{class_dict["name"]}"] = class_dict
@@ -75,5 +78,3 @@ def process_character(static: MainWindowProtocol) -> None:
     # Senses
     for sense in static.data["sense"]:
         static.data_refs[f"sense:{sense["name"]}"] = sense
-
-    # Tools

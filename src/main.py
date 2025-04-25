@@ -1,10 +1,12 @@
 from imgui_bundle import hello_imgui  # type: ignore
-from imgui_bundle import icons_fontawesome_6, imgui  # type: ignore
+from imgui_bundle import imgui_md  # type: ignore
+from imgui_bundle import icons_fontawesome_6, imgui, immapp  # type: ignore
 
 from base_sheet import (
     draw_abilities,
     draw_armor_class_button,
     draw_class,
+    draw_features,
     draw_hp,
     draw_image,
     draw_initiative_button,
@@ -40,7 +42,12 @@ def post_init(state: MainWindowProtocol) -> None:
             "type": "",
             "source": "",
             "manual": True
-        }
+        },
+        "new_bonus_to_ref": "",
+        "new_bonus_list_type": "",
+        "new_bonus_to_name": "",
+        "feat_name": "",
+        "new_tag": ""
     }
 
     state.is_character_loaded = False
@@ -159,6 +166,11 @@ def draw_skills_window(static: MainWindowProtocol) -> None:
         draw_passives(static)
 
 
+def draw_features_window(static: MainWindowProtocol) -> None:
+    if static.is_character_loaded:
+        draw_features(static)
+
+
 def create_default_docking_splits() -> list[hello_imgui.DockingSplit]:
     split_main = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
     split_main.initial_dock = "MainDockSpace"
@@ -234,7 +246,7 @@ def create_dockable_windows(static: MainWindowProtocol) -> list[hello_imgui.Dock
     right_window = hello_imgui.DockableWindow()
     right_window.label = "Right"
     right_window.dock_space_name = "MainDockSpace"
-    right_window.gui_function = lambda: None
+    right_window.gui_function = lambda: draw_features_window(static)
 
     dockable_windows = [
         name_class_image_hp_window,
@@ -270,7 +282,7 @@ def load_fonts(static: MainWindowProtocol) -> None:
     static.regular_font = hello_imgui.load_font("/fa-regular.otf", 14, font_loading_params_regular_icons)
 
 
-def make_params() -> hello_imgui.RunnerParams:
+def make_params() -> tuple[hello_imgui.RunnerParams, immapp.AddOnsParams]:
     runner_params = hello_imgui.RunnerParams()
     runner_params.app_window_params.window_title = "Just Another D&D Character Manager"
     # runner_params.app_window_params.window_geometry.size = (1400, 950)
@@ -290,9 +302,16 @@ def make_params() -> hello_imgui.RunnerParams:
     runner_params.imgui_window_params.enable_viewports = True
     runner_params.docking_params = create_default_layout(main_window_state)
 
+    addons = immapp.AddOnsParams()
+    addons.with_markdown = True
+    font_options = imgui_md.MarkdownFontOptions()
+    font_options.regular_size = 15
+    markdown_options = imgui_md.MarkdownOptions()
+    markdown_options.font_options = font_options
+    addons.with_markdown_options = markdown_options
 
-    return runner_params
+    return (runner_params, addons)
 
 
-runner_params = make_params()
-hello_imgui.run(runner_params)
+runner_params, addons = make_params()
+immapp.run(runner_params=runner_params, add_ons_params=addons)

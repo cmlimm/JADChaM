@@ -20,7 +20,7 @@ from util_sheet import (
 
 
 def draw_rollable_stat_button(stat_id: str, stat: RollableStat, 
-                              possible_bonuses: list[str],
+                              bonus_list_type: str,
                               static: MainWindowProtocol) -> None:
     stat["total"], roll = sum_bonuses(stat["bonuses"], static)
 
@@ -79,7 +79,7 @@ def draw_rollable_stat_button(stat_id: str, stat: RollableStat,
             del stat["bonuses"][dis_idx]
 
         imgui.text(f"New bonus:"); imgui.same_line()
-        draw_add_bonus(f"{stat_id}_stat_bonus", stat["bonuses"], possible_bonuses, static)
+        draw_add_bonus(f"{stat_id}_stat_bonus", stat["bonuses"], bonus_list_type, static)
 
         if stat["bonuses"] != []:
             imgui.text(f"Bonuses:")
@@ -89,8 +89,7 @@ def draw_rollable_stat_button(stat_id: str, stat: RollableStat,
 
 
 def draw_static_stat_button(stat_id: str, stat: StaticStat, 
-                            possible_overrides: list[str],
-                            possible_bonuses: list[str],
+                            bonus_list_type: str,
                             static: MainWindowProtocol,
                             numerical_step: int = 1) -> None:
     override_idx, override_value = find_max_override(stat["base_overrides"], static)
@@ -115,7 +114,7 @@ def draw_static_stat_button(stat_id: str, stat: StaticStat,
         # Overrides
         imgui.align_text_to_frame_padding();
         imgui.text(f"New Base override:"); imgui.same_line()
-        draw_add_bonus("base_override", stat["base_overrides"], possible_overrides, static)
+        draw_add_bonus("base_override", stat["base_overrides"], bonus_list_type, static)
         
         if stat["base_overrides"] != []:
             imgui.text(f"Base overrides:")
@@ -126,7 +125,7 @@ def draw_static_stat_button(stat_id: str, stat: StaticStat,
         # Bonuses
         imgui.align_text_to_frame_padding();
         imgui.text(f"New bonus:"); imgui.same_line()
-        draw_add_bonus(f"{stat_id}_stat_bonus", stat["bonuses"], possible_bonuses, static, numerical_step)
+        draw_add_bonus(f"{stat_id}_stat_bonus", stat["bonuses"], bonus_list_type, static, numerical_step)
 
         if stat["bonuses"] != []:
             imgui.text(f"Bonuses:")

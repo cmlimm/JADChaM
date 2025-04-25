@@ -6,13 +6,19 @@ from cs_types import Ability, CharacterClass, RollableStat, StaticStat
 
 
 def isRepresentInt(value: Any) -> TypeGuard[int]:
-    if isinstance(value, int):
+    try:
+        int(value)
         return True
-    if isinstance(value, str):
-        if value != "" and value[0] in ("-", "+"):
-            return value[1:].isdigit()
-        return value.isdigit()
-    return False
+    except ValueError:
+        return False
+
+
+def isRepresentFloat(value: Any) -> TypeGuard[float]:
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
 
 def isClassList(item: Any) -> TypeGuard[list[CharacterClass]]:
