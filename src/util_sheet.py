@@ -4,7 +4,7 @@ from typing import Any
 
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui  # type: ignore
 
-from cs_types import Bonus, Feature, MainWindowProtocol
+from cs_types import Bonus, BonusTo, Feature, MainWindowProtocol, NewBonus
 from settings import STRIPED_NO_BORDERS_TABLE_FLAGS  # type: ignore
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
 from settings import (  # type: ignore
@@ -12,6 +12,7 @@ from settings import (  # type: ignore
     DISADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
+    LIST_TYPE_TO_BONUS,
     MEDIUM_STRING_INPUT_WIDTH,
     OVERRIDE_COLOR,
     RE_VALUE,
@@ -42,16 +43,20 @@ def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus:
             return static.data["initiative"]["total"]
         elif value == "armor_class":
             return static.data["armor_class"]["total"]
-        elif value.startswith("ability") and value.endswith("score"):
+        elif value == "hp:current":
+            return static.data["hp"]["max_total"]
+        elif value == "hp:max":
+            return static.data["hp"]["max_total"]
+        elif value.startswith("ability") and value.endswith(":score"):
             return static.data_refs.get(value[:-6], {"total_base_score": 0})["total_base_score"] # type: ignore
         elif value == "advantage":
             return "advantage"
         elif value == "disadvantage":
             return "disadvantage"
         elif value == "ability:DEX":
-            return min(static.data_refs.get("ability:DEX", {"total": 0})["total"], max_dex_bonus)
+            return min(static.data_refs.get("ability:DEX", {"total": 0})["total"], max_dex_bonus) # type: ignore
         else:
-            return static.data_refs.get(value, {"total": 0})["total"]
+            return static.data_refs.get(value, {"total": 0})["total"] # type: ignore
     
     return 0
 
@@ -114,6 +119,109 @@ def replace_value(match: re.Match[str], static: MainWindowProtocol) -> str:
 def parse_text(text: str, static: MainWindowProtocol) -> str:
     return re.sub(RE_VALUE, lambda x: replace_value(x, static), text) # type: ignore
 
+
+def draw_entities_menu(menu_name: str, menu_id: str, types: list[str], 
+                       new_bonus: NewBonus, static: MainWindowProtocol):
+    imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+    imgui.push_item_flag(imgui.ItemFlags_.auto_close_popups, False) # type: ignore
+    if imgui.begin_menu(f"{menu_name}##{menu_id}"):
+        for bonus_type in types:
+            # Numerical
+            if bonus_type == "Numerical" and imgui.menu_item_simple(f"Numerical##{menu_id}"):
+                new_bonus["new_bonus_type"] = "Numerical Bonus"
+                new_bonus["new_bonus_value"] = 0
+            # Class Level
+            elif bonus_type == "Level" and imgui.begin_menu(f"Level##{menu_id}"):
+                if imgui.menu_item_simple("Total"):
+                    new_bonus["new_bonus_type"] = f"Level, Total"
+                    new_bonus["new_bonus_value"] = f"level:total"
+                for class_item in static.data["level"]["classes"]:
+                    class_name = class_item["name"]
+                    if not class_name.startswith("no_display") and imgui.menu_item_simple(f"{class_name}##{menu_id}"):
+                        new_bonus["new_bonus_type"] = f"Level, {class_name}"
+                        new_bonus["new_bonus_value"] = f"level:{class_name}"
+                imgui.end_menu()
+            # Advantage and Disadvantage
+            elif bonus_type == "Advantage" and imgui.menu_item_simple(f"Advantage##{menu_id}"):
+                new_bonus["new_bonus_type"] = "Advantage"
+                new_bonus["new_bonus_value"] = "advantage"
+            elif bonus_type == "Disadvantage" and imgui.menu_item_simple(f"Disadvantage##{menu_id}"):
+                new_bonus["new_bonus_type"] = "Disadvantage"
+                new_bonus["new_bonus_value"] = "disadvantage"
+            # Ability
+            elif bonus_type == "Ability" and imgui.begin_menu(f"Ability##{menu_id}"):
+                for ability in static.data["abilities"]:
+                    ability_name = ability["name"]
+                    if not ability_name.startswith("no_display") and imgui.begin_menu(f"{ability_name}##{menu_id}"):
+                        if imgui.menu_item_simple(f"Modifier##{menu_id}"):
+                            new_bonus["new_bonus_type"] = f"Ability Modifier, {ability_name}"
+                            new_bonus["new_bonus_value"] = f"ability:{ability_name}"
+                        if imgui.menu_item_simple(f"Score##{menu_id}"):
+                            new_bonus["new_bonus_type"] = f"Ability Score, {ability_name}"
+                            new_bonus["new_bonus_value"] = f"ability:{ability_name}:score"
+                        imgui.end_menu()
+                imgui.end_menu()
+            # Saving Throw
+            elif bonus_type == "Saving Throw" and imgui.begin_menu(f"Save##{menu_id}"):
+                for save in static.data["saves"]:
+                    save_name = save["name"]
+                    if not save_name.startswith("no_display") and imgui.menu_item_simple(save_name):
+                        new_bonus["new_bonus_type"] = f"Saving Throw, {save_name}"
+                        new_bonus["new_bonus_value"] = f"save:{save_name}"
+                imgui.end_menu()
+            # Skill
+            elif bonus_type == "Skill" and imgui.begin_menu(f"Skill##{menu_id}"):
+                for skill in static.data["skills"]:
+                    skill_name = skill["name"]
+                    if not skill_name.startswith("no_display") and imgui.menu_item_simple(skill_name):
+                        new_bonus["new_bonus_type"] = f"Skill, {skill_name}"
+                        new_bonus["new_bonus_value"] = f"skill:{skill_name}"
+                imgui.end_menu()
+            # Proficiency
+            elif bonus_type == "Proficiency" and imgui.menu_item_simple(f"Proficiency##{menu_id}"):
+                new_bonus["new_bonus_type"] = f"Proficiency"
+                new_bonus["new_bonus_value"] = f"proficiency"
+            # Speed
+            elif bonus_type == "Speed" and imgui.begin_menu(f"Speed##{menu_id}"):
+                for speed in static.data["speed"]:
+                    speed_name = speed["name"]
+                    if not speed_name.startswith("no_display") and imgui.menu_item_simple(speed_name):
+                        new_bonus["new_bonus_type"] = f"Speed, {speed_name}"
+                        new_bonus["new_bonus_value"] = f"speed:{speed_name}"
+                imgui.end_menu()
+            # Passive Skill
+            elif bonus_type == "Passive Skill" and imgui.begin_menu(f"Passive Skill##{menu_id}"):
+                for passive in static.data["passive_skill"]:
+                    passive_name = passive["name"]
+                    if not passive_name.startswith("no_display") and imgui.menu_item_simple(passive_name):
+                        new_bonus["new_bonus_type"] = f"Passive Skill, {passive_name}"
+                        new_bonus["new_bonus_value"] = f"passive:{passive_name}"
+                imgui.end_menu()
+            # Sense
+            elif bonus_type == "Sense" and imgui.begin_menu(f"Sense##{menu_id}"):
+                for sense in static.data["sense"]:
+                    sense_name = sense["name"]
+                    if not sense_name.startswith("no_display") and imgui.menu_item_simple(sense_name):
+                        new_bonus["new_bonus_type"] = f"Sense, {sense_name}"
+                        new_bonus["new_bonus_value"] = f"sense:{sense_name}"
+                imgui.end_menu()
+            # Initiative
+            elif bonus_type == "Initiative" and imgui.menu_item_simple(f"Initiative##{menu_id}"):
+                new_bonus["new_bonus_type"] = f"Initiative"
+                new_bonus["new_bonus_value"] = f"initiative"
+            # Armor Class
+            elif bonus_type == "Armor Class" and imgui.menu_item_simple(f"Armor Class##{menu_id}"):
+                new_bonus["new_bonus_type"] = f"Armor Class"
+                new_bonus["new_bonus_value"] = f"armor_class"
+            # HP
+            elif bonus_type == "HP" and imgui.menu_item_simple(f"HP##{menu_id}"):
+                new_bonus["new_bonus_type"] = f"HP"
+                new_bonus["new_bonus_value"] = f"hp"
+                            
+        imgui.end_menu()
+    imgui.pop_item_flag()
+
+
 def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus], 
                    list_type: str, static: MainWindowProtocol,
                    numerical_step: int = 1,
@@ -127,121 +235,10 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
         }
     new_bonus = static.states["new_bonuses"][bonus_id]
 
-    list_to_bonus_types = {
-        "hp": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
-                       "Proficiency", "Initiative", "Armor Class", "Speed", "Passive Skill", "Sense"],
-        "base_score": ["Numerical", "Class Level"],
-        "armor_class": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
-                        "Proficiency", "Initiative", "Passive Skill"],
-        "speed": ["Numerical", "Speed", "Level", "Ability", "Ability Score", "Skill",
-                  "Proficiency", "Initiative"],
-        "passive": ["Numerical", "Passive Skill", "Level", "Ability", "Ability Score", "Skill",
-                    "Proficiency", "Initiative"],
-        "sense": ["Numerical", "Sense", "Level", "Ability", "Ability Score", "Skill",
-                  "Proficiency", "Initiative"],
-        "rollable": ["Numerical", "Level", "Ability", "Ability Score", "Advantage", "Disadvantage", 
-                     "Proficiency", "Initiative"] 
-    }
-    bonus_types = list_to_bonus_types[list_type]
+    bonus_types = LIST_TYPE_TO_BONUS[list_type]
 
     # Choose bonus type
-    imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-    imgui.push_item_flag(imgui.ItemFlags_.auto_close_popups, False) # type: ignore
-    if imgui.begin_menu(f"Bonus Type##{bonus_id}"):
-        for bonus_type in bonus_types: # type: ignore
-            # Numerical
-            if bonus_type == "Numerical" and imgui.menu_item_simple(f"Numerical##{bonus_id}"):
-                new_bonus["new_bonus_type"] = "Numerical Bonus"
-                new_bonus["new_bonus_value"] = 0
-            # Class Level
-            elif bonus_type == "Level" and imgui.begin_menu(f"Level##{bonus_id}"):
-                if imgui.menu_item_simple("Total"):
-                    new_bonus["new_bonus_type"] = f"Level, Total"
-                    new_bonus["new_bonus_value"] = f"level:total"
-                for class_item in static.data["level"]["classes"]:
-                    class_name = class_item["name"]
-                    if not class_name.startswith("no_display") and imgui.menu_item_simple(f"{class_name}##{bonus_id}"):
-                        new_bonus["new_bonus_type"] = f"Level, {class_name}"
-                        new_bonus["new_bonus_value"] = f"level:{class_name}"
-                imgui.end_menu()
-            # Advantage and Disadvantage
-            elif bonus_type == "Advantage" and imgui.menu_item_simple(f"Advantage##{bonus_id}"):
-                new_bonus["new_bonus_type"] = "Advantage"
-                new_bonus["new_bonus_value"] = "advantage"
-            elif bonus_type == "Disadvantage" and imgui.menu_item_simple(f"Disadvantage##{bonus_id}"):
-                new_bonus["new_bonus_type"] = "Disadvantage"
-                new_bonus["new_bonus_value"] = "disadvantage"
-            # Ability Modifier
-            elif bonus_type == "Ability" and imgui.begin_menu(f"Ability##{bonus_id}"):
-                for ability in static.data["abilities"]:
-                    ability_name = ability["name"]
-                    if not ability_name.startswith("no_display") and imgui.menu_item_simple(ability_name):
-                        new_bonus["new_bonus_type"] = f"Ability Modifier, {ability_name}"
-                        new_bonus["new_bonus_value"] = f"ability:{ability_name}"
-                imgui.end_menu()
-            # Ability Score
-            elif bonus_type == "Ability Score" and imgui.begin_menu(f"Ability Score##{bonus_id}"):
-                for ability in static.data["abilities"]:
-                    ability_name = ability["name"]
-                    if not ability_name.startswith("no_display") and imgui.menu_item_simple(ability_name):
-                        new_bonus["new_bonus_type"] = f"Ability Score, {ability_name}"
-                        new_bonus["new_bonus_value"] = f"ability:{ability_name}:score"
-                imgui.end_menu()
-            # Saving Throw
-            elif bonus_type == "Saving Throw" and imgui.begin_menu(f"Save##{bonus_id}"):
-                for save in static.data["saves"]:
-                    save_name = save["name"]
-                    if not save_name.startswith("no_display") and imgui.menu_item_simple(save_name):
-                        new_bonus["new_bonus_type"] = f"Saving Throw, {save_name}"
-                        new_bonus["new_bonus_value"] = f"save:{save_name}"
-                imgui.end_menu()
-            # Skill
-            elif bonus_type == "Skill" and imgui.begin_menu(f"Skill##{bonus_id}"):
-                for skill in static.data["skills"]:
-                    skill_name = skill["name"]
-                    if not skill_name.startswith("no_display") and imgui.menu_item_simple(skill_name):
-                        new_bonus["new_bonus_type"] = f"Skill, {skill_name}"
-                        new_bonus["new_bonus_value"] = f"skill:{skill_name}"
-                imgui.end_menu()
-            # Proficiency
-            elif bonus_type == "Proficiency" and imgui.menu_item_simple(f"Proficiency##{bonus_id}"):
-                new_bonus["new_bonus_type"] = f"Proficiency"
-                new_bonus["new_bonus_value"] = f"proficiency"
-            # Speed
-            elif bonus_type == "Speed" and imgui.begin_menu(f"Speed##{bonus_id}"):
-                for speed in static.data["speed"]:
-                    speed_name = speed["name"]
-                    if not speed_name.startswith("no_display") and imgui.menu_item_simple(speed_name):
-                        new_bonus["new_bonus_type"] = f"Speed, {speed_name}"
-                        new_bonus["new_bonus_value"] = f"speed:{speed_name}"
-                imgui.end_menu()
-            # Passive Skill
-            elif bonus_type == "Passive Skill" and imgui.begin_menu(f"Passive Skill##{bonus_id}"):
-                for passive in static.data["passive_skill"]:
-                    passive_name = passive["name"]
-                    if not passive_name.startswith("no_display") and imgui.menu_item_simple(passive_name):
-                        new_bonus["new_bonus_type"] = f"Passive Skill, {passive_name}"
-                        new_bonus["new_bonus_value"] = f"passive:{passive_name}"
-                imgui.end_menu()
-            # Sense
-            elif bonus_type == "Sense" and imgui.begin_menu(f"Sense##{bonus_id}"):
-                for sense in static.data["sense"]:
-                    sense_name = sense["name"]
-                    if not sense_name.startswith("no_display") and imgui.menu_item_simple(sense_name):
-                        new_bonus["new_bonus_type"] = f"Sense, {sense_name}"
-                        new_bonus["new_bonus_value"] = f"sense:{sense_name}"
-                imgui.end_menu()
-            # Initiative
-            elif bonus_type == "Initiative" and imgui.menu_item_simple(f"Initiative##{bonus_id}"):
-                new_bonus["new_bonus_type"] = f"Initiative"
-                new_bonus["new_bonus_value"] = f"initiative"
-            # Armor Class
-            elif bonus_type == "Armor Class" and imgui.menu_item_simple(f"Armor Class##{bonus_id}"):
-                new_bonus["new_bonus_type"] = f"Armor Class"
-                new_bonus["new_bonus_value"] = f"armor_class"
-            
-        imgui.end_menu()
-    imgui.pop_item_flag()
+    draw_entities_menu("Bonus Type", bonus_id, bonus_types, new_bonus, static)
 
     if new_bonus["new_bonus_type"] != "":
         imgui.text(new_bonus["new_bonus_type"])
@@ -271,22 +268,23 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
             new_bonus["new_bonus_mult"],
             0.5)
     
-    imgui.same_line()
+    if draw_add_button:
+        imgui.same_line()
 
-    if draw_add_button and imgui.button(f"Add##{bonus_id}") and new_bonus["new_bonus_type"] != "":
-        bonus_list.append({
-            "name": new_bonus["new_bonus_name"],
-            "value": new_bonus["new_bonus_value"],
-            "multiplier": new_bonus["new_bonus_mult"],
-            "manual": True
-        })
+        if imgui.button(f"Add##{bonus_id}_new_bonus") and new_bonus["new_bonus_type"] != "":
+            bonus_list.append({
+                "name": new_bonus["new_bonus_name"],
+                "value": new_bonus["new_bonus_value"],
+                "multiplier": new_bonus["new_bonus_mult"],
+                "manual": True
+            })
 
-        static.states["new_bonuses"][bonus_id] = {
-            "new_bonus_name": "",
-            "new_bonus_type": "",
-            "new_bonus_value": "",
-            "new_bonus_mult": 1.0
-        }
+            static.states["new_bonuses"][bonus_id] = {
+                "new_bonus_name": "",
+                "new_bonus_type": "",
+                "new_bonus_value": "",
+                "new_bonus_mult": 1.0
+            }
 
 
 def draw_bonuses(list_id: str, bonus_list: list[Bonus], static: MainWindowProtocol) -> None:
@@ -431,85 +429,6 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, popup_name
             imgui.close_current_popup()
         imgui.end_popup()
 
-
-def draw_add_bonus_to(bonus_id: str, static: MainWindowProtocol) -> None:
-    # Choose to where to add a bonus
-    imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-    imgui.push_item_flag(imgui.ItemFlags_.auto_close_popups, False) # type: ignore
-    if imgui.begin_menu(f"Destination##{bonus_id}"):
-        # # Ability Modifier
-        # if imgui.begin_menu(f"Ability##{bonus_id}"):
-        #     for ability in static.data["abilities"]:
-        #         ability_name = ability["name"]
-        #         if not ability_name.startswith("no_display") and imgui.menu_item_simple(ability_name):
-        #             static.states["new_bonus_to_ref"] = f"ability:{ability_name}"
-        #             static.states["new_bonus_list_type"] = "base_score"
-        #     imgui.end_menu()
-        # # Ability Score
-        # if imgui.begin_menu(f"Ability Score##{bonus_id}"):
-        #     for ability in static.data["abilities"]:
-        #         ability_name = ability["name"]
-        #         if not ability_name.startswith("no_display") and imgui.menu_item_simple(ability_name):
-        #             static.states["new_bonus_to_ref"] = f"ability:{ability_name}:score"
-        #             static.states["new_bonus_list_type"] = "base_score"
-        #     imgui.end_menu()
-        # Saving Throw
-        if imgui.begin_menu(f"Save##{bonus_id}"):
-            for save in static.data["saves"]:
-                save_name = save["name"]
-                if not save_name.startswith("no_display") and imgui.menu_item_simple(save_name):
-                    static.states["new_bonus_to_ref"] = f"save:{save_name}"
-                    static.states["new_bonus_list_type"] = "rollable"
-            imgui.end_menu()
-        # Skill
-        if imgui.begin_menu(f"Skill##{bonus_id}"):
-            for skill in static.data["skills"]:
-                skill_name = skill["name"]
-                if not skill_name.startswith("no_display") and imgui.menu_item_simple(skill_name):
-                    static.states["new_bonus_to_ref"] = f"skill:{skill_name}"
-                    static.states["new_bonus_list_type"] = "rollable"
-            imgui.end_menu()
-        # Speed
-        if imgui.begin_menu(f"Speed##{bonus_id}"):
-            for speed in static.data["speed"]:
-                speed_name = speed["name"]
-                if not speed_name.startswith("no_display") and imgui.menu_item_simple(speed_name):
-                    static.states["new_bonus_to_ref"] = f"speed:{speed_name}"
-                    static.states["new_bonus_list_type"] = "speed"
-            imgui.end_menu()
-        # Passive Skill
-        if imgui.begin_menu(f"Passive Skill##{bonus_id}"):
-            for passive in static.data["passive_skill"]:
-                passive_name = passive["name"]
-                if not passive_name.startswith("no_display") and imgui.menu_item_simple(passive_name):
-                    static.states["new_bonus_to_ref"] = f"passive:{passive_name}"
-                    static.states["new_bonus_list_type"] = "passive"
-            imgui.end_menu()
-        # Sense
-        if imgui.begin_menu(f"Sense##{bonus_id}"):
-            for sense in static.data["sense"]:
-                sense_name = sense["name"]
-                if not sense_name.startswith("no_display") and imgui.menu_item_simple(sense_name):
-                    static.states["new_bonus_to_ref"] = f"sense:{sense_name}"
-                    static.states["new_bonus_list_type"] = "sense"
-            imgui.end_menu()
-        # Initiative
-        if imgui.menu_item_simple(f"Initiative##{bonus_id}"):
-            static.states["new_bonus_to_ref"] = f"initiative"
-            static.states["new_bonus_list_type"] = "rollable"
-        # Armor Class
-        if imgui.menu_item_simple(f"Armor Class##{bonus_id}"):
-            static.states["new_bonus_to_ref"] = f"armor_class"
-            static.states["new_bonus_list_type"] = "armor_class"
-        # # Training
-        # if imgui.menu_item_simple(f"Training##{bonus_id}"):
-        #     static.states["new_bonus_to_ref"] = f"training"
-        #     static.states["new_bonus_list_type"] = "training"
-
-        imgui.end_menu()
-    imgui.pop_item_flag()
-
-
 def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
     center = imgui.get_main_viewport().get_center()
     imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
@@ -529,8 +448,14 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
         imgui.text("Description")
         _, feature["description"] = imgui.input_text_multiline(f"##{feature["name"]}_feature_description", feature["description"], ImVec2(-1, imgui.get_text_line_height() * 10), 128)
         
-        imgui.align_text_to_frame_padding()
-        imgui.text(f"Tags:")
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+        _, static.states["new_tag"] = imgui.input_text_with_hint("##new_tag", "Tag", static.states["new_tag"], 128)
+        imgui.pop_item_width(); imgui.same_line()
+        if imgui.button(f"Add##add_tag"):
+            feature["tags"].append(static.states["new_tag"])
+            static.states["new_tag"] = ""
+        imgui.same_line()
+        
         for idx, tag in enumerate(feature["tags"]):
             imgui.same_line(); imgui.align_text_to_frame_padding()
             imgui.text(f"{tag}"); imgui.same_line()
@@ -542,71 +467,87 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
                 del feature["tags"][idx]
             imgui.pop_style_color(3)
 
-        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-        _, static.states["new_tag"] = imgui.input_text_with_hint("##new_tag", "Tag", static.states["new_tag"], 128)
-        imgui.pop_item_width(); imgui.same_line()
-        if imgui.button(f"Add"):
-            feature["tags"].append(static.states["new_tag"])
-            static.states["new_tag"] = ""
-
-        imgui.text("New bonus:")
-        
-        imgui.align_text_to_frame_padding()
-        imgui.text("Name"); imgui.same_line()
-        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
         _, static.states["new_bonus_to_name"] = imgui.input_text(
-            f"##{feature["name"]}_new_bonus_to_name", 
+            "Name##new_bonus_to_name",
             static.states["new_bonus_to_name"], 128)
-        imgui.pop_item_width()
-
-        imgui.align_text_to_frame_padding()
-        imgui.text("Where to add a bonus: "); imgui.same_line(); imgui.align_text_to_frame_padding()
-        draw_add_bonus_to(f"{feature["name"]}", static)
-
-        imgui.align_text_to_frame_padding()
-        imgui.text("What bonus to add: "); imgui.same_line(); imgui.align_text_to_frame_padding()
-        if static.states["new_bonus_to_ref"] != "":
-            draw_add_bonus(f"{feature["name"]}", 
-                        static.data_refs[static.states["new_bonus_to_ref"]]["bonuses"], # type: ignore
-                        static.states["new_bonus_list_type"],
-                        static, draw_add_button=False)
         
-        if imgui.button("Add##new_bonus_to"):
-            feature["bonuses"].append({
-                "name": static.states["new_bonus_to_name"],
-                "ref": static.states["new_bonus_to_ref"],
-                "bonus": {
-                    "name": static.states["new_bonuses"][feature["name"]]["new_bonus_name"],
-                    "value": static.states["new_bonuses"][feature["name"]]["new_bonus_value"],
-                    "multiplier": static.states["new_bonuses"][feature["name"]]["new_bonus_mult"],
-                    "manual": False
-                },
-                "manual": True
-            })
-            static.data_refs[static.states["new_bonus_to_ref"]]["bonuses"].append({ # type: ignore
-                "name": static.states["new_bonuses"][feature["name"]]["new_bonus_name"],
-                "value": static.states["new_bonuses"][feature["name"]]["new_bonus_value"],
-                "multiplier": static.states["new_bonuses"][feature["name"]]["new_bonus_mult"],
-                "manual": False
-            })
+        _, static.states["new_bonus_to_target_ref"] = imgui.input_text(
+            "Target##new_bonus_to_target_ref",
+            static.states["new_bonus_to_target_ref"], 128)
+        
+        _, static.states["new_bonus_to_value_ref"] = imgui.input_text(
+            "Value##new_bonus_to_value_ref",
+            static.states["new_bonus_to_value_ref"], 128)
+        
+        _, static.states["new_bonus_to_multiplier"] = imgui.input_float(
+            "Multiplier##new_bonus_to_multiplier",
+            static.states["new_bonus_to_multiplier"],
+            0.5
+        )
+        
+        feature_bonus_name = static.states["new_bonus_to_name"]
+        target = static.states["new_bonus_to_target_ref"] + ":bonuses"
+        value: str | int = static.states["new_bonus_to_value_ref"]
+        if isRepresentInt(value):
+            value = int(value)
+        multiplier = static.states["new_bonus_to_multiplier"]
 
-            static.states["new_bonus_to_name"] = ""
-            static.states["new_bonus_to_ref"] = ""
-            static.states["new_bonus_list_type"] = ""
-            static.states["new_bonuses"][feature["name"]] = {
-                "new_bonus_name": "",
-                "new_bonus_type": "",
-                "new_bonus_value": "",
-                "new_bonus_mult": 1.0
+
+        if imgui.button("Add##new_bonus_to"):
+            target_bonus: Bonus = {
+                "name": f"{feature["name"]} ({value}{"x" + str(multiplier) if multiplier != 1.0 else ""})",
+                "value": value,
+                "multiplier": multiplier,
+                "manual": False
             }
 
-        # TODO: display bonuses
-        # TODO: add delete bonus button
-        # TODO: cleanup all cross-references
-        # TODO: bonuses to overrides
+            feature_bonus: BonusTo = {
+                "name": feature_bonus_name,
+                "target": target,
+                "bonus": target_bonus,
+                "manual": True
+            }
+
+            static.bonus_list_refs[target].append(target_bonus)
+            feature["bonuses"].append(feature_bonus)
+
+        if imgui.begin_table("feature_bonuses", 4, flags=STRIPED_TABLE_FLAGS): # type: ignore
+            for idx, feature_bonus in enumerate(feature["bonuses"]):
+                imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()
+                imgui.text(feature["name"])
+
+                imgui.table_next_column()
+                imgui.text(feature_bonus["target"])
+
+                imgui.table_next_column()
+                imgui.text(f"{feature_bonus["bonus"]["name"]}")
+
+                imgui.table_next_column()
+                if feature_bonus["manual"]:
+                    imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                    imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                    imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                    if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_bonus_{idx}"):
+                        delete_target = static.bonus_list_refs[feature_bonus["target"]]
+                        delete_idx = delete_target.index(feature_bonus["bonus"])
+                        del delete_target[delete_idx]
+
+                        del feature["bonuses"][idx]
+                    imgui.pop_style_color(3)
+
+            end_table_nested()
+        
+        imgui.spacing()
+        imgui.spacing()
+        imgui.spacing()
+        imgui.spacing()
+        imgui.spacing()
+        imgui.spacing()
+        
 
         if imgui.button("Close", ImVec2(120, 0)):
-            feature["name"] = static.states["feat_name"]
-            static.states["feat_name"] = ""
             imgui.close_current_popup()
+            if static.states["feat_name"] != "":
+                feature["name"] = static.states["feat_name"]
+            static.states["feat_name"] = ""
         imgui.end_popup()

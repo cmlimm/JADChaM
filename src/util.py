@@ -47,9 +47,18 @@ def open_image(static: MainWindowProtocol) -> None:
 # This allows us to quickly access an object without searching through a dict.
 def process_character(static: MainWindowProtocol) -> None:
     static.data_refs = {}
+    static.bonus_list_refs = {}
     
     static.data_refs["armor_class"] = static.data["armor_class"]
+    static.bonus_list_refs["armor_class:bonuses"] = static.data["armor_class"]["bonuses"]
+    
     static.data_refs["initiative"] = static.data["initiative"]
+    static.bonus_list_refs["initiative:bonuses"] = static.data["initiative"]["bonuses"]
+
+    static.data_refs["hp"] = static.data["hp"]
+    static.bonus_list_refs["hp:bonuses"] = static.data["hp"]["bonuses"]
+
+    static.data_refs["proficiency"] = static.data["proficiency"]
 
     # Classes
     for class_dict in static.data["level"]["classes"]:
@@ -59,22 +68,34 @@ def process_character(static: MainWindowProtocol) -> None:
     for ability in static.data["abilities"]:
         static.data_refs[f"ability:{ability["name"]}"] = ability
 
+        static.bonus_list_refs[f"ability:{ability["name"]}:base_score_bonuses"] = ability["base_score_bonuses"]
+        static.bonus_list_refs[f"ability:{ability["name"]}:base_score_overrides"] = ability["base_score_overrides"]
+        static.bonus_list_refs[f"ability:{ability["name"]}:modifier_bonuses"] = ability["modifier_bonuses"]
+
     # Saves
     for save in static.data["saves"]:
         static.data_refs[f"save:{save["name"]}"] = save
+        static.bonus_list_refs[f"save:{save["name"]}:bonuses"] = save["bonuses"]
         
     # Skills
     for skill in static.data["skills"]:
         static.data_refs[f"skill:{skill["name"]}"] = skill
+        static.bonus_list_refs[f"skill:{skill["name"]}:bonuses"] = skill["bonuses"]
 
     # Speed
     for speed in static.data["speed"]:
         static.data_refs[f"speed:{speed["name"]}"] = speed
+        static.bonus_list_refs[f"speed:{speed["name"]}:base_overrides"] = speed["base_overrides"]
+        static.bonus_list_refs[f"speed:{speed["name"]}:bonuses"] = speed["bonuses"]
 
     # Passives
     for passive in static.data["passive_skill"]:
         static.data_refs[f"passive:{passive["name"]}"] = passive
+        static.bonus_list_refs[f"passive:{passive["name"]}:base_overrides"] = passive["base_overrides"]
+        static.bonus_list_refs[f"passive:{passive["name"]}:bonuses"] = passive["bonuses"]
 
     # Senses
     for sense in static.data["sense"]:
         static.data_refs[f"sense:{sense["name"]}"] = sense
+        static.bonus_list_refs[f"sense:{sense["name"]}:base_overrides"] = sense["base_overrides"]
+        static.bonus_list_refs[f"sense:{sense["name"]}:bonuses"] = sense["bonuses"]

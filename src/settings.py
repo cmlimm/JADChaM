@@ -37,3 +37,19 @@ OVERRIDE_COLOR = imgui.ImColor.hsv(0.15, 0.8, 0.8).value
 
 RE_VALUE = "{\w+?.+?}" # type: ignore
 RE_NEW_LINE = "\\n"
+
+LIST_TYPE_TO_BONUS = {
+    "hp": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
+           "Proficiency", "Initiative", "Armor Class", "Speed", "Passive Skill", "Sense"],
+    "base_score": ["Numerical", "Level"],
+    "armor_class": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
+                    "Proficiency", "Initiative", "Passive Skill"],
+    "speed": ["Numerical", "Speed", "Level", "Ability", "Ability Score", "Skill",
+              "Proficiency", "Initiative"],
+    "passive": ["Numerical", "Passive Skill", "Level", "Ability", "Ability Score", "Skill",
+                "Proficiency", "Initiative"],
+    "sense": ["Numerical", "Sense", "Level", "Ability", "Ability Score", "Skill",
+              "Proficiency", "Initiative"],
+    "rollable": ["Numerical", "Level", "Ability", "Ability Score", "Advantage", "Disadvantage", 
+                 "Proficiency", "Initiative"] 
+}

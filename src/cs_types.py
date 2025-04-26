@@ -26,19 +26,22 @@ class CharacterClass(TypedDict):
 
 
 class Level(TypedDict):
+    name: str
     total: int
     classes: list[CharacterClass]
 
 
 class Hp(TypedDict):
+    name: str
     current: int
     max_total: int
     max_base: int
     temp: int
-    max_hp_bonuses: list[Bonus]
+    bonuses: list[Bonus]
 
 
 class Proficiency(TypedDict):
+    name: str
     total: int
 
 
@@ -49,6 +52,7 @@ class Armor(TypedDict):
 
 
 class ArmorClass(TypedDict):
+    name: str
     total: int
     base: int
     armor: Armor
@@ -142,7 +146,7 @@ class Training(TypedDict):
 
 class BonusTo(TypedDict):
     name: str
-    ref: str
+    target: str
     bonus: Bonus
     manual: bool
 
@@ -186,23 +190,21 @@ class NewBonus(TypedDict):
     new_bonus_value: int | str
     new_bonus_mult: float
 
-
 class States(TypedDict):
     hp_dice_idx: int
-
-    new_item_name: str
-
     hp_add: str
-
-    new_bonuses: dict[str, NewBonus]
+    
+    new_item_name: str
     new_training: Training
-
-    new_bonus_to_ref: str
-    new_bonus_list_type: str
-    new_bonus_to_name: str
-
-    feat_name: str
     new_tag: str
+    new_bonuses: dict[str, NewBonus]
+
+    new_bonus_to_name: str
+    new_bonus_to_target_ref: str
+    new_bonus_to_value_ref: str
+    new_bonus_to_multiplier: float
+    
+    feat_name: str
     
 
 class MainWindowProtocol():
@@ -219,7 +221,8 @@ class MainWindowProtocol():
     data: CharacterData
     is_character_loaded: bool
 
-    data_refs: dict[str, CharacterClass | Ability | RollableStat | StaticStat | ArmorClass]
+    data_refs: dict[str, CharacterClass | Ability | RollableStat | StaticStat | ArmorClass | Hp | Proficiency]
+    bonus_list_refs: dict[str, list[Bonus]]
 
     def __call__(self, font_holder: FontHolder) -> None: ...
 

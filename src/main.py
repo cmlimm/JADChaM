@@ -43,9 +43,10 @@ def post_init(state: MainWindowProtocol) -> None:
             "source": "",
             "manual": True
         },
-        "new_bonus_to_ref": "",
-        "new_bonus_list_type": "",
+        "new_bonus_to_target_ref": "",
+        "new_bonus_to_value_ref": "",
         "new_bonus_to_name": "",
+        "new_bonus_to_multiplier": 0.0,
         "feat_name": "",
         "new_tag": ""
     }

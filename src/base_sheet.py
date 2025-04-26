@@ -143,7 +143,7 @@ def draw_hp(static: MainWindowProtocol) -> None:
         imgui.pop_style_color(3)
 
         imgui.table_next_column()
-        total_bonus, _ = sum_bonuses(static.data["hp"]["max_hp_bonuses"], static)
+        total_bonus, _ = sum_bonuses(static.data["hp"]["bonuses"], static)
         static.data["hp"]["max_total"] = static.data["hp"]["max_base"] + total_bonus
 
         imgui.align_text_to_frame_padding()
@@ -159,11 +159,11 @@ def draw_hp(static: MainWindowProtocol) -> None:
             _, static.data["hp"]["max_base"] = imgui.input_int("##max_hp", static.data["hp"]["max_base"])
 
             imgui.text(f"New Max HP bonus:"); imgui.same_line()
-            draw_add_bonus("max_hp_bonus", static.data["hp"]["max_hp_bonuses"], "hp", static)
+            draw_add_bonus("max_hp_bonus", static.data["hp"]["bonuses"], "hp", static)
             
-            if static.data["hp"]["max_hp_bonuses"] != []:
+            if static.data["hp"]["bonuses"] != []:
                 imgui.text(f"Max HP bonuses:")
-                draw_bonuses("hp_bonus_list", static.data["hp"]["max_hp_bonuses"], static)
+                draw_bonuses("hp_bonus_list", static.data["hp"]["bonuses"], static)
 
             imgui.end_popup()
 

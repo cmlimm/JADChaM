@@ -2,6 +2,7 @@
     "name": "Mirkezim",
     "image_path": "images/Mirkezim.jpeg",
     "level": {
+        "name": "Level",
         "total": 11,
         "classes": [
             {
@@ -31,13 +32,22 @@
         ]
     },
     "hp": {
+        "name": "HP",
         "current": 20,
-        "max_total": 20,
+        "max_total": 42,
         "max_base": 20,
         "temp": 0,
-        "max_hp_bonuses": []
+        "bonuses": [
+            {
+                "name": "Tough (level:totalx2.0)",
+                "value": "level:total",
+                "multiplier": 2.0,
+                "manual": false
+            }
+        ]
     },
     "proficiency": {
+        "name": "Proficiency",
         "total": 0
     },
     "initiative": {
@@ -62,6 +72,7 @@
         "manual": false
     },
     "armor_class": {
+        "name": "Armor Class",
         "total": 15,
         "base": 10,
         "armor": {
@@ -884,63 +895,39 @@
     "features": [
         {
             "name": "no_display",
-            "description": "", 
+            "description": "",
             "tags": [],
             "bonuses": [],
             "manual": false
         },
         {
             "name": "Alert",
-            "description": "**Initiative Proficiency** When you roll Initiative, add +{proficiency} to the roll.\n**Initiative Swap** Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can't make this swap if you or the ally has the Incapacitated condition.",
-            "tags": ["Feat", "Human"],
-            "bonuses": [
-                {
-                    "name": "Initiative Proficiency",
-                    "ref": "initiative",
-                    "bonus": {
-                        "name": "Proficiency (Alert)",
-                        "value": "proficiency",
-                        "multiplier": 1.0,
-                        "manual": true
-                    }
-                },
-                {
-                    "name": "Stupid Bonus",
-                    "ref": "save:STR",
-                    "bonus": {
-                        "name": "DEX (Alert)",
-                        "value": "ability:DEX",
-                        "multiplier": 2.0,
-                        "manual": true
-                    }
-                }
+            "description": "**Initiative Proficiency** When you roll Initiative, add +{proficiency} to the roll.\n\n**Initiative Swap** Immediately after you roll Initiative, you can swap your \nInitiative with the Initiative of one willing ally in the same combat. You can't make \nthis swap if you or the ally has the Incapacitated condition.",
+            "tags": [
+                "Feat",
+                "Human"
             ],
+            "bonuses": [],
             "manual": true
         },
         {
             "name": "Tough",
-            "description": "When you take this feat, your HP maximum increases by {level:total, mult=2}. Whenever you gain a character level thereafter, your HP maximum increases an additional 2 HP.",
-            "tags": ["Feat", "Warlock"],
+            "description": "When you take this feat, your HP maximum increases by {level:total, mult=2}. \nWhenever you gain a character level thereafter, your HP maximum increases an\n additional 2 HP.",
+            "tags": [
+                "Feat",
+                "Warlock"
+            ],
             "bonuses": [
                 {
-                    "name": "Max HP Increase",
-                    "ref": "hp",
+                    "name": "TEST",
+                    "target": "hp:bonuses",
                     "bonus": {
-                        "name": "Level x2 (Tough)",
+                        "name": "Tough (level:totalx2.0)",
                         "value": "level:total",
-                        "multiplier": 2,
-                        "manual": true
-                    }
-                },
-                {
-                    "name": "Smart Bonus",
-                    "ref": "skill:acrobatics",
-                    "bonus": {
-                        "name": "INT (Tough)",
-                        "value": "ability:INT",
-                        "multiplier": 1,
-                        "manual": true
-                    }
+                        "multiplier": 2.0,
+                        "manual": false
+                    },
+                    "manual": true
                 }
             ],
             "manual": true
