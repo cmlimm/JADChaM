@@ -199,10 +199,8 @@ class States(TypedDict):
     new_tag: str
     new_bonuses: dict[str, NewBonus]
 
-    new_bonus_to_name: str
-    new_bonus_to_target_ref: str
-    new_bonus_to_value_ref: str
-    new_bonus_to_multiplier: float
+    target_name: str
+    target_ref: str
     
     feat_name: str
     

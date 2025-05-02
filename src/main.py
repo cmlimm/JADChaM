@@ -31,6 +31,13 @@ from util_gui import (
 # TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
 # TODO[BUG]: fix hotkeys
 
+# TODO: create a menu for choosing where to add a bonus: 
+#       modifier/base score/base score override (senses, speed, passives, abilities)
+
+# TODO: somehow make UI for choosing a target and a bonus type in features prettier
+
+# TODO: maybe move everything about features to a separate file, `util_sheet.py` is getting ugly
+
 def post_init(state: MainWindowProtocol) -> None:
     state.states = {
         "hp_dice_idx": 0,
@@ -43,10 +50,8 @@ def post_init(state: MainWindowProtocol) -> None:
             "source": "",
             "manual": True
         },
-        "new_bonus_to_target_ref": "",
-        "new_bonus_to_value_ref": "",
-        "new_bonus_to_name": "",
-        "new_bonus_to_multiplier": 0.0,
+        "target_name": "",
+        "target_ref": "",
         "feat_name": "",
         "new_tag": ""
     }

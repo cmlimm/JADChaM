@@ -39,7 +39,7 @@
         "temp": 0,
         "bonuses": [
             {
-                "name": "Tough (level:totalx2.0)",
+                "name": "Level, Total x2.0 (Tough)",
                 "value": "level:total",
                 "multiplier": 2.0,
                 "manual": false
@@ -65,6 +65,12 @@
                 "value": "ability:DEX",
                 "multiplier": 1.0,
                 "manual": true
+            },
+            {
+                "name": "Proficiency (Alert)",
+                "value": "proficiency",
+                "multiplier": 1.0,
+                "manual": false
             }
         ],
         "manual_advantage": false,
@@ -907,7 +913,19 @@
                 "Feat",
                 "Human"
             ],
-            "bonuses": [],
+            "bonuses": [
+                {
+                    "name": "Initiative",
+                    "target": "initiative:bonuses",
+                    "bonus": {
+                        "name": "Proficiency (Alert)",
+                        "value": "proficiency",
+                        "multiplier": 1.0,
+                        "manual": false
+                    },
+                    "manual": true
+                }
+            ],
             "manual": true
         },
         {
@@ -919,10 +937,10 @@
             ],
             "bonuses": [
                 {
-                    "name": "TEST",
+                    "name": "HP",
                     "target": "hp:bonuses",
                     "bonus": {
-                        "name": "Tough (level:totalx2.0)",
+                        "name": "Level, Total x2.0 (Tough)",
                         "value": "level:total",
                         "multiplier": 2.0,
                         "manual": false
