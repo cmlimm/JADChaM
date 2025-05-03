@@ -157,14 +157,14 @@ def draw_hp(static: MainWindowProtocol) -> None:
             imgui.text(f"Max HP"); imgui.same_line()
             imgui.push_item_width(THREE_DIGIT_BUTTONS_INPUT_WIDTH)
             _, static.data["hp"]["max_base"] = imgui.input_int("##max_hp", static.data["hp"]["max_base"])
-
-            imgui.text(f"New Max HP bonus:"); imgui.same_line()
-            draw_add_bonus("max_hp_bonus", static.data["hp"]["bonuses"], "hp", static)
             
             if static.data["hp"]["bonuses"] != []:
-                imgui.text(f"Max HP bonuses:")
+                imgui.separator_text(f"Max HP bonuses")
                 draw_bonuses("hp_bonus_list", static.data["hp"]["bonuses"], static)
 
+            imgui.separator_text(f"New Max HP bonus:")
+            draw_add_bonus("max_hp_bonus", static.data["hp"]["bonuses"], "hp", static)
+            
             imgui.end_popup()
 
         imgui.table_next_column()
@@ -200,38 +200,50 @@ def draw_abilities(static: MainWindowProtocol) -> None:
                     imgui.open_popup(f"{ability["name"]}_edit_ability")
 
                 if imgui.begin_popup(f"{ability["name"]}_edit_ability"):
-                    imgui.align_text_to_frame_padding();
+                    imgui.align_text_to_frame_padding()
                     imgui.text(f"Base Score"); imgui.same_line()
                     imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
                     _, ability["base_score"] = imgui.input_int("##base_score", ability["base_score"])
+                    imgui.pop_item_width()
 
-                    # Base Score bonus
-                    imgui.text(f"New Base Score bonus:"); imgui.same_line()
-                    draw_add_bonus("base_score_bonus", ability["base_score_bonuses"], "base_score", static)
+                    if ability["base_score_bonuses"] != []:
+                        imgui.separator_text(f"Base Score bonuses")
+                        draw_bonuses(f"{ability["name"]}_base_score_bonus_list", ability["base_score_bonuses"], static)
+                    if ability["base_score_overrides"] != []:
+                        imgui.separator_text(f"Base Score overrides")
+                        draw_overrides(f"{ability["name"]}_base_score_overrides", ability["base_score_overrides"], override_idx, is_override, static)
+                    if ability["modifier_bonuses"] != []:
+                        imgui.separator_text(f"Modifier bonuses")
+                        draw_bonuses(f"{ability["name"]}_modifier_bonus_list", ability["modifier_bonuses"], static)
+
+                    imgui.separator_text("New Bonus ")
+
+                    items = ["Base Score", "Base Score Override", "Modifier"]
+                    imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+                    _, static.states["ability_bonus_type_idx"] = imgui.combo(f"##{ability["name"]}_select_bonus_type", 
+                                                                             static.states["ability_bonus_type_idx"], 
+                                                                             items, len(items)); imgui.same_line()
+                    imgui.pop_item_width()
                     
                     if ability["base_score_bonuses"] != []:
-                        imgui.text(f"Base Score bonuses:")
-                        draw_bonuses("base_score_bonus_list", ability["base_score_bonuses"], static)
-
-                    imgui.spacing()
-
-                    # Base Score override
-                    imgui.text(f"New Base Score override:"); imgui.same_line()
-                    draw_add_bonus("base_score_override", ability["base_score_overrides"], "base_score", static)
-                    
+                        imgui.separator_text(f"Base Score bonuses")
+                        draw_bonuses(f"{ability["name"]}_base_score_bonus_list", ability["base_score_bonuses"], static)
                     if ability["base_score_overrides"] != []:
-                        imgui.text(f"Base Score overrides:")
-                        draw_overrides("base_score_overrides", ability["base_score_overrides"], override_idx, is_override, static)
-                    
-                    imgui.spacing()
-                    
-                    # Modifier bonus
-                    imgui.text(f"New Modifier bonus:"); imgui.same_line()
-                    draw_add_bonus("modifier_bonus", ability["modifier_bonuses"], "base_score", static)
-
+                        imgui.separator_text(f"Base Score overrides")
+                        draw_overrides(f"{ability["name"]}_base_score_overrides", ability["base_score_overrides"], override_idx, is_override, static)
                     if ability["modifier_bonuses"] != []:
-                        imgui.text(f"Modifier bonuses:")
-                        draw_bonuses("modifier_bonus_list", ability["modifier_bonuses"], static)
+                        imgui.separator_text(f"Modifier bonuses")
+                        draw_bonuses(f"{ability["name"]}_modifier_bonus_list", ability["modifier_bonuses"], static)
+
+                    if static.states["ability_bonus_type_idx"] == 0:
+                        # Base Score bonus
+                        draw_add_bonus("base_score_bonus", ability["base_score_bonuses"], "base_score", static)
+                    elif static.states["ability_bonus_type_idx"] == 1:
+                        # Base Score override
+                        draw_add_bonus("base_score_override", ability["base_score_overrides"], "base_score", static)
+                    elif static.states["ability_bonus_type_idx"] == 2:
+                        # Modifier bonus
+                        draw_add_bonus("modifier_bonus", ability["modifier_bonuses"], "base_score", static)
 
                     imgui.end_popup()
         end_table_nested()
@@ -291,18 +303,18 @@ def draw_armor_class_button(static: MainWindowProtocol) -> None:
 
         if armor_class["armor"]:
             armor = armor_class["armor"]
-            imgui.text("Armor:")
+            imgui.separator_text("Armor")
             imgui.text(f"    {armor["name"]} " + \
                        f"(AC {armor["armor_class"]}" + \
                        f"{", Max DEX " + str(armor["max_dex_bonus"]) if armor["max_dex_bonus"] != 100 else ""})")
             imgui.spacing()
 
-        imgui.text(f"New bonus:"); imgui.same_line()
-        draw_add_bonus(f"ac_bonus", armor_class["bonuses"], "armor_class", static, 1)
-
         if armor_class["bonuses"] != []:
-            imgui.text(f"Bonuses:")
+            imgui.separator_text(f"Bonuses")
             draw_bonuses("ac_bonus_list", armor_class["bonuses"], static)
+
+        imgui.separator_text(f"New bonus")
+        draw_add_bonus(f"ac_bonus", armor_class["bonuses"], "armor_class", static, 1)
 
         imgui.end_popup()
 

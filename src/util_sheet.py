@@ -132,7 +132,7 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
         for bonus_type in types:
             # Numerical
             if bonus_type == "Numerical" and imgui.menu_item_simple(f"Numerical##{menu_id}"):
-                new_bonus["new_bonus_type"] = "Numerical Bonus"
+                new_bonus["new_bonus_type"] = "Numerical"
                 new_bonus["new_bonus_value"] = 0
             # Class Level
             elif bonus_type == "Level" and imgui.begin_menu(f"Level##{menu_id}"):
@@ -236,7 +236,6 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
                    is_feature_bonus: bool = False) -> None:
     if not bonus_id in static.states["new_bonuses"]:
         static.states["new_bonuses"][bonus_id] = {
-            "new_bonus_name": "",
             "new_bonus_type": "",
             "new_bonus_value": "",
             "new_bonus_mult": 1.0
@@ -248,21 +247,8 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
     # Choose bonus type
     draw_entities_menu(static.states["new_bonuses"][bonus_id]["new_bonus_type"], bonus_id, bonus_types, new_bonus, static)
 
-    if not is_feature_bonus:
-        if new_bonus["new_bonus_type"] != "":
-            imgui.text(new_bonus["new_bonus_type"])
-        else:
-            imgui.text("Choose bonus type")
-
-    if not is_feature_bonus:
-        _, new_bonus["new_bonus_name"] = imgui.input_text_with_hint(
-            f"##new_bonus_name_{bonus_id}", 
-            "Name",
-            new_bonus["new_bonus_name"],
-            128); imgui.same_line()
-
     # If `Numerical` draw int button, else draw multiplier button
-    if new_bonus["new_bonus_type"] == "Numerical Bonus":
+    if new_bonus["new_bonus_type"] == "Numerical":
         imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
         _, new_bonus["new_bonus_value"] = imgui.input_int(
             f"##new_bonus_value_{bonus_id}",
@@ -276,21 +262,21 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
         _, new_bonus["new_bonus_mult"] = imgui.input_float(
             f"##new_bonus_mult_{bonus_id}",
             new_bonus["new_bonus_mult"],
-            0.5)
+            0.5, format="%.1f")
     
     if not is_feature_bonus:
-        imgui.same_line()
+        if new_bonus["new_bonus_type"] != "" and not (new_bonus["new_bonus_type"] == "Advantage" or new_bonus["new_bonus_type"] == "Disadvantage"):
+            imgui.same_line()
 
         if imgui.button(f"Add##{bonus_id}_new_bonus") and new_bonus["new_bonus_type"] != "":
             bonus_list.append({
-                "name": new_bonus["new_bonus_name"],
+                "name": f"{new_bonus["new_bonus_type"]} (Manual)",
                 "value": new_bonus["new_bonus_value"],
                 "multiplier": new_bonus["new_bonus_mult"],
                 "manual": True
             })
 
             static.states["new_bonuses"][bonus_id] = {
-                "new_bonus_name": "",
                 "new_bonus_type": "",
                 "new_bonus_value": "",
                 "new_bonus_mult": 1.0

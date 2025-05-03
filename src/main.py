@@ -31,14 +31,13 @@ from util_gui import (
 # TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
 # TODO[BUG]: fix hotkeys
 
-# TODO: create a menu for choosing where to add a bonus: 
-#       modifier/base score/base score override (senses, speed, passives, abilities)
-
 def post_init(state: MainWindowProtocol) -> None:
     state.states = {
         "hp_dice_idx": 0,
-        "new_item_name": "",
+        "ability_bonus_type_idx": 0,
+        "static_bonus_type_idx": 0,
         "hp_add": "",
+        "new_item_name": "",
         "new_bonuses": {},
         "new_training": {
             "name": "",

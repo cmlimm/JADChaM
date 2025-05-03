@@ -114,7 +114,6 @@ def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> Non
         bonus_id = f"{feature["name"]}_bonus"
         if not bonus_id in static.states["new_bonuses"]:
             static.states["new_bonuses"][bonus_id] = {
-                "new_bonus_name": "",
                 "new_bonus_type": "",
                 "new_bonus_value": "",
                 "new_bonus_mult": 1.0
@@ -210,7 +209,7 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
         draw_edit_feature_bonus(feature, static)
 
         if feature["bonuses"] != []:
-            imgui.text("Bonuses")
+            imgui.separator_text("Bonuses")
             if imgui.begin_table("feature_bonuses", 3, flags=STRIPED_TABLE_FLAGS): # type: ignore
                 for idx, feature_bonus in enumerate(feature["bonuses"]):
                     imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()

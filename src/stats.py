@@ -8,6 +8,7 @@ from settings import (
     DISADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
+    MEDIUM_STRING_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
 )
 from util_sheet import (
@@ -78,12 +79,12 @@ def draw_rollable_stat_button(stat_id: str, stat: RollableStat,
             })
             del stat["bonuses"][dis_idx]
 
-        imgui.text(f"New bonus:"); imgui.same_line()
-        draw_add_bonus(f"{stat_id}_stat_bonus", stat["bonuses"], bonus_list_type, static)
-
         if stat["bonuses"] != []:
-            imgui.text(f"Bonuses:")
+            imgui.separator_text(f"Bonuses")
             draw_bonuses("stat_bonus_list", stat["bonuses"], static)
+            
+        imgui.separator_text(f"New bonus")
+        draw_add_bonus(f"{stat_id}_stat_bonus", stat["bonuses"], bonus_list_type, static)
 
         imgui.end_popup()
 
@@ -111,24 +112,25 @@ def draw_static_stat_button(stat_id: str, stat: StaticStat,
         imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
         _, stat["base"] = imgui.input_int(f"##{stat_id}_base_value", stat["base"], numerical_step) # type: ignore
 
-        # Overrides
-        imgui.align_text_to_frame_padding();
-        imgui.text(f"New Base override:"); imgui.same_line()
-        draw_add_bonus("base_override", stat["base_overrides"], bonus_list_type, static)
-        
-        if stat["base_overrides"] != []:
-            imgui.text(f"Base overrides:")
-            draw_overrides("base_overrides", stat["base_overrides"], override_idx, is_override, static)
-        
-        imgui.spacing()
-        
-        # Bonuses
-        imgui.align_text_to_frame_padding();
-        imgui.text(f"New bonus:"); imgui.same_line()
-        draw_add_bonus(f"{stat_id}_stat_bonus", stat["bonuses"], bonus_list_type, static, numerical_step)
+        imgui.separator_text("New Bonus ")
 
         if stat["bonuses"] != []:
-            imgui.text(f"Bonuses:")
-            draw_bonuses("stat_bonus_list", stat["bonuses"], static)
+            imgui.separator_text(f"Bonuses")
+            draw_bonuses(f"{stat_id}_stat_bonus_list", stat["bonuses"], static)
+        if stat["base_overrides"] != []:
+            imgui.separator_text(f"Base overrides")
+            draw_overrides(f"{stat_id}_base_overrides_list", stat["base_overrides"], override_idx, is_override, static)
 
+        items = ["Value", "Base Override"]
+        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+        _, static.states["static_bonus_type_idx"] = imgui.combo(f"##{stat["name"]}_select_bonus_type", 
+                                                                    static.states["static_bonus_type_idx"], 
+                                                                    items, len(items)); imgui.same_line()
+        imgui.pop_item_width()
+        
+        if static.states["static_bonus_type_idx"] == 0:
+            draw_add_bonus(f"{stat_id}_stat_bonus", stat["bonuses"], bonus_list_type, static, numerical_step)
+        elif static.states["static_bonus_type_idx"] == 1:
+            draw_add_bonus(f"{stat_id}_base_override", stat["base_overrides"], bonus_list_type, static)
+        
         imgui.end_popup()

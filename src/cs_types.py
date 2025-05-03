@@ -178,13 +178,15 @@ class CharacterData(TypedDict):
 
 
 class NewBonus(TypedDict):
-    new_bonus_name: str
     new_bonus_type: str
     new_bonus_value: int | str
     new_bonus_mult: float
 
 class States(TypedDict):
     hp_dice_idx: int
+    ability_bonus_type_idx: int
+    static_bonus_type_idx: int
+    
     hp_add: str
     
     new_item_name: str
@@ -194,7 +196,7 @@ class States(TypedDict):
 
     target_name: str
     target_ref: str
-    
+
     # A temporary storage for the new feature name
     # Used when opening a feature popup to be able to change 
     # the name of the feature without the popup closing,
