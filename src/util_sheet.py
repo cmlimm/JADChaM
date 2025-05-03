@@ -44,7 +44,7 @@ def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus:
         elif value == "armor_class":
             return static.data["armor_class"]["total"]
         elif value == "hp:current":
-            return static.data["hp"]["max_total"]
+            return static.data["hp"]["current"]
         elif value == "hp:max":
             return static.data["hp"]["max_total"]
         elif value.startswith("ability") and value.endswith(":score"):
@@ -214,11 +214,14 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
                 new_bonus["new_bonus_type"] = f"Armor Class"
                 new_bonus["new_bonus_value"] = f"armor_class"
             # HP
-        # HP
-        if imgui.menu_item_simple(f"HP##{menu_id}"):
-            static.states["target_name"] = f"HP"
-            static.states["target_ref"] = f"hp:bonuses"
-                            
+            elif bonus_type == "HP" and imgui.begin_menu(f"HP##{menu_id}"):
+                if imgui.menu_item_simple(f"Max##{menu_id}"):
+                    new_bonus["new_bonus_type"] = f"HP Max"
+                    new_bonus["new_bonus_value"] = f"hp:max"
+                if imgui.menu_item_simple(f"Current##{menu_id}"):
+                    new_bonus["new_bonus_type"] = f"HP Current"
+                    new_bonus["new_bonus_value"] = f"hp:current"
+                imgui.end_menu() 
         imgui.end_menu()
     imgui.pop_item_flag()
 
