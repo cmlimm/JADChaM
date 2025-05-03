@@ -1,11 +1,10 @@
 import itertools
 
 from imgui_bundle import hello_imgui  # type: ignore
-from imgui_bundle import imgui_md  # type: ignore
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, immapp  # type: ignore
 
-from cs_types import Feature, MainWindowProtocol
-from features import draw_edit_feature
+from cs_types import MainWindowProtocol
+from features import draw_feature
 from settings import MARKDOWN_TEXT_TABLE  # type: ignore
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
 from settings import (  # type: ignore
@@ -32,7 +31,6 @@ from util_sheet import (
     draw_edit_list_popup,
     draw_overrides,
     find_max_override,
-    parse_text,
     sum_bonuses,
 )
 
@@ -461,27 +459,12 @@ def draw_skills(static: MainWindowProtocol) -> None:
         end_table_nested()
 
 
-def draw_feature(feature: Feature, idx: int, static: MainWindowProtocol) -> None:
-    imgui.spacing()
-    if imgui.button(f"{feature["name"]}##{idx}"):
-        static.states["feat_name"] = feature["name"]
-        imgui.open_popup(f"Edit {feature["name"]}##popup")
-    draw_edit_feature(feature, static)
-
-    imgui.spacing()
-    
-    description = parse_text(feature["description"], static)
-    split_description = description.split("\n\n")
-    for line in split_description:
-        imgui_md.render(line)
-    
-    imgui.spacing()
-    imgui.push_id(f"tags_{feature["name"]}_{idx}")
-    imgui_md.render(f"**Tags**: {", ".join(feature["tags"])}")
-    imgui.pop_id()
-    imgui.spacing()
-
 def draw_features(static: MainWindowProtocol) -> None:
+    imgui.text("All Features"); imgui.same_line()
+    if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_features"):
+        imgui.open_popup("Edit Features")
+    draw_edit_list_popup(static.data["features"], "feature", "Edit Features", static)
+
     features_list_length = len(static.data["features"])
     if features_list_length != 0 and imgui.begin_table("features_table", 1, flags=MARKDOWN_TEXT_TABLE): # type: ignore
         for idx, feature in enumerate(static.data["features"]):

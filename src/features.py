@@ -1,4 +1,4 @@
-from imgui_bundle import ImVec2, icons_fontawesome_6, imgui
+from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md
 
 from cs_types import Bonus, BonusTo, Feature, MainWindowProtocol
 from settings import (
@@ -9,7 +9,8 @@ from settings import (
     SHORT_STRING_INPUT_WIDTH,
 )
 from util_gui import end_table_nested
-from util_sheet import STRIPED_TABLE_FLAGS, draw_add_bonus  # type: ignore
+from util_sheet import STRIPED_TABLE_FLAGS  # type: ignore
+from util_sheet import delete_feature_bonus, draw_add_bonus, parse_text  # type: ignore
 
 
 def draw_target_menu(menu_name: str, menu_id: str, static: MainWindowProtocol):
@@ -224,11 +225,7 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
                         imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
                         imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
                         if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_bonus_{idx}"):
-                            delete_target = static.bonus_list_refs[feature_bonus["target"]]
-                            delete_idx = delete_target.index(feature_bonus["bonus"])
-                            del delete_target[delete_idx]
-
-                            del feature["bonuses"][idx]
+                            delete_feature_bonus(feature, feature_bonus, static)
                         imgui.pop_style_color(3)
                 end_table_nested()
 
@@ -240,3 +237,24 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
                 feature["name"] = static.states["feat_name"]
             static.states["feat_name"] = ""
         imgui.end_popup()
+
+
+def draw_feature(feature: Feature, idx: int, static: MainWindowProtocol) -> None:
+    imgui.spacing()
+    draw_edit_feature(feature, static)
+    if imgui.button(f"{feature["name"]}##{idx}"):
+        static.states["feat_name"] = feature["name"]
+        imgui.open_popup(f"Edit {feature["name"]}##popup")
+
+    imgui.spacing()
+
+    description = parse_text(feature["description"], static)
+    split_description = description.split("\n\n")
+    for line in split_description:
+        imgui_md.render(line)
+
+    imgui.spacing()
+    imgui.push_id(f"tags_{feature["name"]}_{idx}")
+    imgui_md.render(f"**Tags**: {", ".join(feature["tags"])}")
+    imgui.pop_id()
+    imgui.spacing()

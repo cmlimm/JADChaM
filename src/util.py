@@ -99,3 +99,7 @@ def process_character(static: MainWindowProtocol) -> None:
         static.data_refs[f"sense:{sense["name"]}"] = sense
         static.bonus_list_refs[f"sense:{sense["name"]}:base_overrides"] = sense["base_overrides"]
         static.bonus_list_refs[f"sense:{sense["name"]}:bonuses"] = sense["bonuses"]
+
+    # Features
+    for feature in static.data["features"]:
+        static.data_refs[f"feature:{feature["name"]}"] = feature

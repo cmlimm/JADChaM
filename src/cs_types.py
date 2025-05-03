@@ -218,7 +218,7 @@ class MainWindowProtocol():
     data: CharacterData
     is_character_loaded: bool
 
-    data_refs: dict[str, CharacterClass | Ability | RollableStat | StaticStat | ArmorClass | Hp | Proficiency]
+    data_refs: dict[str, CharacterClass | Ability | RollableStat | StaticStat | ArmorClass | Hp | Proficiency | Feature]
     bonus_list_refs: dict[str, list[Bonus]]
 
     def __call__(self, font_holder: FontHolder) -> None: ...

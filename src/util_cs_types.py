@@ -2,7 +2,7 @@ from typing import Any, TypeGuard
 
 from pydantic import TypeAdapter, ValidationError
 
-from cs_types import Ability, CharacterClass, RollableStat, StaticStat
+from cs_types import Ability, CharacterClass, Feature, RollableStat, StaticStat
 
 
 def isRepresentInt(value: Any) -> TypeGuard[int]:
@@ -37,7 +37,8 @@ def isAbilityList(item: Any) -> TypeGuard[list[Ability]]:
         return True
     except ValidationError:
         return False
-    
+
+
 def isRollableStatList(item: Any) -> TypeGuard[list[RollableStat]]:
     adapter = TypeAdapter(list[RollableStat])
     try:
@@ -45,9 +46,27 @@ def isRollableStatList(item: Any) -> TypeGuard[list[RollableStat]]:
         return True
     except ValidationError:
         return False
-    
+
+
 def isStaticStatList(item: Any) -> TypeGuard[list[StaticStat]]:
     adapter = TypeAdapter(list[StaticStat])
+    try:
+        adapter.validate_python(item)
+        return True
+    except ValidationError:
+        return False
+    
+
+def isFeatureList(item: Any) -> TypeGuard[list[Feature]]:
+    adapter = TypeAdapter(list[Feature])
+    try:
+        adapter.validate_python(item)
+        return True
+    except ValidationError:
+        return False
+    
+def isFeature(item: Any) -> TypeGuard[Feature]:
+    adapter = TypeAdapter(Feature)
     try:
         adapter.validate_python(item)
         return True

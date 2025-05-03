@@ -4,7 +4,7 @@ from typing import Any
 
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui  # type: ignore
 
-from cs_types import Bonus, MainWindowProtocol, NewBonus
+from cs_types import Bonus, BonusTo, Feature, MainWindowProtocol, NewBonus
 from settings import STRIPED_NO_BORDERS_TABLE_FLAGS  # type: ignore
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
 from settings import (  # type: ignore
@@ -23,6 +23,8 @@ from settings import (  # type: ignore
 from util_cs_types import (
     isAbilityList,
     isClassList,
+    isFeature,
+    isFeatureList,
     isRepresentFloat,
     isRepresentInt,
     isRollableStatList,
@@ -343,6 +345,15 @@ def draw_overrides(list_id: str, override_list: list[Bonus], override_idx: int, 
         end_table_nested()
 
 
+def delete_feature_bonus(feature: Feature, bonus: BonusTo, static: MainWindowProtocol):
+    delete_target = static.bonus_list_refs[bonus["target"]]
+    delete_idx = delete_target.index(bonus["bonus"])
+    del delete_target[delete_idx]
+
+    idx = feature["bonuses"].index(bonus)
+    del feature["bonuses"][idx]
+
+
 def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, popup_name: str, static: MainWindowProtocol):
     center = imgui.get_main_viewport().get_center()
     imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
@@ -395,6 +406,14 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, popup_name
                         "bonuses": [],
                         "manual": True
                     })
+                if isFeatureList(editable_list):
+                    editable_list.append({
+                        "name": static.states["new_item_name"],
+                        "description": "",
+                        "tags": [],
+                        "bonuses": [],
+                        "manual": True
+                    })
                 static.data_refs[f"{cache_prefix}:{static.states["new_item_name"]}"] = editable_list[-1]
                 static.states["new_item_name"] = ""
 
@@ -413,6 +432,9 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, popup_name
                         imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
                         imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
                         if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                            if isFeature(item):
+                                for bonus in item["bonuses"]:
+                                    delete_feature_bonus(item, bonus, static)
                             del editable_list[idx]
                             del static.data_refs[f"{cache_prefix}:{item["name"]}"]
                         imgui.pop_style_color(3)
