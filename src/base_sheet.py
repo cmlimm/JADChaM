@@ -5,6 +5,7 @@ from imgui_bundle import imgui_md  # type: ignore
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, immapp  # type: ignore
 
 from cs_types import Feature, MainWindowProtocol
+from features import draw_edit_feature
 from settings import MARKDOWN_TEXT_TABLE  # type: ignore
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
 from settings import (  # type: ignore
@@ -28,7 +29,6 @@ from util_gui import draw_open_image_button, draw_text_cell, end_table_nested
 from util_sheet import (
     draw_add_bonus,
     draw_bonuses,
-    draw_edit_feature,
     draw_edit_list_popup,
     draw_overrides,
     find_max_override,

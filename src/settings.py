@@ -39,6 +39,8 @@ RE_VALUE = "{\w+?.+?}" # type: ignore
 RE_NEW_LINE = "\\n"
 
 LIST_TYPE_TO_BONUS = {
+    "all": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
+           "Proficiency", "Initiative", "Armor Class", "Speed", "Passive Skill", "Sense", "HP"],
     "hp": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
            "Proficiency", "Initiative", "Armor Class", "Speed", "Passive Skill", "Sense"],
     "base_score": ["Numerical", "Level"],
