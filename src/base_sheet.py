@@ -222,17 +222,7 @@ def draw_abilities(static: MainWindowProtocol) -> None:
                                                                              static.states["ability_bonus_type_idx"], 
                                                                              items, len(items)); imgui.same_line()
                     imgui.pop_item_width()
-                    
-                    if ability["base_score_bonuses"] != []:
-                        imgui.separator_text(f"Base Score bonuses")
-                        draw_bonuses(f"{ability["name"]}_base_score_bonus_list", ability["base_score_bonuses"], static)
-                    if ability["base_score_overrides"] != []:
-                        imgui.separator_text(f"Base Score overrides")
-                        draw_overrides(f"{ability["name"]}_base_score_overrides", ability["base_score_overrides"], override_idx, is_override, static)
-                    if ability["modifier_bonuses"] != []:
-                        imgui.separator_text(f"Modifier bonuses")
-                        draw_bonuses(f"{ability["name"]}_modifier_bonus_list", ability["modifier_bonuses"], static)
-
+                
                     if static.states["ability_bonus_type_idx"] == 0:
                         # Base Score bonus
                         draw_add_bonus("base_score_bonus", ability["base_score_bonuses"], "base_score", static)

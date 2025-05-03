@@ -1,4 +1,4 @@
-from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md
+from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: ignore
 
 from cs_types import Bonus, BonusTo, Feature, MainWindowProtocol
 from settings import (
@@ -26,15 +26,15 @@ def draw_target_menu(menu_name: str, menu_id: str, static: MainWindowProtocol):
             for ability in static.data["abilities"]:
                 ability_name = ability["name"]
                 if not ability_name.startswith("no_display") and imgui.begin_menu(f"{ability_name}##{menu_id}"):
-                    if imgui.menu_item_simple(f"Modifier##{menu_id}"):
-                        static.states["target_name"] = f"Ability Modifier, {ability_name}"
-                        static.states["target_ref"] = f"ability:{ability_name}:modifier_bonuses"
                     if imgui.menu_item_simple(f"Base Score##{menu_id}"):
                         static.states["target_name"] = f"Ability Base Score, {ability_name}"
                         static.states["target_ref"] = f"ability:{ability_name}:base_score_bonuses"
                     if imgui.menu_item_simple(f"Base Score Override##{menu_id}"):
                         static.states["target_name"] = f"Ability Base Score Override, {ability_name}"
                         static.states["target_ref"] = f"ability:{ability_name}:base_score_overrides"
+                    if imgui.menu_item_simple(f"Modifier##{menu_id}"):
+                        static.states["target_name"] = f"Ability Modifier, {ability_name}"
+                        static.states["target_ref"] = f"ability:{ability_name}:modifier_bonuses"
                     imgui.end_menu()
             imgui.end_menu()
         # Saving Throw
