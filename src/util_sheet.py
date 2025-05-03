@@ -124,6 +124,10 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
                        new_bonus: NewBonus, static: MainWindowProtocol):
     imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
     imgui.push_item_flag(imgui.ItemFlags_.auto_close_popups, False) # type: ignore
+
+    if menu_name == "":
+        menu_name = "Choose Bonus"
+
     if imgui.begin_menu(f"{menu_name}##{menu_id}"):
         for bonus_type in types:
             # Numerical
@@ -242,12 +246,13 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
     bonus_types = LIST_TYPE_TO_BONUS[list_type]
 
     # Choose bonus type
-    draw_entities_menu("Bonus Type", bonus_id, bonus_types, new_bonus, static)
+    draw_entities_menu(static.states["new_bonuses"][bonus_id]["new_bonus_type"], bonus_id, bonus_types, new_bonus, static)
 
-    if new_bonus["new_bonus_type"] != "":
-        imgui.text(new_bonus["new_bonus_type"])
-    else:
-        imgui.text("Choose bonus type")
+    if not is_feature_bonus:
+        if new_bonus["new_bonus_type"] != "":
+            imgui.text(new_bonus["new_bonus_type"])
+        else:
+            imgui.text("Choose bonus type")
 
     if not is_feature_bonus:
         _, new_bonus["new_bonus_name"] = imgui.input_text_with_hint(

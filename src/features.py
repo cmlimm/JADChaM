@@ -15,6 +15,10 @@ from util_sheet import STRIPED_TABLE_FLAGS, draw_add_bonus  # type: ignore
 def draw_target_menu(menu_name: str, menu_id: str, static: MainWindowProtocol):
     imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
     imgui.push_item_flag(imgui.ItemFlags_.auto_close_popups, False) # type: ignore
+    
+    if menu_name == "":
+        menu_name = "Choose Target"
+
     if imgui.begin_menu(f"{menu_name}##{menu_id}"):
         # Ability
         if imgui.begin_menu(f"Ability##{menu_id}"):
@@ -97,11 +101,64 @@ def draw_target_menu(menu_name: str, menu_id: str, static: MainWindowProtocol):
             static.states["target_ref"] = f"armor_class:bonuses"
         # HP
         if imgui.menu_item_simple(f"HP##{menu_id}"):
-            static.states["target_name"] = f"HP"
+            static.states["target_name"] = f"HP Max"
             static.states["target_ref"] = f"hp:bonuses"
 
         imgui.end_menu()
     imgui.pop_item_flag()
+
+
+def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> None:
+    popup_name = f"Bonus for {feature["name"]}##popup"
+    if imgui.begin_popup(popup_name):
+        bonus_id = f"{feature["name"]}_bonus"
+        if not bonus_id in static.states["new_bonuses"]:
+            static.states["new_bonuses"][bonus_id] = {
+                "new_bonus_name": "",
+                "new_bonus_type": "",
+                "new_bonus_value": "",
+                "new_bonus_mult": 1.0
+            }
+        new_bonus = static.states["new_bonuses"][bonus_id]
+
+        draw_target_menu(f"{static.states["target_name"] if static.states["target_name"] != "" else "Choose Target"}", 
+                         f"{feature["name"]}_target", static)
+        
+        if static.states["target_ref"] != "":
+            draw_add_bonus(bonus_id, static.bonus_list_refs[static.states["target_ref"]],
+                           "all", static, is_feature_bonus=True)
+
+        imgui.spacing()
+
+        if imgui.button(f"Add##{feature["name"]}_new_bonus_to"):
+            imgui.close_current_popup()
+            
+            if static.states["target_ref"] != "" and new_bonus["new_bonus_value"] != "":
+                bonus_mult = new_bonus["new_bonus_mult"]
+                bonus_name = f"{new_bonus["new_bonus_type"]}{" x" + str(bonus_mult) if bonus_mult != 1.0 else ""} ({feature["name"]})"
+
+                target_bonus: Bonus = {
+                    "name": bonus_name,
+                    "value": new_bonus["new_bonus_value"],
+                    "multiplier": new_bonus["new_bonus_mult"],
+                    "manual": False
+                }
+
+                feature_bonus: BonusTo = {
+                    "name": static.states["target_name"],
+                    "target": static.states["target_ref"],
+                    "bonus": target_bonus,
+                    "manual": True
+                }
+
+                static.bonus_list_refs[static.states["target_ref"]].append(target_bonus)
+                feature["bonuses"].append(feature_bonus)
+            
+            static.states["target_name"] = ""
+            static.states["target_ref"] = ""
+
+            del static.states["new_bonuses"][bonus_id] # type: ignore
+        imgui.end_popup()
 
 
 def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
@@ -110,9 +167,9 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
     window_size = imgui.get_main_viewport().size
 
     popup_name = f"Edit {feature["name"]}##popup"
-    if imgui.begin_popup_modal(popup_name, None)[0]:
-        imgui.set_cursor_pos_x(window_size.x/2)
-        imgui.dummy(ImVec2(0, 0))
+    if imgui.begin_popup_modal(popup_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
+        # imgui.set_cursor_pos_x(window_size.x/2)
+        # imgui.dummy(ImVec2(0, 0))
 
         imgui.align_text_to_frame_padding()
         imgui.text("Name"); imgui.same_line()
@@ -121,7 +178,13 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
         imgui.pop_item_width()
 
         imgui.text("Description")
-        _, feature["description"] = imgui.input_text_multiline(f"##{feature["name"]}_feature_description", feature["description"], ImVec2(-1, imgui.get_text_line_height() * 10), 128)
+        imgui.set_next_window_size_constraints(ImVec2(window_size.x/2, imgui.get_text_line_height() * 5),
+                                               ImVec2(window_size.x/2, imgui.get_text_line_height() * 5))
+        if imgui.begin_child("description_text"):
+            _, feature["description"] = imgui.input_text_multiline(f"##{feature["name"]}_feature_description", 
+                                                                feature["description"], 
+                                                                ImVec2(-1, imgui.get_text_line_height() * 5), 128)
+            imgui.end_child()
 
         imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.states["new_tag"] = imgui.input_text_with_hint("##new_tag", "Tag", static.states["new_tag"], 128)
@@ -142,74 +205,33 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
                 del feature["tags"][idx]
             imgui.pop_style_color(3)
 
-        draw_target_menu("Target", f"{feature["name"]}_target", static)
+        if imgui.button(f"New Bonus##{feature["name"]}"):
+            imgui.open_popup(f"Bonus for {feature["name"]}##popup")
+        draw_edit_feature_bonus(feature, static)
 
-        new_bonus = None
-        if static.states["target_name"] != "":
-            bonus_idx = len(feature["bonuses"]) + 1
-            bonus_id = f"{feature["name"]}_bonus_{bonus_idx}"
-            if not bonus_id in static.states["new_bonuses"]:
-                static.states["new_bonuses"][bonus_id] = {
-                    "new_bonus_name": "",
-                    "new_bonus_type": "",
-                    "new_bonus_value": "",
-                    "new_bonus_mult": 1.0
-                }
-            new_bonus = static.states["new_bonuses"][bonus_id]
+        if feature["bonuses"] != []:
+            imgui.text("Bonuses")
+            if imgui.begin_table("feature_bonuses", 3, flags=STRIPED_TABLE_FLAGS): # type: ignore
+                for idx, feature_bonus in enumerate(feature["bonuses"]):
+                    imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()
+                    imgui.text(feature_bonus["name"])
 
-            draw_add_bonus(bonus_id,
-                           static.bonus_list_refs[static.states["target_ref"]],
-                           "all", static, is_feature_bonus=True)
+                    imgui.table_next_column()
+                    imgui.text(f"{feature_bonus["bonus"]["name"].replace(f" ({feature["name"]})", "")}")
 
-        if imgui.button(f"Add##{feature["name"]}_new_bonus_to"):
-            if new_bonus:
-                bonus_mult = new_bonus["new_bonus_mult"]
-                bonus_name = f"{new_bonus["new_bonus_type"]}{" x" + str(bonus_mult) if bonus_mult != 1.0 else ""} ({feature["name"]})"
+                    imgui.table_next_column()
+                    if feature_bonus["manual"]:
+                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_bonus_{idx}"):
+                            delete_target = static.bonus_list_refs[feature_bonus["target"]]
+                            delete_idx = delete_target.index(feature_bonus["bonus"])
+                            del delete_target[delete_idx]
 
-                target_bonus: Bonus = {
-                    "name": bonus_name,
-                    "value": new_bonus["new_bonus_value"],
-                    "multiplier": new_bonus["new_bonus_mult"],
-                    "manual": False
-                }
-
-                feature_bonus: BonusTo = {
-                    "name": static.states["target_name"],
-                    "target": static.states["target_ref"],
-                    "bonus": target_bonus,
-                    "manual": True
-                }
-
-                static.bonus_list_refs[static.states["target_ref"]].append(target_bonus)
-                feature["bonuses"].append(feature_bonus)
-
-                static.states["target_name"] = ""
-                static.states["target_ref"] = ""
-
-                del static.states["new_bonuses"][bonus_id] # type: ignore
-
-        if imgui.begin_table("feature_bonuses", 3, flags=STRIPED_TABLE_FLAGS): # type: ignore
-            for idx, feature_bonus in enumerate(feature["bonuses"]):
-                imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()
-                imgui.text(feature_bonus["name"])
-
-                imgui.table_next_column()
-                imgui.text(f"{feature_bonus["bonus"]["name"].replace(f" ({feature["name"]})", "")}")
-
-                imgui.table_next_column()
-                if feature_bonus["manual"]:
-                    imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                    imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                    imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                    if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_bonus_{idx}"):
-                        delete_target = static.bonus_list_refs[feature_bonus["target"]]
-                        delete_idx = delete_target.index(feature_bonus["bonus"])
-                        del delete_target[delete_idx]
-
-                        del feature["bonuses"][idx]
-                    imgui.pop_style_color(3)
-
-            end_table_nested()
+                            del feature["bonuses"][idx]
+                        imgui.pop_style_color(3)
+                end_table_nested()
 
         imgui.spacing()
 
@@ -218,10 +240,4 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
             if static.states["feat_name"] != "":
                 feature["name"] = static.states["feat_name"]
             static.states["feat_name"] = ""
-
-            static.states["target_name"] = ""
-            static.states["target_ref"] = ""
-
-            if new_bonus:
-                del static.states["new_bonuses"][bonus_id] # type: ignore
         imgui.end_popup()

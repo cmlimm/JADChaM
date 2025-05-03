@@ -937,7 +937,7 @@
             ],
             "bonuses": [
                 {
-                    "name": "HP",
+                    "name": "HP Max",
                     "target": "hp:bonuses",
                     "bonus": {
                         "name": "Level, Total x2.0 (Tough)",

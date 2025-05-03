@@ -34,10 +34,6 @@ from util_gui import (
 # TODO: create a menu for choosing where to add a bonus: 
 #       modifier/base score/base score override (senses, speed, passives, abilities)
 
-# TODO: somehow make UI for choosing a target and a bonus type in features prettier
-
-# TODO: maybe move everything about features to a separate file, `util_sheet.py` is getting ugly
-
 def post_init(state: MainWindowProtocol) -> None:
     state.states = {
         "hp_dice_idx": 0,

@@ -97,13 +97,6 @@ class Training(TypedDict):
     manual: bool
 
 
-# class IntegerValue(TypedDict):
-#     name: str
-#     total: int
-#     bonuses: list[Bonus]
-#     manual: bool
-
-
 # class Property(TypedDict):
 #     name: str
 #     description: str
@@ -202,6 +195,10 @@ class States(TypedDict):
     target_name: str
     target_ref: str
     
+    # A temporary storage for the new feature name
+    # Used when opening a feature popup to be able to change 
+    # the name of the feature without the popup closing,
+    # otherwise the popup name changes with the feature name.
     feat_name: str
     
 
