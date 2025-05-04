@@ -6,7 +6,6 @@ from base_sheet import (
     draw_abilities,
     draw_armor_class_button,
     draw_class,
-    draw_features,
     draw_hp,
     draw_image,
     draw_initiative_button,
@@ -20,13 +19,10 @@ from base_sheet import (
     draw_training,
 )
 from cs_types import MainWindowProtocol
+from features import draw_features
 from settings import INVISIBLE_TABLE_FLAGS, STRIPED_TABLE_FLAGS  # type: ignore
-from util_gui import (
-    draw_open_file_button,
-    draw_text_cell,
-    draw_toolbar,
-    end_table_nested,
-)
+from util_gui import draw_open_file_button, draw_toolbar
+from util_imgui import draw_text_cell, end_table_nested
 
 # TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
 # TODO[BUG]: fix hotkeys
@@ -47,6 +43,7 @@ def post_init(state: MainWindowProtocol) -> None:
         },
         "target_name": "",
         "target_ref": "",
+        "new_window_name": "",
         "feat_name": "",
         "new_tag": ""
     }
@@ -166,11 +163,9 @@ def draw_skills_window(static: MainWindowProtocol) -> None:
             imgui.open_popup("Edit Passive Skills")
         draw_passives(static)
 
-
 def draw_features_window(static: MainWindowProtocol) -> None:
     if static.is_character_loaded:
-        draw_features(static)
-
+        draw_features("All Features", static)
 
 def create_default_docking_splits() -> list[hello_imgui.DockingSplit]:
     split_main = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
@@ -245,7 +240,7 @@ def create_dockable_windows(static: MainWindowProtocol) -> list[hello_imgui.Dock
     skills_window.gui_function = lambda: draw_skills_window(static)
 
     right_window = hello_imgui.DockableWindow()
-    right_window.label = "Right"
+    right_window.label = "All Features"
     right_window.dock_space_name = "MainDockSpace"
     right_window.gui_function = lambda: draw_features_window(static)
 

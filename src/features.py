@@ -1,6 +1,8 @@
+from imgui_bundle import hello_imgui  # type: ignore
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: ignore
 
 from cs_types import Bonus, BonusTo, Feature, MainWindowProtocol
+from settings import MARKDOWN_TEXT_TABLE  # type: ignore
 from settings import (
     DISADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_COLOR,
@@ -8,9 +10,14 @@ from settings import (
     MEDIUM_STRING_INPUT_WIDTH,
     SHORT_STRING_INPUT_WIDTH,
 )
-from util_gui import end_table_nested
+from util_imgui import end_table_nested
 from util_sheet import STRIPED_TABLE_FLAGS  # type: ignore
-from util_sheet import delete_feature_bonus, draw_add_bonus, parse_text  # type: ignore
+from util_sheet import (  # type: ignore
+    delete_feature_bonus,
+    draw_add_bonus,
+    draw_edit_list_popup,
+    parse_text,
+)
 
 
 def draw_target_menu(menu_name: str, menu_id: str, static: MainWindowProtocol):
@@ -161,7 +168,7 @@ def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> Non
         imgui.end_popup()
 
 
-def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
+def draw_edit_feature(feature: Feature, tag: str, static: MainWindowProtocol) -> None:
     center = imgui.get_main_viewport().get_center()
     imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
     window_size = imgui.get_main_viewport().size
@@ -185,6 +192,11 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
                                                                 feature["description"], 
                                                                 ImVec2(-1, imgui.get_text_line_height() * 5), 128)
             imgui.end_child()
+
+        # If we are creating a feature in a specific tab, it should have 
+        # the corresponding tag by default
+        if not tag in feature["tags"] and tag != "All Features":
+            feature["tags"].append(tag)
 
         imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.states["new_tag"] = imgui.input_text_with_hint("##new_tag", "Tag", static.states["new_tag"], 128)
@@ -239,9 +251,9 @@ def draw_edit_feature(feature: Feature, static: MainWindowProtocol) -> None:
         imgui.end_popup()
 
 
-def draw_feature(feature: Feature, idx: int, static: MainWindowProtocol) -> None:
+def draw_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtocol) -> None:
     imgui.spacing()
-    draw_edit_feature(feature, static)
+    draw_edit_feature(feature, tag, static)
     if imgui.button(f"{feature["name"]}##{idx}"):
         static.states["feat_name"] = feature["name"]
         imgui.open_popup(f"Edit {feature["name"]}##popup")
@@ -258,3 +270,52 @@ def draw_feature(feature: Feature, idx: int, static: MainWindowProtocol) -> None
     imgui_md.render(f"**Tags**: {", ".join(feature["tags"])}")
     imgui.pop_id()
     imgui.spacing()
+
+
+def draw_features(window_name: str, static: MainWindowProtocol) -> None:
+    imgui.align_text_to_frame_padding()
+    imgui.text(f"{window_name}"); imgui.same_line()
+    if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_features"):
+        imgui.open_popup(f"Edit {window_name}")
+
+    imgui.same_line()
+    if window_name == "All Features":
+        imgui.text(f"    New window: "); imgui.same_line()
+        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+        _, static.states["new_window_name"] = imgui.input_text_with_hint("##new_window_name", "Name", static.states["new_window_name"], 128)
+        imgui.pop_item_width()
+        imgui.same_line()
+        if imgui.button(f"Add##new_window_name"):
+            window_name = static.states["new_window_name"]
+            additional_window = hello_imgui.DockableWindow()
+            additional_window.label = window_name
+            additional_window.include_in_view_menu = True
+            additional_window.remember_is_visible = True
+            additional_window.dock_space_name = "MainDockSpace"
+            # https://stackoverflow.com/questions/11723217/python-lambda-doesnt-remember-argument-in-for-loop
+            additional_window.gui_function = lambda window_name=window_name: draw_features(window_name, static) # type: ignore
+            hello_imgui.add_dockable_window(
+                additional_window,
+                force_dockspace=False
+            )
+            static.data["feature_windows"].append(window_name)
+            static.states["new_window_name"] = ""
+    else:
+        # TODO: research if you add a callback to the built-in close window button
+        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{window_name}_remove_window"):
+            idx = static.data["feature_windows"].index(window_name)
+            del static.data["feature_windows"][idx]
+            hello_imgui.remove_dockable_window(window_name)
+        imgui.pop_style_color(3)
+
+    draw_edit_list_popup(static.data["features"], "feature", f"Edit {window_name}", static, tag=window_name)
+    features_list_length = len(static.data["features"])
+    if features_list_length != 0 and imgui.begin_table("features_table", 1, flags=MARKDOWN_TEXT_TABLE): # type: ignore
+        for idx, feature in enumerate(static.data["features"]):
+            if not feature["name"].startswith("no_display") and (window_name in feature["tags"] or window_name == "All Features"):
+                imgui.table_next_row(); imgui.table_next_column()
+                draw_feature(feature, idx, window_name, static)
+        end_table_nested()

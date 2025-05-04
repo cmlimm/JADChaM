@@ -2,7 +2,10 @@ import json
 import os
 import shutil
 
+from imgui_bundle import hello_imgui  # type: ignore
+
 from cs_types import MainWindowProtocol
+from features import draw_features
 
 
 def open_file(static: MainWindowProtocol) -> None:
@@ -103,3 +106,17 @@ def process_character(static: MainWindowProtocol) -> None:
     # Features
     for feature in static.data["features"]:
         static.data_refs[f"feature:{feature["name"]}"] = feature
+
+    # Open windows for feature tags
+    for window_name in static.data["feature_windows"]:
+        additional_window = hello_imgui.DockableWindow()
+        additional_window.label = window_name
+        additional_window.include_in_view_menu = True
+        additional_window.remember_is_visible = True
+        additional_window.dock_space_name = "MainDockSpace"
+        # https://stackoverflow.com/questions/11723217/python-lambda-doesnt-remember-argument-in-for-loop
+        additional_window.gui_function = lambda window_name=window_name: draw_features(window_name, static) # type: ignore
+        hello_imgui.add_dockable_window(
+            additional_window,
+            force_dockspace=False
+        )

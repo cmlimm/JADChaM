@@ -950,5 +950,9 @@
             ],
             "manual": true
         }
+    ],
+    "feature_windows": [
+        "Paladin",
+        "Warlock"
     ]
 }

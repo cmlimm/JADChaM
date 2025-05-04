@@ -4,8 +4,6 @@ from imgui_bundle import hello_imgui  # type: ignore
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, immapp  # type: ignore
 
 from cs_types import MainWindowProtocol
-from features import draw_feature
-from settings import MARKDOWN_TEXT_TABLE  # type: ignore
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
 from settings import (  # type: ignore
     ADVANTAGE_ACTIVE_COLOR,
@@ -24,7 +22,8 @@ from settings import (  # type: ignore
 )
 from stats import draw_rollable_stat_button, draw_static_stat_button
 from util_cs_types import isRepresentInt
-from util_gui import draw_open_image_button, draw_text_cell, end_table_nested
+from util_gui import draw_open_image_button
+from util_imgui import draw_text_cell, end_table_nested
 from util_sheet import (
     draw_add_bonus,
     draw_bonuses,
@@ -446,19 +445,4 @@ def draw_skills(static: MainWindowProtocol) -> None:
                 imgui.text(skill["name"]); imgui.table_next_column()
                 draw_rollable_stat_button(skill["name"], skill, "rollable", static)
         
-        end_table_nested()
-
-
-def draw_features(static: MainWindowProtocol) -> None:
-    imgui.text("All Features"); imgui.same_line()
-    if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_features"):
-        imgui.open_popup("Edit Features")
-    draw_edit_list_popup(static.data["features"], "feature", "Edit Features", static)
-
-    features_list_length = len(static.data["features"])
-    if features_list_length != 0 and imgui.begin_table("features_table", 1, flags=MARKDOWN_TEXT_TABLE): # type: ignore
-        for idx, feature in enumerate(static.data["features"]):
-            if not feature["name"].startswith("no_display"):
-                imgui.table_next_row(); imgui.table_next_column()
-                draw_feature(feature, idx, static)
         end_table_nested()

@@ -30,7 +30,7 @@ from util_cs_types import (
     isRollableStatList,
     isStaticStatList,
 )
-from util_gui import draw_text_cell, end_table_nested
+from util_imgui import draw_text_cell, end_table_nested
 
 
 def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus: int = 100) -> int | float | str:
@@ -354,7 +354,8 @@ def delete_feature_bonus(feature: Feature, bonus: BonusTo, static: MainWindowPro
     del feature["bonuses"][idx]
 
 
-def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, popup_name: str, static: MainWindowProtocol):
+def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, 
+                         popup_name: str, static: MainWindowProtocol, tag: str = ""):
     center = imgui.get_main_viewport().get_center()
     imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
 
@@ -407,10 +408,13 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, popup_name
                         "manual": True
                     })
                 if isFeatureList(editable_list):
+                    tags = []
+                    if tag != "All Features":
+                        tags = [tag]
                     editable_list.append({
                         "name": static.states["new_item_name"],
                         "description": "",
-                        "tags": [],
+                        "tags": tags,
                         "bonuses": [],
                         "manual": True
                     })
@@ -426,18 +430,21 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, popup_name
 
             for idx, item in enumerate(editable_list):
                 if not item["name"].startswith("no_display"):
-                    draw_text_cell(item["name"]); imgui.table_next_column()
-                    if item["manual"]:
-                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
-                            if isFeature(item):
-                                for bonus in item["bonuses"]:
-                                    delete_feature_bonus(item, bonus, static)
-                            del editable_list[idx]
-                            del static.data_refs[f"{cache_prefix}:{item["name"]}"]
-                        imgui.pop_style_color(3)
+                    if isFeature(item) and tag != "All Features" and not tag in item["tags"]:
+                        pass
+                    else:
+                        draw_text_cell(item["name"]); imgui.table_next_column()
+                        if item["manual"]:
+                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                                if isFeature(item):
+                                    for bonus in item["bonuses"]:
+                                        delete_feature_bonus(item, bonus, static)
+                                del editable_list[idx]
+                                del static.data_refs[f"{cache_prefix}:{item["name"]}"]
+                            imgui.pop_style_color(3)
 
             end_table_nested()
 

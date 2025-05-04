@@ -172,6 +172,7 @@ class CharacterData(TypedDict):
     training: list[Training]
 
     features: list[Feature]
+    feature_windows: list[str]
 
     # attacks: list[Attack]
     # counters: list[IntegerValue]
@@ -193,6 +194,7 @@ class States(TypedDict):
     new_training: Training
     new_tag: str
     new_bonuses: dict[str, NewBonus]
+    new_window_name: str
 
     target_name: str
     target_ref: str
