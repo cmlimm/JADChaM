@@ -425,7 +425,14 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str,
                     editable_list.append({
                         "name": static.states["new_item_name"],
                         "total": 0,
-                        "bonuses": [],
+                        "bonuses": [
+                            {
+                                "name": "Manual",
+                                "value": 0,
+                                "multiplier": 1.0,
+                                "manual": False
+                            }
+                        ],
                         "manual_advantage": False,
                         "manual_disadvantage": False,
                         "manual": True
