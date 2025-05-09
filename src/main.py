@@ -26,11 +26,13 @@ from util_imgui import draw_text_cell, end_table_nested
 
 # TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
 # TODO[BUG]: fix hotkeys
+# TODO[BUG]: newly added skills/stats/etc are not added to the reference dictionary
+# TODO[BUG]: performance issues when opening a list of skills for editing
+#            consider removing this functionality entirely and replacing with other UI
+#            it looks wonky anyways
 
 # TODO: resistances & effects
-
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
-
 # TODO: add `min=` to the text parsing
 
 def post_init(state: MainWindowProtocol) -> None:
