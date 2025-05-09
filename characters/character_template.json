@@ -48,11 +48,11 @@
     },
     "proficiency": {
         "name": "Proficiency",
-        "total": 0
+        "total": 4
     },
     "initiative": {
         "name": "Initiative",
-        "total": 0,
+        "total": 4,
         "bonuses": [
             {
                 "name": "Manual",
@@ -158,11 +158,11 @@
         },
         {
             "name": "CHA",
-            "total": 0,
-            "total_base_score": 10,
+            "total": 5,
+            "total_base_score": 20,
             "base_score_overrides": [],
             "base_score_bonuses": [],
-            "base_score": 10,
+            "base_score": 20,
             "modifier_bonuses": [],
             "manual": true
         }
@@ -283,7 +283,7 @@
         },
         {
             "name": "CHA",
-            "total": 0,
+            "total": 5,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -398,7 +398,7 @@
         },
         {
             "name": "Deception",
-            "total": 0,
+            "total": 5,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -461,7 +461,7 @@
         },
         {
             "name": "Intimidation",
-            "total": 0,
+            "total": 5,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -568,7 +568,7 @@
         },
         {
             "name": "Performance",
-            "total": 0,
+            "total": 5,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -590,7 +590,7 @@
         },
         {
             "name": "Persuasion",
-            "total": 0,
+            "total": 5,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -692,6 +692,14 @@
                     "manual": true
                 }
             ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "name": "Spell Save (Paladin)",
+            "total": 0,
+            "bonuses": [],
             "manual_advantage": false,
             "manual_disadvantage": false,
             "manual": true
@@ -904,6 +912,7 @@
             "description": "",
             "tags": [],
             "bonuses": [],
+            "counters": [],
             "manual": false
         },
         {
@@ -926,6 +935,7 @@
                     "manual": true
                 }
             ],
+            "counters": [],
             "manual": true
         },
         {
@@ -933,7 +943,8 @@
             "description": "When you take this feat, your HP maximum increases by {level:total, mult=2}. \nWhenever you gain a character level thereafter, your HP maximum increases an\n additional 2 HP.",
             "tags": [
                 "Feat",
-                "Warlock"
+                "Warlock",
+                "Invocation"
             ],
             "bonuses": [
                 {
@@ -945,6 +956,121 @@
                         "multiplier": 2.0,
                         "manual": false
                     },
+                    "manual": true
+                }
+            ],
+            "counters": [],
+            "manual": true
+        },
+        {
+            "name": "Lay On Hands",
+            "description": "You have a pool of healing power that replenishes when you finish a Long Rest. With that pool, you can \nrestore a total of {level:Paladin, mult=5}.\n\nAs a Bonus Action, you can touch a creature (which could be yourself) and restore a number HP to that\ncreature, up to the maximum amount remaining in the pool. You can also expend 5 HP from the pool \nof healing to remove the Poisoned condition from the creature; those points don't also restore HP to \nthe creature.",
+            "tags": [
+                "Paladin",
+                "Bonus Action"
+            ],
+            "bonuses": [],
+            "counters": [
+                {
+                    "name": "HP Pool",
+                    "parent": "Lay On Hands",
+                    "current": 20,
+                    "max": 30,
+                    "display_type": "+- Buttons",
+                    "bonuses": [
+                        {
+                            "name": "Level, Paladin",
+                            "value": "level:Paladin",
+                            "multiplier": 5,
+                            "manual": true
+                        }
+                    ],
+                    "min": 5,
+                    "manual": true
+                }
+            ],
+            "manual": true
+        },
+        {
+            "name": "Channel Divinity",
+            "description": "You can channel energy directly from the Outer Planes to fuel magical effects. Each time you use this class\u2019s Channel Divinity, you can choose which effect to create. You can use this class\u2019s Channel Divinity 2 times per Long Rest, but can regain one expended use after finishing a Short Rest.\n\nIf your Channel Divinity requires a saving throw, the DC equals your Paladin spell save DC (DC 17).\n\n**Divine Sense** As a Bonus Action, you can open your awareness to detect Celestials, Fiends, and Undead. For the next 10 minutes or until you have the Incapacitated condition, you know the location of any creature of those types within 60 feet of yourself, and you know its creature type. Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the Hallow spell.\n\n**Nature's Wrath** As a Magic action, you can expend one use of Channel Divinity to conjure spectral vines around each creature of your choice that you can see within 15 ft. Each creature must succeed on a DC 17 Str. saving throw, or have the Restrained condition for 1 minute. A Restrained creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+            "tags": [
+                "Paladin",
+                "Action",
+                "Bonus Action"
+            ],
+            "bonuses": [],
+            "counters": [
+                {
+                    "name": "Channel Divinity",
+                    "parent": "Channel Divinity",
+                    "current": 0,
+                    "max": 2,
+                    "display_type": "Checkboxes",
+                    "bonuses": [
+                        {
+                            "name": "Numerical",
+                            "value": 2,
+                            "multiplier": 1.0,
+                            "manual": true
+                        }
+                    ],
+                    "min": 0,
+                    "manual": true
+                }
+            ],
+            "manual": true
+        },
+        {
+            "name": "Steps of the Fey",
+            "description": "Your patron grants you the ability to move between the boundaries of the planes. You can cast Misty Step without expending a spell slot a number of times equal to your Charisma modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.\n\nIn addition, whenever you cast that spell, you can choose one of the following additional effects.\n\n**Refreshing Step** Immediately after you teleport, you or one creature you can see within 10 feet of yourself gains 1d10 Temporary Hit Points.\n\n**Taunting Step** Creatures within 5 feet of the space you left must succeed on a Wisdom saving throw against your spell save DC or have Disadvantage on attack rolls against creatures other than you until the start of your next turn.",
+            "tags": [
+                "Warlock",
+                "Bonus Action"
+            ],
+            "bonuses": [],
+            "counters": [
+                {
+                    "name": "Misty Step",
+                    "parent": "Steps of the Fey",
+                    "current": 0,
+                    "max": 5,
+                    "display_type": "Checkboxes",
+                    "bonuses": [
+                        {
+                            "name": "Ability Modifier, CHA",
+                            "value": "ability:CHA",
+                            "multiplier": 1.0,
+                            "manual": true
+                        }
+                    ],
+                    "min": 1,
+                    "manual": true
+                }
+            ],
+            "manual": true
+        },
+        {
+            "name": "Lucky",
+            "description": "**Luck Points** You have {proficiency} Luck Points that you can spend on the benefits below. You regain expended Luck Points after a Long Rest.\n\n**Advantage** When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage on the roll.\n\n**Disadvantage** When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to impose Disadvantage on that roll.",
+            "tags": [],
+            "bonuses": [],
+            "counters": [
+                {
+                    "name": "Lock Points",
+                    "parent": "Lucky",
+                    "current": 0,
+                    "max": 4,
+                    "display_type": "Checkboxes",
+                    "bonuses": [
+                        {
+                            "name": "Proficiency",
+                            "value": "proficiency",
+                            "multiplier": 1.0,
+                            "manual": true
+                        }
+                    ],
+                    "min": 0,
                     "manual": true
                 }
             ],

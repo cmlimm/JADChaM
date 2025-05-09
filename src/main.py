@@ -27,11 +27,18 @@ from util_imgui import draw_text_cell, end_table_nested
 # TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
 # TODO[BUG]: fix hotkeys
 
+# TODO: resistances & effects
+
+# TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
+
+# TODO: add `min=` to the text parsing
+
 def post_init(state: MainWindowProtocol) -> None:
     state.states = {
         "hp_dice_idx": 0,
         "ability_bonus_type_idx": 0,
         "static_bonus_type_idx": 0,
+        "counter_display_type_idx": 0,
         "hp_add": "",
         "new_item_name": "",
         "new_bonuses": {},
@@ -43,6 +50,16 @@ def post_init(state: MainWindowProtocol) -> None:
         },
         "target_name": "",
         "target_ref": "",
+        "counter_edit": {
+            "name": "",
+            "parent": "",
+            "current": 0,
+            "max": 0,
+            "display_type": "+- Buttons",
+            "bonuses": [],
+            "min": 0,
+            "manual": True
+        },
         "new_window_name": "",
         "feat_name": "",
         "new_tag": ""

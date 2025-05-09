@@ -106,6 +106,8 @@ def process_character(static: MainWindowProtocol) -> None:
     # Features
     for feature in static.data["features"]:
         static.data_refs[f"feature:{feature["name"]}"] = feature
+        for counter in feature["counters"]:
+            static.data_refs[f"counter:{feature["name"]}:{counter["name"]}"] = counter
 
     # Open windows for feature tags
     for window_name in static.data["feature_windows"]:

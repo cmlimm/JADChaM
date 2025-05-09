@@ -3,10 +3,11 @@ from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: i
 
 from cs_types import Bonus, BonusTo, Feature, MainWindowProtocol
 from settings import MARKDOWN_TEXT_TABLE  # type: ignore
-from settings import (
+from settings import (  # type: ignore
     DISADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
+    INVISIBLE_TABLE_FLAGS,
     MEDIUM_STRING_INPUT_WIDTH,
     SHORT_STRING_INPUT_WIDTH,
 )
@@ -15,7 +16,10 @@ from util_sheet import STRIPED_TABLE_FLAGS  # type: ignore
 from util_sheet import (  # type: ignore
     delete_feature_bonus,
     draw_add_bonus,
+    draw_counter,
+    draw_edit_counter,
     draw_edit_list_popup,
+    get_bonus_value,
     parse_text,
 )
 
@@ -216,31 +220,63 @@ def draw_edit_feature(feature: Feature, tag: str, static: MainWindowProtocol) ->
             if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{tag}_{idx}"):
                 del feature["tags"][idx]
             imgui.pop_style_color(3)
+        imgui.dummy(ImVec2(0, 0))
 
         if imgui.button(f"New Bonus##{feature["name"]}"):
             imgui.open_popup(f"Bonus for {feature["name"]}##popup")
         draw_edit_feature_bonus(feature, static)
+        
+        imgui.same_line()
 
-        if feature["bonuses"] != []:
+        if imgui.button(f"New Counter##{feature["name"]}"):
+            imgui.open_popup("Edit Counter##popup")
+        draw_edit_counter(feature["counters"], feature["name"], static)
+
+        if imgui.begin_table(f"{feature["name"]}_bonuses_counters_spells_attacks", 4, INVISIBLE_TABLE_FLAGS): # type: ignore
+            imgui.table_next_row(); imgui.table_next_column()
             imgui.separator_text("Bonuses")
-            if imgui.begin_table("feature_bonuses", 3, flags=STRIPED_TABLE_FLAGS): # type: ignore
-                for idx, feature_bonus in enumerate(feature["bonuses"]):
-                    imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()
-                    imgui.text(feature_bonus["name"])
+            if feature["bonuses"] != []:
+                if imgui.begin_table("feature_bonuses", 3, flags=STRIPED_TABLE_FLAGS): # type: ignore
+                    for idx, feature_bonus in enumerate(feature["bonuses"]):
+                        if get_bonus_value(feature_bonus["bonus"]["value"], static) == "delete":
+                            del feature["bonuses"][idx]
 
-                    imgui.table_next_column()
-                    imgui.text(f"{feature_bonus["bonus"]["name"].replace(f" ({feature["name"]})", "")}")
+                        imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()
+                        imgui.text(feature_bonus["name"])
 
-                    imgui.table_next_column()
-                    if feature_bonus["manual"]:
-                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_bonus_{idx}"):
-                            delete_feature_bonus(feature, feature_bonus, static)
-                        imgui.pop_style_color(3)
-                end_table_nested()
+                        imgui.table_next_column()
+                        imgui.text(f"{feature_bonus["bonus"]["name"].replace(f" ({feature["name"]})", "")}")
 
+                        imgui.table_next_column()
+                        if feature_bonus["manual"]:
+                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_bonus_{idx}"):
+                                delete_feature_bonus(feature, feature_bonus, static)
+                            imgui.pop_style_color(3)
+                    end_table_nested()
+
+            imgui.table_next_column()
+            imgui.separator_text("Counters")
+            if feature["counters"] != []:
+                if imgui.begin_table("feature_counters", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
+                    for idx, feature_counter in enumerate(feature["counters"]):
+                        imgui.table_next_row(); imgui.table_next_column()
+                        if imgui.button(f"{feature_counter["name"]}##{idx}"):
+                            imgui.open_popup(f"Edit Counter##{feature_counter["name"]}_popup")
+                        draw_edit_counter(feature["counters"], feature["name"], static, feature_counter)
+
+                        imgui.table_next_column()
+                        if feature_counter["manual"]:
+                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_bonus_{idx}"):
+                                del feature["counters"][idx]
+                            imgui.pop_style_color(3)
+                    end_table_nested()
+            end_table_nested()
         imgui.spacing()
 
         if imgui.button("Close", ImVec2(120, 0)):
@@ -266,6 +302,12 @@ def draw_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtoco
         imgui_md.render(line)
 
     imgui.spacing()
+
+    for counter in feature["counters"]:
+        draw_counter(counter, static); imgui.same_line()
+
+    imgui.spacing()
+
     imgui.push_id(f"tags_{feature["name"]}_{idx}")
     imgui_md.render(f"**Tags**: {", ".join(feature["tags"])}")
     imgui.pop_id()
@@ -301,7 +343,7 @@ def draw_features(window_name: str, static: MainWindowProtocol) -> None:
             static.data["feature_windows"].append(window_name)
             static.states["new_window_name"] = ""
     else:
-        # TODO: research if you add a callback to the built-in close window button
+        # TODO: research if you can add a callback to the built-in close window button
         imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
         imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
         imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)

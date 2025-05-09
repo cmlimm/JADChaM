@@ -1,10 +1,10 @@
 import re
 from math import trunc
-from typing import Any
+from typing import Any, Optional
 
-from imgui_bundle import ImVec2, icons_fontawesome_6, imgui  # type: ignore
+from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: ignore
 
-from cs_types import Bonus, BonusTo, Feature, MainWindowProtocol, NewBonus
+from cs_types import Bonus, BonusTo, Counter, Feature, MainWindowProtocol, NewBonus
 from settings import STRIPED_NO_BORDERS_TABLE_FLAGS  # type: ignore
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
 from settings import (  # type: ignore
@@ -33,7 +33,7 @@ from util_cs_types import (
 from util_imgui import draw_text_cell, end_table_nested
 
 
-def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus: int = 100) -> int | float | str:
+def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus: int = 100, return_delete: bool = True) -> int | float | str:
     if isRepresentInt(value):
         return int(value)
     elif isinstance(value, str):
@@ -57,7 +57,18 @@ def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus:
             return "disadvantage"
         elif value == "ability:DEX":
             return min(static.data_refs.get("ability:DEX", {"total": 0})["total"], max_dex_bonus) # type: ignore
+        elif value.startswith("counter") and value.endswith("max"):
+            try:
+                return static.data_refs[value[:-4]]["max"] # type: ignore
+            except KeyError:
+                return "delete"
+        elif value.startswith("counter") and value.endswith("current"):
+            try:
+                return static.data_refs[value[:-8]]["current"] # type: ignore
+            except KeyError:
+                return "delete"
         else:
+            # TODO: in release verison wrap everything with try-except
             return static.data_refs.get(value, {"total": 0})["total"] # type: ignore
     
     return 0
@@ -69,8 +80,12 @@ def sum_bonuses(bonus_list: list[Bonus], static: MainWindowProtocol, max_dex_bon
     advantage = False
     disadvantage = False
 
-    for bonus in bonus_list:
+    for idx, bonus in enumerate(bonus_list):
         value = get_bonus_value(bonus["value"], static, max_dex_bonus)
+
+        if value == "delete":
+            del bonus_list[idx]
+            continue
 
         if value == "advantage":
             advantage = True
@@ -112,6 +127,8 @@ def replace_value(match: re.Match[str], static: MainWindowProtocol) -> str:
             multiplier = float(multiplier_text)
     
     numerical_value = get_bonus_value(value, static)
+    if numerical_value == "delete": numerical_value = "Error"
+
     if isRepresentInt(numerical_value):
         return str(trunc(int(numerical_value)*multiplier))
     else:
@@ -228,6 +245,21 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
                     new_bonus["new_bonus_type"] = f"HP Current"
                     new_bonus["new_bonus_value"] = f"hp:current"
                 imgui.end_menu() 
+            # Counter
+            elif bonus_type == "Counter" and imgui.begin_menu(f"Counter##{menu_id}"):
+                for feature in static.data["features"]:
+                    if feature["counters"] != [] and imgui.begin_menu(f"{feature["name"]}##counters_{menu_id}"):
+                        for counter in feature["counters"]:
+                            if imgui.begin_menu(f"{counter["name"]}##counter_menu_{menu_id}"):
+                                if imgui.menu_item_simple(f"Max##{menu_id}"):
+                                    new_bonus["new_bonus_type"] = f"{counter["name"]} ({feature["name"]}) Max"
+                                    new_bonus["new_bonus_value"] = f"counter:{feature["name"]}:{counter["name"]}:max"
+                                if imgui.menu_item_simple(f"Current##{menu_id}"):
+                                    new_bonus["new_bonus_type"] = f"{counter["name"]} ({feature["name"]}) Current"
+                                    new_bonus["new_bonus_value"] = f"counter:{feature["name"]}:{counter["name"]}:current"
+                                imgui.end_menu() 
+                        imgui.end_menu() 
+                imgui.end_menu() 
         imgui.end_menu()
     imgui.pop_item_flag()
 
@@ -235,7 +267,7 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
 def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus], 
                    list_type: str, static: MainWindowProtocol,
                    numerical_step: int = 1,
-                   is_feature_bonus: bool = False) -> None:
+                   is_feature_bonus: bool = False, add_manual_text : bool = True) -> None:
     if not bonus_id in static.states["new_bonuses"]:
         static.states["new_bonuses"][bonus_id] = {
             "new_bonus_type": "",
@@ -270,9 +302,9 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
         if new_bonus["new_bonus_type"] != "" and not (new_bonus["new_bonus_type"] == "Advantage" or new_bonus["new_bonus_type"] == "Disadvantage"):
             imgui.same_line()
 
-        if imgui.button(f"Add##{bonus_id}_new_bonus") and new_bonus["new_bonus_type"] != "":
+        if new_bonus["new_bonus_type"] != "" and imgui.button(f"Add Bonus##{bonus_id}_new_bonus"):
             bonus_list.append({
-                "name": f"{new_bonus["new_bonus_type"]} (Manual)",
+                "name": f"{new_bonus["new_bonus_type"]}{" (Manual)" if add_manual_text else ""}",
                 "value": new_bonus["new_bonus_value"],
                 "multiplier": new_bonus["new_bonus_mult"],
                 "manual": True
@@ -416,6 +448,7 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str,
                         "description": "",
                         "tags": tags,
                         "bonuses": [],
+                        "counters": [],
                         "manual": True
                     })
                 static.data_refs[f"{cache_prefix}:{static.states["new_item_name"]}"] = editable_list[-1]
@@ -442,6 +475,11 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str,
                                 if isFeature(item):
                                     for bonus in item["bonuses"]:
                                         delete_feature_bonus(item, bonus, static)
+                                    for counter in item["counters"]:
+                                        # if counters in the feature are added somewhere as a bonus, they will be deleted
+                                        # from bonuses automatically when the program cannot find a reference, 
+                                        # see `get_bonus_value` and `sum_bonuses`
+                                        del static.data_refs[f"counter:{item["name"]}:{counter["name"]}"]
                                 del editable_list[idx]
                                 del static.data_refs[f"{cache_prefix}:{item["name"]}"]
                             imgui.pop_style_color(3)
@@ -452,4 +490,95 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str,
 
         if imgui.button("Close", ImVec2(120, 0)):
             imgui.close_current_popup()
+        imgui.end_popup()
+
+
+def draw_counter(counter: Counter, static: MainWindowProtocol) -> None:
+    counter["max"], _ = sum_bonuses(counter["bonuses"], static)
+    if counter["max"] < counter["min"]: counter["max"] = counter["min"]
+    
+    imgui.align_text_to_frame_padding()
+    if counter["display_type"] == "+- Buttons":
+        imgui.text(f"{counter["name"]} ({counter["max"]})"); imgui.same_line()
+        imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+        _, counter["current"] = imgui.input_int(f"##{counter["name"]}_counter", counter["current"])
+        if counter["current"] > counter["max"]:
+            counter["current"] = counter["max"]
+        if counter["current"] < 0:
+            counter["current"] = 0
+    elif counter["display_type"] == "Checkboxes":
+        imgui.text(f"{counter["name"]}"); imgui.same_line()
+        counter_states: list[bool] = []
+        true_counter = counter["current"]
+        for _ in range(counter["max"]):
+            if true_counter != 0:
+                counter_states.append(True)
+                true_counter -= 1
+            else:
+                counter_states.append(False)
+        for idx, _ in enumerate(counter_states):
+            _, counter_states[idx] = imgui.checkbox(f"##{counter["name"]}_{idx}_checkbox", counter_states[idx])
+            imgui.same_line()
+        imgui.dummy(ImVec2(0, 0))
+        counter["current"] = sum([int(state) for state in counter_states])
+
+def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: MainWindowProtocol, 
+                      counter: Optional[Counter] = None) -> None:
+    if not counter:
+        popup_name = "Edit Counter##popup"
+    else:
+        popup_name = f"Edit Counter##{counter["name"]}_popup"
+    if imgui.begin_popup(popup_name):
+        draw_add_button = False
+        if not counter:
+            counter = static.states["counter_edit"]
+            draw_add_button = True
+
+        counter["parent"] = parent_name
+        
+        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+        _, counter["name"] = imgui.input_text_with_hint("##new_counter_name", "Name", 
+                                                        counter["name"], 128)
+        imgui.pop_item_width()
+        
+        imgui.align_text_to_frame_padding()
+        imgui.text("Display Type"); imgui.same_line()
+        items = ["+- Buttons", "Checkboxes"]
+        static.states["counter_display_type_idx"] = 0 if counter["display_type"] == "+- Buttons" else 1
+        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+        _, static.states["counter_display_type_idx"] = imgui.combo(f"##counter_select_display_type", 
+                                                                    static.states["counter_display_type_idx"], 
+                                                                    items, len(items))
+        counter["display_type"] = items[static.states["counter_display_type_idx"]] # type: ignore
+        imgui.pop_item_width()
+
+        imgui.align_text_to_frame_padding()
+        imgui.text("Minimum"); imgui.same_line()
+        imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+        _, counter["min"] = imgui.input_int("##new_counter_minimum", counter["min"], 1)
+        imgui.pop_item_width()
+
+        if counter["bonuses"] != []:
+            imgui.separator_text(f"Bonuses")
+            draw_bonuses("counter_bonus_list", counter["bonuses"], static)
+
+        imgui.separator_text(f"New bonus")
+        draw_add_bonus(f"counter_new_bonus", counter["bonuses"], "hp", static, add_manual_text=False)
+        
+        if draw_add_button and imgui.button("Add Counter") and counter["name"] != "":
+            counter["max"], _ = sum_bonuses(counter["bonuses"], static)
+            counter["current"] = counter["max"]
+            counter_list.append(counter)
+            static.data_refs[f"counter:{parent_name}:{counter["name"]}"] = counter_list[-1]
+            static.states["counter_edit"] = {
+                "name": "",
+                "parent": "",
+                "current": 0,
+                "max": 0,
+                "display_type": "+- Buttons",
+                "bonuses": [],
+                "min": 0,
+                "manual": True
+            }
+        
         imgui.end_popup()

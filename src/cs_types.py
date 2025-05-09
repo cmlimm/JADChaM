@@ -1,4 +1,4 @@
-from typing import Any, Optional, TypedDict
+from typing import Any, Literal, Optional, TypedDict
 
 from imgui_bundle import imgui
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
@@ -144,11 +144,23 @@ class BonusTo(TypedDict):
     manual: bool
 
 
+class Counter(TypedDict):
+    name: str
+    parent: str
+    current: int
+    max: int
+    display_type: Literal["Checkboxes", "+- Buttons"] 
+    bonuses: list[Bonus]
+    min: int
+    manual: bool
+
+
 class Feature(TypedDict):
     name: str
     description: str
     tags: list[str]
     bonuses: list[BonusTo]
+    counters: list[Counter]
     manual: bool
 
 
@@ -187,6 +199,7 @@ class States(TypedDict):
     hp_dice_idx: int
     ability_bonus_type_idx: int
     static_bonus_type_idx: int
+    counter_display_type_idx: int
     
     hp_add: str
     
@@ -198,6 +211,8 @@ class States(TypedDict):
 
     target_name: str
     target_ref: str
+
+    counter_edit: Counter
 
     # A temporary storage for the new feature name
     # Used when opening a feature popup to be able to change 
@@ -220,7 +235,7 @@ class MainWindowProtocol():
     data: CharacterData
     is_character_loaded: bool
 
-    data_refs: dict[str, CharacterClass | Ability | RollableStat | StaticStat | ArmorClass | Hp | Proficiency | Feature]
+    data_refs: dict[str, CharacterClass | Ability | RollableStat | StaticStat | ArmorClass | Hp | Proficiency | Feature | Counter]
     bonus_list_refs: dict[str, list[Bonus]]
 
     def __call__(self, font_holder: FontHolder) -> None: ...

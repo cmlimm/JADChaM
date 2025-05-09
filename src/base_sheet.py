@@ -38,6 +38,7 @@ def draw_name(static: MainWindowProtocol) -> None:
     imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
     _, static.data["name"] = imgui.input_text("##name", static.data["name"], 128)
 
+
 def draw_image(static: MainWindowProtocol) -> None:
     if static.data["image_path"] == "":
         draw_open_image_button(static)    
@@ -46,6 +47,7 @@ def draw_image(static: MainWindowProtocol) -> None:
 
         if imgui.button("Remove Image"):
             static.data["image_path"] = ""
+
 
 def draw_class(static: MainWindowProtocol) -> None:
     static.data["level"]["total"] = sum([item["level"] for item in static.data["level"]["classes"]])
@@ -93,6 +95,7 @@ def draw_class(static: MainWindowProtocol) -> None:
                         end_table_nested()
                     imgui.end_popup()
         end_table_nested()
+
 
 def draw_hp(static: MainWindowProtocol) -> None:
     if imgui.begin_table("hp_table", 3, flags=STRIPED_TABLE_FLAGS):  # type: ignore
@@ -159,7 +162,7 @@ def draw_hp(static: MainWindowProtocol) -> None:
                 imgui.separator_text(f"Max HP bonuses")
                 draw_bonuses("hp_bonus_list", static.data["hp"]["bonuses"], static)
 
-            imgui.separator_text(f"New Max HP bonus:")
+            imgui.separator_text(f"New Max HP bonus")
             draw_add_bonus("max_hp_bonus", static.data["hp"]["bonuses"], "hp", static)
             
             imgui.end_popup()
@@ -169,6 +172,7 @@ def draw_hp(static: MainWindowProtocol) -> None:
         _, static.data["hp"]["temp"] = imgui.input_int("##hp_temp", static.data["hp"]["temp"])
 
         end_table_nested()
+
 
 def draw_abilities(static: MainWindowProtocol) -> None:
     draw_edit_list_popup(static.data["abilities"], "ability", "Edit Abilities", static)
@@ -319,6 +323,7 @@ def draw_speed(static: MainWindowProtocol) -> None:
         
         end_table_nested()
 
+
 def draw_passives(static: MainWindowProtocol) -> None:
     draw_edit_list_popup(static.data["passive_skill"], "passive", "Edit Passive Skills", static)
 
@@ -332,6 +337,7 @@ def draw_passives(static: MainWindowProtocol) -> None:
         
         end_table_nested()
 
+
 def draw_senses(static: MainWindowProtocol) -> None:
     draw_edit_list_popup(static.data["sense"], "sense", "Edit Senses", static)
 
@@ -344,6 +350,7 @@ def draw_senses(static: MainWindowProtocol) -> None:
                 draw_static_stat_button(sense["name"], sense, "sense", static)
         
         end_table_nested()
+
 
 def draw_training(static: MainWindowProtocol) -> None:
     training = static.data["training"]

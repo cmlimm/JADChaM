@@ -40,18 +40,19 @@ RE_NEW_LINE = "\\n"
 
 LIST_TYPE_TO_BONUS = {
     "all": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
-           "Proficiency", "Initiative", "Armor Class", "Speed", "Passive Skill", "Sense", "HP"],
+           "Proficiency", "Initiative", "Armor Class", "Speed", "Passive Skill", "Sense", 
+           "HP", "Counter", "Advantage", "Disadvantage"],
     "hp": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
-           "Proficiency", "Initiative", "Armor Class", "Speed", "Passive Skill", "Sense"],
-    "base_score": ["Numerical", "Level"],
+           "Proficiency", "Initiative", "Armor Class", "Speed", "Passive Skill", "Sense", "Counter"],
+    "base_score": ["Numerical", "Level", "Counter"],
     "armor_class": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
-                    "Proficiency", "Initiative", "Passive Skill"],
+                    "Proficiency", "Initiative", "Passive Skill", "Counter"],
     "speed": ["Numerical", "Speed", "Level", "Ability", "Ability Score", "Skill",
-              "Proficiency", "Initiative"],
+              "Proficiency", "Initiative", "Counter"],
     "passive": ["Numerical", "Passive Skill", "Level", "Ability", "Ability Score", "Skill",
-                "Proficiency", "Initiative"],
+                "Proficiency", "Initiative", "Counter"],
     "sense": ["Numerical", "Sense", "Level", "Ability", "Ability Score", "Skill",
-              "Proficiency", "Initiative"],
+              "Proficiency", "Initiative", "Counter"],
     "rollable": ["Numerical", "Level", "Ability", "Ability Score", "Advantage", "Disadvantage", 
-                 "Proficiency", "Initiative"] 
+                 "Proficiency", "Initiative", "Counter"] 
 }
