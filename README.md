@@ -13,5 +13,5 @@
 2. Launch `main.py`
 
     ```python
-    python main.py
+    python src/main.py
     ```
