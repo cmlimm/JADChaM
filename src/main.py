@@ -26,14 +26,14 @@ from util_imgui import draw_text_cell, end_table_nested
 
 # TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
 # TODO[BUG]: fix hotkeys
-# TODO[BUG]: newly added skills/stats/etc are not added to the reference dictionary
-# TODO[BUG]: performance issues when opening a list of skills for editing
-#            consider removing this functionality entirely and replacing with other UI
-#            it looks wonky anyways
+# TODO[BUG]: deleted skill is not deleted from the feture bonuses
 
+# TODO: consider alternative UI for buttons for adding new feature/new feature windows. the current is confusing.
 # TODO: resistances & effects
+# TODO: spell saves (maybe just a separate table with arbitrary static values)
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
 # TODO: add `min=` to the text parsing
+# TODO: hide long feature descriptions?
 
 def post_init(state: MainWindowProtocol) -> None:
     state.states = {
@@ -99,17 +99,12 @@ def draw_name_class_image_hp(static: MainWindowProtocol) -> None:
 def draw_abilities_saves_misc(static: MainWindowProtocol) -> None:
     if static.is_character_loaded:
         imgui.align_text_to_frame_padding()
-        imgui.text("Abilities"); imgui.same_line()
-        if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_abilities"):
-            imgui.open_popup("Edit Abilities")
+        imgui.text("Abilities")
         draw_abilities(static)
 
         table_id = "saves_prof_init_ac"
         if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            draw_text_cell("Saving Throws"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_saves"):
-                imgui.open_popup("Edit Saves") 
-            imgui.table_next_column()
+            draw_text_cell("Saving Throws"); imgui.table_next_column()
 
             imgui.table_next_row(); imgui.table_next_column()
             draw_saves(static); imgui.table_next_column()
@@ -134,14 +129,10 @@ def draw_speed_sense(static: MainWindowProtocol) -> None:
         table_id = "speed_proficiencies_skills"
         if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS):  # type: ignore
             imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()
-            imgui.text("Speed"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_speed"):
-                imgui.open_popup("Edit Speed")
+            imgui.text("Speed")
             
             imgui.table_next_column(); imgui.align_text_to_frame_padding()
-            imgui.text("Senses"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_senses"):
-                imgui.open_popup("Edit Senses")
+            imgui.text("Senses")
 
             imgui.table_next_row()
             imgui.table_next_column()
@@ -166,9 +157,7 @@ def draw_skills_window(static: MainWindowProtocol) -> None:
         table_id = "skills"
         if imgui.begin_table(table_id, 1, flags=INVISIBLE_TABLE_FLAGS):  # type: ignore
             imgui.align_text_to_frame_padding()
-            draw_text_cell("Skills"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_skills"):
-                imgui.open_popup("Edit Skills")
+            draw_text_cell("Skills")
             imgui.table_next_row(); imgui.table_next_column()
             draw_skills(static)
 
@@ -177,9 +166,7 @@ def draw_skills_window(static: MainWindowProtocol) -> None:
         imgui.spacing()
 
         imgui.align_text_to_frame_padding()
-        imgui.text("Passive Skills"); imgui.same_line()
-        if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_passive_skills"):
-            imgui.open_popup("Edit Passive Skills")
+        imgui.text("Passive Skills")
         draw_passives(static)
 
 def draw_features_window(static: MainWindowProtocol) -> None:

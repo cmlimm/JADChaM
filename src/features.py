@@ -14,11 +14,12 @@ from settings import (  # type: ignore
 from util_imgui import end_table_nested
 from util_sheet import STRIPED_TABLE_FLAGS  # type: ignore
 from util_sheet import (  # type: ignore
+    add_item_to_list,
     delete_feature_bonus,
     draw_add_bonus,
     draw_counter,
     draw_edit_counter,
-    draw_edit_list_popup,
+    draw_list_item_context_menu,
     get_bonus_value,
     parse_text,
 )
@@ -293,6 +294,8 @@ def draw_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtoco
     if imgui.button(f"{feature["name"]}##{idx}"):
         static.states["feat_name"] = feature["name"]
         imgui.open_popup(f"Edit {feature["name"]}##popup")
+    draw_list_item_context_menu(f"{feature["name"]}_context_menu", feature, idx, 
+                                static.data["features"], "feature", static)
 
     imgui.spacing()
 
@@ -314,46 +317,71 @@ def draw_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtoco
     imgui.spacing()
 
 
+def add_feature_window(window_name: str, static: MainWindowProtocol) -> None:
+    additional_window = hello_imgui.DockableWindow()
+    additional_window.label = window_name
+    additional_window.include_in_view_menu = True
+    additional_window.remember_is_visible = True
+    additional_window.dock_space_name = "MainDockSpace"
+    # https://stackoverflow.com/questions/11723217/python-lambda-doesnt-remember-argument-in-for-loop
+    additional_window.gui_function = lambda window_name=window_name: draw_features(window_name, static) # type: ignore
+    hello_imgui.add_dockable_window(
+        additional_window,
+        force_dockspace=False
+    )
+
+
 def draw_features(window_name: str, static: MainWindowProtocol) -> None:
     imgui.align_text_to_frame_padding()
-    imgui.text(f"{window_name}"); imgui.same_line()
-    if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_features"):
-        imgui.open_popup(f"Edit {window_name}")
+    if imgui.button(f"{window_name}"):
+        imgui.open_popup("Modify Tabs")
+    if imgui.begin_popup("Modify Tabs"):
+        if window_name == "All Features":
+            imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+            _, static.states["new_window_name"] = imgui.input_text_with_hint("##new_window_name", "New Tab Name", static.states["new_window_name"], 128)
+            imgui.pop_item_width()
+            if imgui.button("Add##new_tab") and static.states["new_window_name"] != "":
+                add_feature_window(static.states["new_window_name"], static)
+                static.data["feature_windows"].append(static.states["new_window_name"])
+                static.states["new_window_name"] = ""
+        else:
+            if imgui.button(f"Delete {window_name} tab"):
+                idx = static.data["feature_windows"].index(window_name)
+                del static.data["feature_windows"][idx]
+                hello_imgui.remove_dockable_window(window_name)
+            if imgui.button(f"New Tab"):
+                imgui.open_popup("New tab name")
+            if imgui.begin_popup("New tab name"):
+                imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+                _, static.states["new_window_name"] = imgui.input_text_with_hint("##new_window_name", "Name", static.states["new_window_name"], 128)
+                imgui.pop_item_width()
+                if imgui.button("Add##new_tab") and static.states["new_window_name"] != "":
+                    add_feature_window(static.states["new_window_name"], static)
+                    static.data["feature_windows"].append(static.states["new_window_name"])
+                    static.states["new_window_name"] = ""
+                imgui.end_popup()
+        imgui.end_popup()
+    # TODO: research if you can add a callback to the built-in close window button
 
-    imgui.same_line()
-    if window_name == "All Features":
-        imgui.text(f"    New window: "); imgui.same_line()
-        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
-        _, static.states["new_window_name"] = imgui.input_text_with_hint("##new_window_name", "Name", static.states["new_window_name"], 128)
-        imgui.pop_item_width()
-        imgui.same_line()
-        if imgui.button(f"Add##new_window_name"):
-            window_name = static.states["new_window_name"]
-            additional_window = hello_imgui.DockableWindow()
-            additional_window.label = window_name
-            additional_window.include_in_view_menu = True
-            additional_window.remember_is_visible = True
-            additional_window.dock_space_name = "MainDockSpace"
-            # https://stackoverflow.com/questions/11723217/python-lambda-doesnt-remember-argument-in-for-loop
-            additional_window.gui_function = lambda window_name=window_name: draw_features(window_name, static) # type: ignore
-            hello_imgui.add_dockable_window(
-                additional_window,
-                force_dockspace=False
-            )
-            static.data["feature_windows"].append(window_name)
-            static.states["new_window_name"] = ""
-    else:
-        # TODO: research if you can add a callback to the built-in close window button
-        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{window_name}_remove_window"):
-            idx = static.data["feature_windows"].index(window_name)
-            del static.data["feature_windows"][idx]
-            hello_imgui.remove_dockable_window(window_name)
-        imgui.pop_style_color(3)
+    if imgui.is_mouse_released(imgui.MouseButton_.right) and imgui.is_window_hovered(): # type: ignore
+        imgui.open_popup("Add New Feature")
+    if imgui.begin_popup("Add New Feature"):
+        if imgui.button(f"New Item"):
+            imgui.open_popup("New item name")
+        if imgui.begin_popup("New item name"):
+            imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+            _, static.states["new_item_name"] = imgui.input_text_with_hint(
+                "##new_item", 
+                "Name", 
+                static.states["new_item_name"],
+                128); imgui.same_line()
+            imgui.pop_item_width()
+            if imgui.button("Add##new_list_item"):
+                add_item_to_list(static.states["new_item_name"], static.data["features"], "feature", static, tag=window_name)
+                static.states["new_item_name"] = ""
+            imgui.end_popup()
+        imgui.end_popup()
 
-    draw_edit_list_popup(static.data["features"], "feature", f"Edit {window_name}", static, tag=window_name)
     features_list_length = len(static.data["features"])
     if features_list_length != 0 and imgui.begin_table("features_table", 1, flags=MARKDOWN_TEXT_TABLE): # type: ignore
         for idx, feature in enumerate(static.data["features"]):

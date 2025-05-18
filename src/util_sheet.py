@@ -386,117 +386,109 @@ def delete_feature_bonus(feature: Feature, bonus: BonusTo, static: MainWindowPro
     del feature["bonuses"][idx]
 
 
-def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, 
-                         popup_name: str, static: MainWindowProtocol, tag: str = ""):
-    center = imgui.get_main_viewport().get_center()
-    imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
+def delete_item_from_list(item: Any, item_idx: int, editable_list: list[Any], 
+                          cache_prefix: str, static: MainWindowProtocol):
+    if item["manual"]:
+        if isFeature(item):
+            for bonus in item["bonuses"]:
+                delete_feature_bonus(item, bonus, static)
+            for counter in item["counters"]:
+                # if counters in the feature are added somewhere as a bonus, they will be deleted
+                # from bonuses automatically when the program cannot find a reference, 
+                # see `get_bonus_value` and `sum_bonuses`
+                del static.data_refs[f"counter:{item["name"]}:{counter["name"]}"]
+        del editable_list[item_idx]
+        del static.data_refs[f"{cache_prefix}:{item["name"]}"]
 
-    if imgui.begin_popup_modal(popup_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
-        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
-        _, static.states["new_item_name"] = imgui.input_text_with_hint(
-            "##new_item", 
-            "Name", 
-            static.states["new_item_name"],
-            128); imgui.same_line()
 
-        if imgui.button("Add##new_item"):
-            if static.states["new_item_name"] != "":
-                if isClassList(editable_list):
-                    editable_list.append({
-                        "name": static.states["new_item_name"],
-                        "subclass": "",
-                        "total": 0,
-                        "level": 0,
-                        "dice": 6,
-                        "manual": True
-                    })
-                if isAbilityList(editable_list):
-                    editable_list.append({
-                        "name": static.states["new_item_name"],
-                        "total": 0,
-                        "total_base_score": 0,
-                        "base_score_overrides": [],
-                        "base_score_bonuses": [],
-                        "base_score": 10,
-                        "modifier_bonuses": [],
-                        "manual": True
-                    })
-                if isRollableStatList(editable_list):
-                    editable_list.append({
-                        "name": static.states["new_item_name"],
-                        "total": 0,
-                        "bonuses": [
-                            {
-                                "name": "Manual",
-                                "value": 0,
-                                "multiplier": 1.0,
-                                "manual": False
-                            }
-                        ],
-                        "manual_advantage": False,
-                        "manual_disadvantage": False,
-                        "manual": True
-                    })
-                if isStaticStatList(editable_list):
-                    editable_list.append({
-                        "name": static.states["new_item_name"],
-                        "total": 0,
-                        "base": 0,
-                        "base_overrides": [],
-                        "bonuses": [],
-                        "manual": True
-                    })
-                if isFeatureList(editable_list):
-                    tags = []
-                    if tag != "All Features":
-                        tags = [tag]
-                    editable_list.append({
-                        "name": static.states["new_item_name"],
-                        "description": "",
-                        "tags": tags,
-                        "bonuses": [],
-                        "counters": [],
-                        "manual": True
-                    })
-                static.data_refs[f"{cache_prefix}:{static.states["new_item_name"]}"] = editable_list[-1]
+def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str, 
+                     static: MainWindowProtocol, tag: str = ""):
+    if item_name != "":
+        if isClassList(editable_list):
+            editable_list.append({
+                "name": item_name,
+                "subclass": "",
+                "total": 0,
+                "level": 0,
+                "dice": 6,
+                "manual": True
+            })
+        if isAbilityList(editable_list):
+            editable_list.append({
+                "name": item_name,
+                "total": 0,
+                "total_base_score": 0,
+                "base_score_overrides": [],
+                "base_score_bonuses": [],
+                "base_score": 10,
+                "modifier_bonuses": [],
+                "manual": True
+            })
+            static.bonus_list_refs[f"{cache_prefix}:{item_name}:base_score_bonuses"] = editable_list[-1]["base_score_bonuses"]
+            static.bonus_list_refs[f"{cache_prefix}:{item_name}:base_score_overrides"] = editable_list[-1]["base_score_overrides"]
+            static.bonus_list_refs[f"{cache_prefix}:{item_name}:modifier_bonuses"] = editable_list[-1]["modifier_bonuses"]
+        if isRollableStatList(editable_list):
+            editable_list.append({
+                "name": item_name,
+                "total": 0,
+                "bonuses": [
+                    {
+                        "name": "Manual",
+                        "value": 0,
+                        "multiplier": 1.0,
+                        "manual": False
+                    }
+                ],
+                "manual_advantage": False,
+                "manual_disadvantage": False,
+                "manual": True
+            })
+            static.bonus_list_refs[f"{cache_prefix}:{item_name}:bonuses"] = editable_list[-1]["bonuses"]
+        if isStaticStatList(editable_list):
+            editable_list.append({
+                "name": item_name,
+                "total": 0,
+                "base": 0,
+                "base_overrides": [],
+                "bonuses": [],
+                "manual": True
+            })
+            static.bonus_list_refs[f"{cache_prefix}:{item_name}:bonuses"] = editable_list[-1]["bonuses"]
+            static.bonus_list_refs[f"{cache_prefix}:{item_name}:base_overrides"] = editable_list[-1]["base_overrides"]
+        if isFeatureList(editable_list):
+            tags = []
+            if tag != "All Features":
+                tags = [tag]
+            editable_list.append({
+                "name": item_name,
+                "description": "",
+                "tags": tags,
+                "bonuses": [],
+                "counters": [],
+                "manual": True
+            })
+        static.data_refs[f"{cache_prefix}:{item_name}"] = editable_list[-1]
+
+
+def draw_list_item_context_menu(menu_id: str, item: Any, item_idx: int, editable_list: list[Any], 
+                                cache_prefix: str, static: MainWindowProtocol, draw_delete: bool = True):
+    if imgui.begin_popup_context_item(menu_id):
+        if draw_delete and imgui.button(f"Delete {item["name"]}"):
+            delete_item_from_list(item, item_idx, editable_list, cache_prefix, static)
+        if imgui.button(f"New Item"):
+            imgui.open_popup("New item name")
+        if imgui.begin_popup("New item name"):
+            imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+            _, static.states["new_item_name"] = imgui.input_text_with_hint(
+                "##new_item", 
+                "Name", 
+                static.states["new_item_name"],
+                128); imgui.same_line()
+            imgui.pop_item_width()
+            if imgui.button("Add##new_list_item"):
+                add_item_to_list(static.states["new_item_name"], editable_list, cache_prefix, static)
                 static.states["new_item_name"] = ""
-
-        imgui.spacing()
-
-        if imgui.begin_table("edit_list_display", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
-            imgui.table_setup_column("Name")
-            imgui.table_setup_column("##delete")
-            imgui.table_headers_row()
-
-            for idx, item in enumerate(editable_list):
-                if not item["name"].startswith("no_display"):
-                    if isFeature(item) and tag != "All Features" and not tag in item["tags"]:
-                        pass
-                    else:
-                        draw_text_cell(item["name"]); imgui.table_next_column()
-                        if item["manual"]:
-                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
-                                if isFeature(item):
-                                    for bonus in item["bonuses"]:
-                                        delete_feature_bonus(item, bonus, static)
-                                    for counter in item["counters"]:
-                                        # if counters in the feature are added somewhere as a bonus, they will be deleted
-                                        # from bonuses automatically when the program cannot find a reference, 
-                                        # see `get_bonus_value` and `sum_bonuses`
-                                        del static.data_refs[f"counter:{item["name"]}:{counter["name"]}"]
-                                del editable_list[idx]
-                                del static.data_refs[f"{cache_prefix}:{item["name"]}"]
-                            imgui.pop_style_color(3)
-
-            end_table_nested()
-
-        imgui.spacing()
-
-        if imgui.button("Close", ImVec2(120, 0)):
-            imgui.close_current_popup()
+            imgui.end_popup()
         imgui.end_popup()
 
 

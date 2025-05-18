@@ -695,14 +695,6 @@
             "manual_advantage": false,
             "manual_disadvantage": false,
             "manual": true
-        },
-        {
-            "name": "Spell Save (Paladin)",
-            "total": 0,
-            "bonuses": [],
-            "manual_advantage": false,
-            "manual_disadvantage": false,
-            "manual": true
         }
     ],
     "speed": [
@@ -993,7 +985,7 @@
         },
         {
             "name": "Channel Divinity",
-            "description": "You can channel energy directly from the Outer Planes to fuel magical effects. Each time you use this class\u2019s Channel Divinity, you can choose which effect to create. You can use this class\u2019s Channel Divinity 2 times per Long Rest, but can regain one expended use after finishing a Short Rest.\n\nIf your Channel Divinity requires a saving throw, the DC equals your Paladin spell save DC (DC 17).\n\n**Divine Sense** As a Bonus Action, you can open your awareness to detect Celestials, Fiends, and Undead. For the next 10 minutes or until you have the Incapacitated condition, you know the location of any creature of those types within 60 feet of yourself, and you know its creature type. Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the Hallow spell.\n\n**Nature's Wrath** As a Magic action, you can expend one use of Channel Divinity to conjure spectral vines around each creature of your choice that you can see within 15 ft. Each creature must succeed on a DC 17 Str. saving throw, or have the Restrained condition for 1 minute. A Restrained creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+            "description": "You can channel energy directly from the Outer Planes to fuel magical effects. Each time you use this class's Channel Divinity, you can choose which effect to create. You can use this class's Channel Divinity 2 times per Long Rest, but can regain one expended use after finishing a Short Rest.\n\nIf your Channel Divinity requires a saving throw, the DC equals your Paladin spell save DC (DC {ability:Spell Save}).\n\n**Divine Sense** As a Bonus Action, you can open your awareness to detect Celestials, Fiends, and Undead. For the next 10 minutes or until you have the Incapacitated condition, you know the location of any creature of those types within 60 feet of yourself, and you know its creature type. Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the Hallow spell.\n\n**Nature's Wrath** As a Magic action, you can expend one use of Channel Divinity to conjure spectral vines around each creature of your choice that you can see within 15 ft. Each creature must succeed on a DC 17 Str. saving throw, or have the Restrained condition for 1 minute. A Restrained creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
             "tags": [
                 "Paladin",
                 "Action",
@@ -1053,7 +1045,11 @@
         {
             "name": "Lucky",
             "description": "**Luck Points** You have {proficiency} Luck Points that you can spend on the benefits below. You regain expended Luck Points after a Long Rest.\n\n**Advantage** When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage on the roll.\n\n**Disadvantage** When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to impose Disadvantage on that roll.",
-            "tags": [],
+            "tags": [
+                "Feat",
+                "Background",
+                "Merchant"
+            ],
             "bonuses": [],
             "counters": [
                 {
