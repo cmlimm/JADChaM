@@ -471,9 +471,14 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
 
 
 def draw_list_item_context_menu(menu_id: str, item: Any, item_idx: int, editable_list: list[Any], 
-                                cache_prefix: str, static: MainWindowProtocol, draw_delete: bool = True):
+                                cache_prefix: str, static: MainWindowProtocol, edit_popup_name: str = ""):
+    if imgui.is_item_hovered():
+        imgui.set_mouse_cursor(imgui.MouseCursor_.hand) # type: ignore
+        if edit_popup_name != "" and imgui.is_mouse_released(imgui.MouseButton_.left): # type: ignore
+            imgui.open_popup(edit_popup_name)
+
     if imgui.begin_popup_context_item(menu_id):
-        if draw_delete and imgui.button(f"Delete {item["name"]}"):
+        if imgui.button(f"Delete {item["name"]}"):
             delete_item_from_list(item, item_idx, editable_list, cache_prefix, static)
         if imgui.button(f"New Item"):
             imgui.open_popup("New item name")

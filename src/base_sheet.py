@@ -61,7 +61,8 @@ def draw_class(static: MainWindowProtocol) -> None:
             if not class_dict["name"].startswith("no_display"):
                 draw_text_cell(f"{class_dict["name"]}")
                 draw_list_item_context_menu(f"{class_dict["name"]}_context_menu", class_dict, idx, 
-                                            static.data["level"]["classes"], "level", static)
+                                            static.data["level"]["classes"], "level", static,
+                                            edit_popup_name=f"##{class_dict["name"]}_edit_class")
                 imgui.table_next_column()
 
                 if imgui.button(f"{class_dict["level"]}##class_{class_dict["name"]}"):
@@ -197,7 +198,8 @@ def draw_abilities(static: MainWindowProtocol) -> None:
                 if imgui.button(f"{ability["name"]}[{ability["total_base_score"]}]\n{ability["total"]:^+}"):
                     imgui.open_popup(f"{ability["name"]}_edit_ability")
                 draw_list_item_context_menu(f"{ability["name"]}_context_menu", ability, idx, 
-                                            static.data["abilities"], "ability", static)
+                                            static.data["abilities"], "ability", static,
+                                            edit_popup_name=f"{ability["name"]}_edit_ability")
 
                 if imgui.begin_popup(f"{ability["name"]}_edit_ability"):
                     imgui.align_text_to_frame_padding()
@@ -247,7 +249,8 @@ def draw_saves(static: MainWindowProtocol) -> None:
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(save["name"])
                 draw_list_item_context_menu(f"{save["name"]}_context_menu", save, idx, 
-                                            static.data["saves"], "save", static)
+                                            static.data["saves"], "save", static,
+                                            edit_popup_name=f"{save["name"]}_edit_stat")
                 imgui.table_next_column()
                 draw_rollable_stat_button(save["name"], save, "rollable", static)
         
@@ -318,7 +321,8 @@ def draw_speed(static: MainWindowProtocol) -> None:
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(speed["name"])
                 draw_list_item_context_menu(f"{speed["name"]}_context_menu", speed, idx, 
-                                            static.data["speed"], "speed", static)
+                                            static.data["speed"], "speed", static,
+                                            edit_popup_name=f"{speed["name"]}_edit_stat")
                 imgui.table_next_column()
                 draw_static_stat_button(speed["name"], speed, "speed", static, numerical_step=5)
         
@@ -333,7 +337,8 @@ def draw_passives(static: MainWindowProtocol) -> None:
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(passive["name"])
                 draw_list_item_context_menu(f"{passive["name"]}_context_menu", passive, idx, 
-                                            static.data["passive_skill"], "passive", static)
+                                            static.data["passive_skill"], "passive", static,
+                                            edit_popup_name=f"{passive["name"]}_edit_stat")
                 imgui.table_next_column()
                 draw_static_stat_button(passive["name"], passive, "passive", static)
         
@@ -348,7 +353,8 @@ def draw_senses(static: MainWindowProtocol) -> None:
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(sense["name"])
                 draw_list_item_context_menu(f"{sense["name"]}_context_menu", sense, idx, 
-                                            static.data["sense"], "sense", static)
+                                            static.data["sense"], "sense", static,
+                                            edit_popup_name=f"{sense["name"]}_edit_stat")
                 imgui.table_next_column()
                 draw_static_stat_button(sense["name"], sense, "sense", static)
         
@@ -452,7 +458,8 @@ def draw_skills(static: MainWindowProtocol) -> None:
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(skill["name"])
                 draw_list_item_context_menu(f"{skill["name"]}_context_menu", skill, idx, 
-                                            static.data["skills"], "skill", static)
+                                            static.data["skills"], "skill", static,
+                                            edit_popup_name=f"{skill["name"]}_edit_stat")
                 imgui.table_next_column()
                 draw_rollable_stat_button(skill["name"], skill, "rollable", static)
                 

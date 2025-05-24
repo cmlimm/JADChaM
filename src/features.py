@@ -335,40 +335,24 @@ def draw_features(window_name: str, static: MainWindowProtocol) -> None:
     imgui.align_text_to_frame_padding()
     if imgui.button(f"{window_name}"):
         imgui.open_popup("Modify Tabs")
+    if imgui.is_item_hovered():
+        imgui.set_mouse_cursor(imgui.MouseCursor_.hand) # type: ignore
     if imgui.begin_popup("Modify Tabs"):
-        if window_name == "All Features":
+        if imgui.button(f"New Tab"):
+            imgui.open_popup("New tab name")
+        if imgui.begin_popup("New tab name"):
             imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
-            _, static.states["new_window_name"] = imgui.input_text_with_hint("##new_window_name", "New Tab Name", static.states["new_window_name"], 128)
+            _, static.states["new_window_name"] = imgui.input_text_with_hint("##new_window_name", "Name", static.states["new_window_name"], 128)
             imgui.pop_item_width()
             if imgui.button("Add##new_tab") and static.states["new_window_name"] != "":
                 add_feature_window(static.states["new_window_name"], static)
                 static.data["feature_windows"].append(static.states["new_window_name"])
                 static.states["new_window_name"] = ""
-        else:
-            if imgui.button(f"Delete {window_name} tab"):
-                idx = static.data["feature_windows"].index(window_name)
-                del static.data["feature_windows"][idx]
-                hello_imgui.remove_dockable_window(window_name)
-            if imgui.button(f"New Tab"):
-                imgui.open_popup("New tab name")
-            if imgui.begin_popup("New tab name"):
-                imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
-                _, static.states["new_window_name"] = imgui.input_text_with_hint("##new_window_name", "Name", static.states["new_window_name"], 128)
-                imgui.pop_item_width()
-                if imgui.button("Add##new_tab") and static.states["new_window_name"] != "":
-                    add_feature_window(static.states["new_window_name"], static)
-                    static.data["feature_windows"].append(static.states["new_window_name"])
-                    static.states["new_window_name"] = ""
-                imgui.end_popup()
-        imgui.end_popup()
-    # TODO: research if you can add a callback to the built-in close window button
+            imgui.end_popup()
 
-    if imgui.is_mouse_released(imgui.MouseButton_.right) and imgui.is_window_hovered(): # type: ignore
-        imgui.open_popup("Add New Feature")
-    if imgui.begin_popup("Add New Feature"):
-        if imgui.button(f"New Item"):
-            imgui.open_popup("New item name")
-        if imgui.begin_popup("New item name"):
+        if imgui.button(f"New Feature"):
+            imgui.open_popup("New feature name")
+        if imgui.begin_popup("New feature name"):
             imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
             _, static.states["new_item_name"] = imgui.input_text_with_hint(
                 "##new_item", 
@@ -380,7 +364,14 @@ def draw_features(window_name: str, static: MainWindowProtocol) -> None:
                 add_item_to_list(static.states["new_item_name"], static.data["features"], "feature", static, tag=window_name)
                 static.states["new_item_name"] = ""
             imgui.end_popup()
+
+        if window_name != "All Features":
+            if imgui.button(f"Delete {window_name} tab"):
+                idx = static.data["feature_windows"].index(window_name)
+                del static.data["feature_windows"][idx]
+                hello_imgui.remove_dockable_window(window_name)
         imgui.end_popup()
+    # TODO: research if you can add a callback to the built-in close window button
 
     features_list_length = len(static.data["features"])
     if features_list_length != 0 and imgui.begin_table("features_table", 1, flags=MARKDOWN_TEXT_TABLE): # type: ignore

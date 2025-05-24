@@ -112,8 +112,6 @@ def draw_static_stat_button(stat_id: str, stat: StaticStat,
         imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
         _, stat["base"] = imgui.input_int(f"##{stat_id}_base_value", stat["base"], numerical_step) # type: ignore
 
-        imgui.separator_text("New Bonus ")
-
         if stat["bonuses"] != []:
             imgui.separator_text(f"Bonuses")
             draw_bonuses(f"{stat_id}_stat_bonus_list", stat["bonuses"], static)
@@ -121,6 +119,8 @@ def draw_static_stat_button(stat_id: str, stat: StaticStat,
             imgui.separator_text(f"Base overrides")
             draw_overrides(f"{stat_id}_base_overrides_list", stat["base_overrides"], override_idx, is_override, static)
 
+        imgui.separator_text("New Bonus ")
+        
         items = ["Value", "Base Override"]
         imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
         _, static.states["static_bonus_type_idx"] = imgui.combo(f"##{stat["name"]}_select_bonus_type", 
