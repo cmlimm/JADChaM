@@ -1,5 +1,7 @@
 from imgui_bundle import imgui
 
+from cs_types import ListTypeToBonus
+
 INVISIBLE_TABLE_FLAGS = imgui.TableFlags_.sizing_fixed_fit
 STRIPED_TABLE_FLAGS = ( # type: ignore
     imgui.TableFlags_.sizing_fixed_fit
@@ -38,11 +40,11 @@ OVERRIDE_COLOR = imgui.ImColor.hsv(0.15, 0.8, 0.8).value
 RE_VALUE = "{\w+?.+?}" # type: ignore
 RE_NEW_LINE = "\\n"
 
-LIST_TYPE_TO_BONUS = {
+LIST_TYPE_TO_BONUS: ListTypeToBonus = {
     "all": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
            "Proficiency", "Initiative", "Armor Class", "Spell Save", "Speed", "Passive Skill", "Sense", 
            "HP", "Counter", "Advantage", "Disadvantage"],
-    "hp": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
+    "all_no_advantage": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
            "Proficiency", "Initiative", "Armor Class", "Spell Save", "Speed", "Passive Skill", "Sense", "Counter"],
     "base_score": ["Numerical", "Level", "Counter"],
     "armor_class": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 

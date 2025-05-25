@@ -13,6 +13,7 @@ from settings import (  # type: ignore
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
     INVISIBLE_TABLE_FLAGS,
+    LIST_TYPE_TO_BONUS,
     MAGICAL_WORD_WRAP_NUMBER_TABLE,
     MEDIUM_STRING_INPUT_WIDTH,
     SHORT_STRING_INPUT_WIDTH,
@@ -104,7 +105,8 @@ def draw_class(static: MainWindowProtocol) -> None:
 
                         if class_dict["spell_save_enabled"]:
                             draw_text_cell(f"Spell Save"); imgui.table_next_column()
-                            draw_static_stat_button(f"{class_dict["name"]}_spell_save", class_dict["spell_save"], "hp", static)
+                            draw_static_stat_button(f"{class_dict["name"]}_spell_save", class_dict["spell_save"], 
+                                                    LIST_TYPE_TO_BONUS["all_no_advantage"], static)
 
                         end_table_nested()
                     imgui.end_popup()
@@ -177,7 +179,7 @@ def draw_hp(static: MainWindowProtocol) -> None:
                 draw_bonuses("hp_bonus_list", static.data["hp"]["bonuses"], static)
 
             imgui.separator_text(f"New Max HP bonus")
-            draw_add_bonus("max_hp_bonus", static.data["hp"]["bonuses"], "hp", static)
+            draw_add_bonus("max_hp_bonus", static.data["hp"]["bonuses"], LIST_TYPE_TO_BONUS["all_no_advantage"], static)
             
             imgui.end_popup()
 
@@ -242,13 +244,13 @@ def draw_abilities(static: MainWindowProtocol) -> None:
                 
                     if static.states["ability_bonus_type_idx"] == 0:
                         # Base Score bonus
-                        draw_add_bonus("base_score_bonus", ability["base_score_bonuses"], "base_score", static)
+                        draw_add_bonus("base_score_bonus", ability["base_score_bonuses"], LIST_TYPE_TO_BONUS["base_score"], static)
                     elif static.states["ability_bonus_type_idx"] == 1:
                         # Base Score override
-                        draw_add_bonus("base_score_override", ability["base_score_overrides"], "base_score", static)
+                        draw_add_bonus("base_score_override", ability["base_score_overrides"], LIST_TYPE_TO_BONUS["base_score"], static)
                     elif static.states["ability_bonus_type_idx"] == 2:
                         # Modifier bonus
-                        draw_add_bonus("modifier_bonus", ability["modifier_bonuses"], "base_score", static)
+                        draw_add_bonus("modifier_bonus", ability["modifier_bonuses"], LIST_TYPE_TO_BONUS["base_score"], static)
 
                     imgui.end_popup()
         end_table_nested()
@@ -263,7 +265,7 @@ def draw_saves(static: MainWindowProtocol) -> None:
             if not save["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(save["name"]); imgui.table_next_column()
-                draw_rollable_stat_button(save["name"], save, "rollable", static)
+                draw_rollable_stat_button(save["name"], save, LIST_TYPE_TO_BONUS["rollable"], static)
         
         end_table_nested()
 
@@ -282,7 +284,7 @@ def draw_proficiency_button(static: MainWindowProtocol) -> None:
 
 
 def draw_initiative_button(static: MainWindowProtocol) -> None:
-    draw_rollable_stat_button("initiative", static.data["initiative"], "rollable", static)
+    draw_rollable_stat_button("initiative", static.data["initiative"], LIST_TYPE_TO_BONUS["rollable"], static)
 
 
 def draw_armor_class_button(static: MainWindowProtocol) -> None:
@@ -319,7 +321,7 @@ def draw_armor_class_button(static: MainWindowProtocol) -> None:
             draw_bonuses("ac_bonus_list", armor_class["bonuses"], static)
 
         imgui.separator_text(f"New bonus")
-        draw_add_bonus(f"ac_bonus", armor_class["bonuses"], "armor_class", static, 1)
+        draw_add_bonus(f"ac_bonus", armor_class["bonuses"], LIST_TYPE_TO_BONUS["armor_class"], static, 1)
 
         imgui.end_popup()
 
@@ -333,7 +335,7 @@ def draw_speed(static: MainWindowProtocol) -> None:
             if not speed["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(speed["name"]); imgui.table_next_column()
-                draw_static_stat_button(speed["name"], speed, "speed", static, numerical_step=5)
+                draw_static_stat_button(speed["name"], speed, LIST_TYPE_TO_BONUS["speed"], static, numerical_step=5)
         
         end_table_nested()
 
@@ -347,7 +349,7 @@ def draw_passives(static: MainWindowProtocol) -> None:
             if not passive["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(passive["name"]); imgui.table_next_column()
-                draw_static_stat_button(passive["name"], passive, "passive", static)
+                draw_static_stat_button(passive["name"], passive, LIST_TYPE_TO_BONUS["passive"], static)
         
         end_table_nested()
 
@@ -361,7 +363,7 @@ def draw_senses(static: MainWindowProtocol) -> None:
             if not sense["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(sense["name"]); imgui.table_next_column()
-                draw_static_stat_button(sense["name"], sense, "sense", static)
+                draw_static_stat_button(sense["name"], sense, LIST_TYPE_TO_BONUS["sense"], static)
         
         end_table_nested()
 
@@ -464,6 +466,6 @@ def draw_skills(static: MainWindowProtocol) -> None:
             if not skill["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
                 imgui.text(skill["name"]); imgui.table_next_column()
-                draw_rollable_stat_button(skill["name"], skill, "rollable", static)
+                draw_rollable_stat_button(skill["name"], skill, LIST_TYPE_TO_BONUS["rollable"], static)
         
         end_table_nested()

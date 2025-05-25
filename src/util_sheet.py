@@ -273,7 +273,7 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
 
 
 def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus], 
-                   list_type: str, static: MainWindowProtocol,
+                   bonus_types: list[str], static: MainWindowProtocol,
                    numerical_step: int = 1,
                    is_feature_bonus: bool = False, add_manual_text : bool = True) -> None:
     if not bonus_id in static.states["new_bonuses"]:
@@ -283,8 +283,6 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
             "new_bonus_mult": 1.0
         }
     new_bonus = static.states["new_bonuses"][bonus_id]
-
-    bonus_types = LIST_TYPE_TO_BONUS[list_type]
 
     # Choose bonus type
     draw_entities_menu(static.states["new_bonuses"][bonus_id]["new_bonus_type"], bonus_id, bonus_types, new_bonus, static)
@@ -601,7 +599,7 @@ def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: Mai
             draw_bonuses("counter_bonus_list", counter["bonuses"], static)
 
         imgui.separator_text(f"New bonus")
-        draw_add_bonus(f"counter_new_bonus", counter["bonuses"], "hp", static, add_manual_text=False)
+        draw_add_bonus(f"counter_new_bonus", counter["bonuses"], LIST_TYPE_TO_BONUS["all_no_advantage"], static, add_manual_text=False)
         
         if draw_add_button and imgui.button("Add Counter") and counter["name"] != "":
             counter["max"], _ = sum_bonuses(counter["bonuses"], static)

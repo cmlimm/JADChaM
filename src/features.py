@@ -8,6 +8,7 @@ from settings import (  # type: ignore
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
     INVISIBLE_TABLE_FLAGS,
+    LIST_TYPE_TO_BONUS,
     MEDIUM_STRING_INPUT_WIDTH,
     SHORT_STRING_INPUT_WIDTH,
 )
@@ -146,7 +147,7 @@ def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> Non
         
         if static.states["target_ref"] != "":
             draw_add_bonus(bonus_id, static.bonus_list_refs[static.states["target_ref"]],
-                           "all", static, is_feature_bonus=True)
+                           LIST_TYPE_TO_BONUS["all"], static, is_feature_bonus=True)
 
         imgui.spacing()
 

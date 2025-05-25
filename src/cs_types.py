@@ -4,6 +4,17 @@ from imgui_bundle import imgui
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 
+class ListTypeToBonus(TypedDict):
+    all: list[str]
+    all_no_advantage: list[str]
+    base_score: list[str]
+    armor_class: list[str]
+    speed: list[str]
+    passive: list[str]
+    sense: list[str]
+    rollable: list[str]
+
+
 class FontHolder:
     regular_font: imgui.ImFont
     bold_font: imgui.ImFont
