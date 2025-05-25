@@ -386,21 +386,6 @@ def delete_feature_bonus(feature: Feature, bonus: BonusTo, static: MainWindowPro
     del feature["bonuses"][idx]
 
 
-def delete_item_from_list(item: Any, item_idx: int, editable_list: list[Any], 
-                          cache_prefix: str, static: MainWindowProtocol):
-    if item["manual"]:
-        if isFeature(item):
-            for bonus in item["bonuses"]:
-                delete_feature_bonus(item, bonus, static)
-            for counter in item["counters"]:
-                # if counters in the feature are added somewhere as a bonus, they will be deleted
-                # from bonuses automatically when the program cannot find a reference, 
-                # see `get_bonus_value` and `sum_bonuses`
-                del static.data_refs[f"counter:{item["name"]}:{counter["name"]}"]
-        del editable_list[item_idx]
-        del static.data_refs[f"{cache_prefix}:{item["name"]}"]
-
-
 def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str, 
                      static: MainWindowProtocol, tag: str = ""):
     if item_name != "":
@@ -470,30 +455,65 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
         static.data_refs[f"{cache_prefix}:{item_name}"] = editable_list[-1]
 
 
-def draw_list_item_context_menu(menu_id: str, item: Any, item_idx: int, editable_list: list[Any], 
-                                cache_prefix: str, static: MainWindowProtocol, edit_popup_name: str = ""):
-    if imgui.is_item_hovered():
-        imgui.set_mouse_cursor(imgui.MouseCursor_.hand) # type: ignore
-        if edit_popup_name != "" and imgui.is_mouse_released(imgui.MouseButton_.left): # type: ignore
-            imgui.open_popup(edit_popup_name)
+def delete_item_from_list(item: Any, item_idx: int, editable_list: list[Any], 
+                          cache_prefix: str, static: MainWindowProtocol):
+    if item["manual"]:
+        if isFeature(item):
+            for bonus in item["bonuses"]:
+                delete_feature_bonus(item, bonus, static)
+            for counter in item["counters"]:
+                # if counters in the feature are added somewhere as a bonus, they will be deleted
+                # from bonuses automatically when the program cannot find a reference, 
+                # see `get_bonus_value` and `sum_bonuses`
+                del static.data_refs[f"counter:{item["name"]}:{counter["name"]}"]
+        del editable_list[item_idx]
+        del static.data_refs[f"{cache_prefix}:{item["name"]}"]
 
-    if imgui.begin_popup_context_item(menu_id):
-        if imgui.button(f"Delete {item["name"]}"):
-            delete_item_from_list(item, item_idx, editable_list, cache_prefix, static)
-        if imgui.button(f"New Item"):
-            imgui.open_popup("New item name")
-        if imgui.begin_popup("New item name"):
-            imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
-            _, static.states["new_item_name"] = imgui.input_text_with_hint(
-                "##new_item", 
-                "Name", 
-                static.states["new_item_name"],
-                128); imgui.same_line()
-            imgui.pop_item_width()
-            if imgui.button("Add##new_list_item"):
-                add_item_to_list(static.states["new_item_name"], editable_list, cache_prefix, static)
-                static.states["new_item_name"] = ""
-            imgui.end_popup()
+
+def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, 
+                         popup_name: str, static: MainWindowProtocol, tag: str = ""):
+    center = imgui.get_main_viewport().get_center()
+    imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
+
+    if imgui.begin_popup_modal(popup_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
+        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+        _, static.states["new_item_name"] = imgui.input_text_with_hint(
+            "##new_item", 
+            "Name", 
+            static.states["new_item_name"],
+            128); imgui.same_line()
+
+        if imgui.button("Add##new_item"):
+            add_item_to_list(static.states["new_item_name"], editable_list, cache_prefix, static, tag)
+            static.states["new_item_name"] = ""
+
+        imgui.spacing()
+
+        if imgui.begin_table("edit_list_display", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
+            imgui.table_setup_column("Name")
+            imgui.table_setup_column("##delete")
+            imgui.table_headers_row()
+
+            for idx, item in enumerate(editable_list):
+                if not item["name"].startswith("no_display"):
+                    if isFeature(item) and tag != "All Features" and not tag in item["tags"]:
+                        pass
+                    else:
+                        draw_text_cell(item["name"]); imgui.table_next_column()
+                        if item["manual"]:
+                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                                delete_item_from_list(item, idx, editable_list, cache_prefix, static)
+                            imgui.pop_style_color(3)
+
+            end_table_nested()
+
+        imgui.spacing()
+
+        if imgui.button("Close", ImVec2(120, 0)):
+            imgui.close_current_popup()
         imgui.end_popup()
 
 

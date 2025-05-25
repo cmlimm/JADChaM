@@ -16,10 +16,10 @@ from util_sheet import STRIPED_TABLE_FLAGS  # type: ignore
 from util_sheet import (  # type: ignore
     add_item_to_list,
     delete_feature_bonus,
+    delete_item_from_list,
     draw_add_bonus,
     draw_counter,
     draw_edit_counter,
-    draw_list_item_context_menu,
     get_bonus_value,
     parse_text,
 )
@@ -173,7 +173,7 @@ def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> Non
         imgui.end_popup()
 
 
-def draw_edit_feature(feature: Feature, tag: str, static: MainWindowProtocol) -> None:
+def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtocol) -> None:
     center = imgui.get_main_viewport().get_center()
     imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
     window_size = imgui.get_main_viewport().size
@@ -187,7 +187,18 @@ def draw_edit_feature(feature: Feature, tag: str, static: MainWindowProtocol) ->
         imgui.text("Name"); imgui.same_line()
         imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
         _, static.states["feat_name"] = imgui.input_text(f"##{feature["name"]}_feature_name", static.states["feat_name"], 128)
-        imgui.pop_item_width()
+        imgui.pop_item_width(); imgui.same_line()
+
+        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+        if imgui.button("Delete Feature"):
+            imgui.close_current_popup()
+            if static.states["feat_name"] != "":
+                feature["name"] = static.states["feat_name"]
+            static.states["feat_name"] = ""
+            delete_item_from_list(feature, idx, static.data["features"], "feature", static)
+        imgui.pop_style_color(3)
 
         imgui.text("Description")
         imgui.set_next_window_size_constraints(ImVec2(window_size.x/2, imgui.get_text_line_height() * 5),
@@ -290,12 +301,10 @@ def draw_edit_feature(feature: Feature, tag: str, static: MainWindowProtocol) ->
 
 def draw_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtocol) -> None:
     imgui.spacing()
-    draw_edit_feature(feature, tag, static)
+    draw_edit_feature(feature, idx, tag, static)
     if imgui.button(f"{feature["name"]}##{idx}"):
         static.states["feat_name"] = feature["name"]
         imgui.open_popup(f"Edit {feature["name"]}##popup")
-    draw_list_item_context_menu(f"{feature["name"]}_context_menu", feature, idx, 
-                                static.data["features"], "feature", static)
 
     imgui.spacing()
 

@@ -27,7 +27,7 @@ from util_imgui import draw_text_cell, end_table_nested
 from util_sheet import (
     draw_add_bonus,
     draw_bonuses,
-    draw_list_item_context_menu,
+    draw_edit_list_popup,
     draw_overrides,
     find_max_override,
     sum_bonuses,
@@ -54,16 +54,16 @@ def draw_class(static: MainWindowProtocol) -> None:
     
     # Draw title
     imgui.text(f"Level {static.data["level"]["total"]}")
+    imgui.same_line()
+    if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_classes"):
+        imgui.open_popup("Edit Classes")
+    draw_edit_list_popup(static.data["level"]["classes"], "level", "Edit Classes", static)
 
     if imgui.begin_table("classes", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
-        for idx, class_dict in enumerate(static.data["level"]["classes"]):
+        for class_dict in static.data["level"]["classes"]:
             class_dict["total"] = class_dict["level"]
             if not class_dict["name"].startswith("no_display"):
-                draw_text_cell(f"{class_dict["name"]}")
-                draw_list_item_context_menu(f"{class_dict["name"]}_context_menu", class_dict, idx, 
-                                            static.data["level"]["classes"], "level", static,
-                                            edit_popup_name=f"##{class_dict["name"]}_edit_class")
-                imgui.table_next_column()
+                draw_text_cell(f"{class_dict["name"]}"); imgui.table_next_column()
 
                 if imgui.button(f"{class_dict["level"]}##class_{class_dict["name"]}"):
                     imgui.open_popup(f"##{class_dict["name"]}_edit_class")
@@ -175,10 +175,12 @@ def draw_hp(static: MainWindowProtocol) -> None:
 
 
 def draw_abilities(static: MainWindowProtocol) -> None:
+    draw_edit_list_popup(static.data["abilities"], "ability", "Edit Abilities", static)
+
     abilities_list_length = len(static.data["abilities"])
     if abilities_list_length != 0 and imgui.begin_table("abilities_table", abilities_list_length, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
         imgui.table_next_row()
-        for idx, ability in enumerate(static.data["abilities"]):
+        for ability in static.data["abilities"]:
             if not ability["name"].startswith("no_display"):
                 base_score_bonus_total, _ = sum_bonuses(ability["base_score_bonuses"], static)
                 no_override_base_score_total = ability["base_score"] + base_score_bonus_total
@@ -197,9 +199,6 @@ def draw_abilities(static: MainWindowProtocol) -> None:
                 imgui.table_next_column()
                 if imgui.button(f"{ability["name"]}[{ability["total_base_score"]}]\n{ability["total"]:^+}"):
                     imgui.open_popup(f"{ability["name"]}_edit_ability")
-                draw_list_item_context_menu(f"{ability["name"]}_context_menu", ability, idx, 
-                                            static.data["abilities"], "ability", static,
-                                            edit_popup_name=f"{ability["name"]}_edit_ability")
 
                 if imgui.begin_popup(f"{ability["name"]}_edit_ability"):
                     imgui.align_text_to_frame_padding()
@@ -242,16 +241,14 @@ def draw_abilities(static: MainWindowProtocol) -> None:
             
 
 def draw_saves(static: MainWindowProtocol) -> None:
+    draw_edit_list_popup(static.data["saves"], "save", "Edit Saves", static)
+
     saves_list_length = len(static.data["saves"])
     if saves_list_length != 0 and imgui.begin_table("saves_table", 4, flags=STRIPED_TABLE_FLAGS): # type: ignore
-        for idx, save in enumerate(static.data["saves"]):
+        for save in static.data["saves"]:
             if not save["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
-                imgui.text(save["name"])
-                draw_list_item_context_menu(f"{save["name"]}_context_menu", save, idx, 
-                                            static.data["saves"], "save", static,
-                                            edit_popup_name=f"{save["name"]}_edit_stat")
-                imgui.table_next_column()
+                imgui.text(save["name"]); imgui.table_next_column()
                 draw_rollable_stat_button(save["name"], save, "rollable", static)
         
         end_table_nested()
@@ -314,48 +311,42 @@ def draw_armor_class_button(static: MainWindowProtocol) -> None:
 
 
 def draw_speed(static: MainWindowProtocol) -> None:
+    draw_edit_list_popup(static.data["speed"], "speed", "Edit Speed", static)
+
     speed_list_length = len(static.data["speed"])
     if speed_list_length != 0 and imgui.begin_table("saves_table", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
-        for idx, speed in enumerate(static.data["speed"]):
+        for speed in static.data["speed"]:
             if not speed["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
-                imgui.text(speed["name"])
-                draw_list_item_context_menu(f"{speed["name"]}_context_menu", speed, idx, 
-                                            static.data["speed"], "speed", static,
-                                            edit_popup_name=f"{speed["name"]}_edit_stat")
-                imgui.table_next_column()
+                imgui.text(speed["name"]); imgui.table_next_column()
                 draw_static_stat_button(speed["name"], speed, "speed", static, numerical_step=5)
         
         end_table_nested()
 
 
 def draw_passives(static: MainWindowProtocol) -> None:
+    draw_edit_list_popup(static.data["passive_skill"], "passive", "Edit Passive Skills", static)
+
     passive_list_length = len(static.data["passive_skill"])
     if passive_list_length != 0 and imgui.begin_table("saves_table", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
-        for idx, passive in enumerate(static.data["passive_skill"]):
+        for passive in static.data["passive_skill"]:
             if not passive["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
-                imgui.text(passive["name"])
-                draw_list_item_context_menu(f"{passive["name"]}_context_menu", passive, idx, 
-                                            static.data["passive_skill"], "passive", static,
-                                            edit_popup_name=f"{passive["name"]}_edit_stat")
-                imgui.table_next_column()
+                imgui.text(passive["name"]); imgui.table_next_column()
                 draw_static_stat_button(passive["name"], passive, "passive", static)
         
         end_table_nested()
 
 
 def draw_senses(static: MainWindowProtocol) -> None:
+    draw_edit_list_popup(static.data["sense"], "sense", "Edit Senses", static)
+
     sense_list_length = len(static.data["sense"])
     if sense_list_length != 0 and imgui.begin_table("saves_table", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
-        for idx, sense in enumerate(static.data["sense"]):
+        for sense in static.data["sense"]:
             if not sense["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
-                imgui.text(sense["name"])
-                draw_list_item_context_menu(f"{sense["name"]}_context_menu", sense, idx, 
-                                            static.data["sense"], "sense", static,
-                                            edit_popup_name=f"{sense["name"]}_edit_stat")
-                imgui.table_next_column()
+                imgui.text(sense["name"]); imgui.table_next_column()
                 draw_static_stat_button(sense["name"], sense, "sense", static)
         
         end_table_nested()
@@ -451,16 +442,14 @@ def draw_training(static: MainWindowProtocol) -> None:
 
 
 def draw_skills(static: MainWindowProtocol) -> None:
+    draw_edit_list_popup(static.data["skills"], "skill", "Edit Skills", static)
+
     skill_list_length = len(static.data["skills"])
     if skill_list_length != 0 and imgui.begin_table("skills_table", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
-        for idx, skill in enumerate(static.data["skills"]):
+        for skill in static.data["skills"]:
             if not skill["name"].startswith("no_display"):
                 imgui.table_next_column(); imgui.align_text_to_frame_padding()
-                imgui.text(skill["name"])
-                draw_list_item_context_menu(f"{skill["name"]}_context_menu", skill, idx, 
-                                            static.data["skills"], "skill", static,
-                                            edit_popup_name=f"{skill["name"]}_edit_stat")
-                imgui.table_next_column()
+                imgui.text(skill["name"]); imgui.table_next_column()
                 draw_rollable_stat_button(skill["name"], skill, "rollable", static)
-                
+        
         end_table_nested()
