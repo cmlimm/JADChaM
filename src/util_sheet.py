@@ -495,18 +495,15 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str,
             imgui.table_headers_row()
 
             for idx, item in enumerate(editable_list):
-                if not item["name"].startswith("no_display"):
-                    if isFeature(item) and tag != "All Features" and not tag in item["tags"]:
-                        pass
-                    else:
-                        draw_text_cell(item["name"]); imgui.table_next_column()
-                        if item["manual"]:
-                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
-                                delete_item_from_list(item, idx, editable_list, cache_prefix, static)
-                            imgui.pop_style_color(3)
+                if item["name"] != "no_display":
+                    draw_text_cell(item["name"]); imgui.table_next_column()
+                    if item["manual"]:
+                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                            delete_item_from_list(item, idx, editable_list, cache_prefix, static)
+                        imgui.pop_style_color(3)
 
             end_table_nested()
 
