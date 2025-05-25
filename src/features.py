@@ -65,6 +65,14 @@ def draw_target_menu(menu_name: str, menu_id: str, static: MainWindowProtocol):
                     static.states["target_name"] = f"Skill, {skill_name}"
                     static.states["target_ref"] = f"skill:{skill_name}:bonuses"
             imgui.end_menu()
+        # Spell Save
+        if imgui.begin_menu(f"Spell Save##{menu_id}"):
+            for class_item in static.data["level"]["classes"]:
+                class_name = class_item["name"]
+                if not class_name.startswith("no_display") and class_item["spell_save_enabled"] and imgui.menu_item_simple(f"{class_name}##{menu_id}"):
+                    static.states["target_name"] = f"Spell Save, {class_name}"
+                    static.states["target_ref"] = f"spell_save:{class_name}:bonuses"
+            imgui.end_menu()
         # Speed
         if imgui.begin_menu(f"Speed##{menu_id}"):
             for speed in static.data["speed"]:

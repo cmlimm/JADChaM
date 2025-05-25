@@ -16,12 +16,32 @@ class Bonus(TypedDict):
     manual: bool
 
 
+class RollableStat(TypedDict):
+    name: str
+    total: int
+    bonuses: list[Bonus]
+    manual_advantage: bool
+    manual_disadvantage: bool
+    manual: bool
+
+
+class StaticStat(TypedDict):
+    name: str
+    total: int
+    base: int
+    base_overrides: list[Bonus]
+    bonuses: list[Bonus]
+    manual: bool
+
+
 class CharacterClass(TypedDict):
     name: str
     subclass: str
     total: int
     level: int
     dice: int
+    spell_save_enabled: bool
+    spell_save: StaticStat
     manual: bool
 
 
@@ -69,24 +89,6 @@ class Ability(TypedDict):
     base_score: int
 
     modifier_bonuses: list[Bonus]
-    manual: bool
-
-
-class RollableStat(TypedDict):
-    name: str
-    total: int
-    bonuses: list[Bonus]
-    manual_advantage: bool
-    manual_disadvantage: bool
-    manual: bool
-
-
-class StaticStat(TypedDict):
-    name: str
-    total: int
-    base: int
-    base_overrides: list[Bonus]
-    bonuses: list[Bonus]
     manual: bool
 
 

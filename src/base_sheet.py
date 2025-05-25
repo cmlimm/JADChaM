@@ -92,6 +92,20 @@ def draw_class(static: MainWindowProtocol) -> None:
                             len(dice_types))
                         class_dict["dice"] = int(dice_types[static.states["hp_dice_idx"]])
 
+                        draw_text_cell(f"Has Spellcasting"); imgui.table_next_column()
+                        changed, class_dict["spell_save_enabled"] = imgui.checkbox(f"##{class_dict["name"]}_spell_save_enabled", 
+                                                                             class_dict["spell_save_enabled"])
+                        if changed and class_dict["spell_save_enabled"]:
+                            static.data_refs[f"spell_save:{class_dict["name"]}"] = class_dict["spell_save"]
+                            static.bonus_list_refs[f"spell_save:{class_dict["name"]}:bonuses"] = class_dict["spell_save"]["bonuses"]
+                        if changed and not class_dict["spell_save_enabled"]:
+                            del static.data_refs[f"spell_save:{class_dict["name"]}"]
+                            del static.bonus_list_refs[f"spell_save:{class_dict["name"]}:bonuses"]
+
+                        if class_dict["spell_save_enabled"]:
+                            draw_text_cell(f"Spell Save"); imgui.table_next_column()
+                            draw_static_stat_button(f"{class_dict["name"]}_spell_save", class_dict["spell_save"], "hp", static)
+
                         end_table_nested()
                     imgui.end_popup()
         end_table_nested()

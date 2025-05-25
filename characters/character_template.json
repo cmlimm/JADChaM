@@ -11,6 +11,15 @@
                 "level": 0,
                 "dice": 0,
                 "total": 0,
+                "spell_save_enabled": false,
+                "spell_save": {
+                    "name": "Spell Save (no display)",
+                    "total": 0,
+                    "base": 0,
+                    "base_overrides": [],
+                    "bonuses": [],
+                    "manual": true
+                },
                 "manual": false
             },
             {
@@ -19,6 +28,22 @@
                 "level": 6,
                 "dice": 10,
                 "total": 6,
+                "spell_save_enabled": true,
+                "spell_save": {
+                    "name": "Spell Save (Paladin)",
+                    "total": 10,
+                    "base": 12,
+                    "base_overrides": [],
+                    "bonuses": [
+                        {
+                            "name": "CHA (Basic Rules)",
+                            "value": "ability:CHA",
+                            "multiplier": 1,
+                            "manual": true
+                        }
+                    ],
+                    "manual": true
+                },
                 "manual": true
             },
             {
@@ -27,6 +52,22 @@
                 "level": 5,
                 "dice": 10,
                 "total": 5,
+                "spell_save_enabled": true,
+                "spell_save": {
+                    "name": "Spell Save (Warlock)",
+                    "total": 10,
+                    "base": 12,
+                    "base_overrides": [],
+                    "bonuses": [
+                        {
+                            "name": "CHA (Basic Rules)",
+                            "value": "ability:CHA",
+                            "multiplier": 1,
+                            "manual": true
+                        }
+                    ],
+                    "manual": true
+                },
                 "manual": true
             }
         ]

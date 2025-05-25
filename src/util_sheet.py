@@ -164,6 +164,14 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
                         new_bonus["new_bonus_type"] = f"Level, {class_name}"
                         new_bonus["new_bonus_value"] = f"level:{class_name}"
                 imgui.end_menu()
+            # Spell Save
+            elif bonus_type == "Spell Save"  and imgui.begin_menu(f"Spell Save##{menu_id}"):
+                for class_item in static.data["level"]["classes"]:
+                    class_name = class_item["name"]
+                    if not class_name.startswith("no_display") and class_item["spell_save_enabled"] and imgui.menu_item_simple(f"{class_name}##{menu_id}"):
+                        new_bonus["new_bonus_type"] = f"Spell Save, {class_name}"
+                        new_bonus["new_bonus_value"] = f"spell_save:{class_name}"
+                imgui.end_menu()
             # Advantage and Disadvantage
             elif bonus_type == "Advantage" and imgui.menu_item_simple(f"Advantage##{menu_id}"):
                 new_bonus["new_bonus_type"] = "Advantage"
@@ -396,6 +404,15 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
                 "total": 0,
                 "level": 0,
                 "dice": 6,
+                "spell_save_enabled": False,
+                "spell_save": {
+                    "name": f"Spell Save {item_name}",
+                    "total": 0,
+                    "base": 12,
+                    "base_overrides": [],
+                    "bonuses": [],
+                    "manual": False
+                },
                 "manual": True
             })
         if isAbilityList(editable_list):

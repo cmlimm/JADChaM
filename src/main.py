@@ -26,11 +26,9 @@ from util_imgui import draw_text_cell, end_table_nested
 
 # TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
 # TODO[BUG]: fix hotkeys
-# TODO[BUG]: deleted skill is not deleted from the feture bonuses
+# TODO[BUG]: deleted skill is not deleted from the feature bonuses
 
-# TODO: consider alternative UI for buttons for adding new feature/new feature windows. the current is confusing.
 # TODO: resistances & effects
-# TODO: spell saves (maybe just a separate table with arbitrary static values)
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
 # TODO: add `min=` to the text parsing
 # TODO: hide long feature descriptions?

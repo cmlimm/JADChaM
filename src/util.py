@@ -66,6 +66,9 @@ def process_character(static: MainWindowProtocol) -> None:
     # Classes
     for class_dict in static.data["level"]["classes"]:
         static.data_refs[f"level:{class_dict["name"]}"] = class_dict
+        if class_dict["spell_save_enabled"]:
+            static.data_refs[f"spell_save:{class_dict["name"]}"] = class_dict["spell_save"]
+            static.bonus_list_refs[f"spell_save:{class_dict["name"]}:bonuses"] = class_dict["spell_save"]["bonuses"]
 
     # Abilities
     for ability in static.data["abilities"]:
