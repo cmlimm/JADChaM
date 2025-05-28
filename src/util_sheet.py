@@ -659,6 +659,8 @@ def draw_new_text_item_popup(table_name: str, default_types: list[str], target_l
         if static.states["text_table_type_idx"] == len(types) - 1:
             imgui.same_line()
             imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+            if static.states["new_training"]["type"] in types:
+                static.states["new_training"]["type"] = ""
             _, static.states["new_training"]["type"] = imgui.input_text_with_hint(
                 "##new_training_type", "Type (optional)", static.states["new_training"]["type"], 128)
             imgui.pop_item_width()
