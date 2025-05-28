@@ -6,6 +6,8 @@ from base_sheet import (
     draw_abilities,
     draw_armor_class_button,
     draw_class,
+    draw_conditions,
+    draw_damage_effects,
     draw_hp,
     draw_image,
     draw_initiative_button,
@@ -28,7 +30,7 @@ from util_imgui import draw_text_cell, end_table_nested
 # TODO[BUG]: fix hotkeys
 # TODO[BUG]: deleted skill is not deleted from the feature bonuses
 
-# TODO: resistances & effects
+# TODO: exhaustion
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
 # TODO: add `min=` to the text parsing
 # TODO: hide long feature descriptions?
@@ -39,6 +41,7 @@ def post_init(state: MainWindowProtocol) -> None:
         "ability_bonus_type_idx": 0,
         "static_bonus_type_idx": 0,
         "counter_display_type_idx": 0,
+        "text_table_type_idx": 0,
         "hp_add": "",
         "new_item_name": "",
         "new_bonuses": {},
@@ -62,7 +65,10 @@ def post_init(state: MainWindowProtocol) -> None:
         },
         "new_window_name": "",
         "feat_name": "",
-        "new_tag": ""
+        "new_tag": "",
+        "new_condition_name": "",
+        "new_condition_description": "",
+        "new_text_item_popups_opened": {}
     }
 
     state.is_character_loaded = False
@@ -90,6 +96,26 @@ def draw_name_class_image_hp(static: MainWindowProtocol) -> None:
 
         imgui.spacing()
         draw_hp(static)
+
+        imgui.spacing()
+
+        table_id = "damage_effects_conditions"
+        if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+            imgui.table_next_row(); imgui.table_next_column()
+            imgui.align_text_to_frame_padding()
+            imgui.text("Damage Effects"); imgui.same_line()
+            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_damage_effects"):
+                imgui.open_popup("Edit Damage Effects")
+            draw_damage_effects(static)
+
+            imgui.table_next_column()
+
+            imgui.align_text_to_frame_padding()
+            imgui.text("Conditions"); imgui.same_line()
+            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_conditions"):
+                imgui.open_popup("Edit Conditions")
+            draw_conditions(static)
+            end_table_nested()
     else:
         draw_open_file_button(static)
 
@@ -155,7 +181,7 @@ def draw_training_window(static: MainWindowProtocol) -> None:
         imgui.align_text_to_frame_padding()
         imgui.text("Proficiencies & Training"); imgui.same_line()
         if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}"):
-            imgui.open_popup("Edit Tool and Language Proficiencies")
+            imgui.open_popup("Edit Proficiencies & Training")
         draw_training(static)
 
 

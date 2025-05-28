@@ -103,11 +103,18 @@ class Ability(TypedDict):
     manual: bool
 
 
-class Training(TypedDict):
+class TextData(TypedDict):
     name: str
     type: str
     source: str
     manual: bool
+
+
+class Condition(TypedDict):
+    name: str
+    description: str
+    enabled: bool
+    custom: bool
 
 
 # class Property(TypedDict):
@@ -174,6 +181,8 @@ class Feature(TypedDict):
     tags: list[str]
     bonuses: list[BonusTo]
     counters: list[Counter]
+    damage_effects: list[TextData]
+    proficiencies: list[TextData]
     manual: bool
 
 
@@ -182,6 +191,10 @@ class CharacterData(TypedDict):
     image_path: str
     level: Level
     hp: Hp
+    damage_effects: list[TextData]
+    default_conditions: list[Condition]
+    custom_conditions: list[Condition]
+
     proficiency: Proficiency
     initiative: RollableStat
     armor_class: ArmorClass
@@ -194,7 +207,7 @@ class CharacterData(TypedDict):
     passive_skill: list[StaticStat]
     sense: list[StaticStat]
 
-    training: list[Training]
+    training: list[TextData]
 
     features: list[Feature]
     feature_windows: list[str]
@@ -213,19 +226,24 @@ class States(TypedDict):
     ability_bonus_type_idx: int
     static_bonus_type_idx: int
     counter_display_type_idx: int
+    text_table_type_idx: int
     
     hp_add: str
     
     new_item_name: str
-    new_training: Training
+    new_training: TextData
     new_tag: str
     new_bonuses: dict[str, NewBonus]
     new_window_name: str
+    new_condition_name: str
+    new_condition_description: str
 
     target_name: str
     target_ref: str
 
     counter_edit: Counter
+
+    new_text_item_popups_opened: dict[str, bool]
 
     # A temporary storage for the new feature name
     # Used when opening a feature popup to be able to change 

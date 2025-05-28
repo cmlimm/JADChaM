@@ -22,6 +22,7 @@ MARKDOWN_TEXT_TABLE = ( # type: ignore
 
 SHORT_STRING_INPUT_WIDTH = 110
 MEDIUM_STRING_INPUT_WIDTH = 150
+LARGE_STRING_INPUT_WIDTH = 200
 MAGICAL_WORD_WRAP_NUMBER_TABLE = 90
 MAGICAL_WORD_WRAP_NUMBER = 20
 
@@ -58,3 +59,6 @@ LIST_TYPE_TO_BONUS: ListTypeToBonus = {
     "rollable": ["Numerical", "Level", "Ability", "Ability Score", "Advantage", "Disadvantage", 
                  "Proficiency", "Initiative", "Spell Save", "Counter"] 
 }
+
+DAMAGE_EFFECTS_DEFAULT: list[str] = ["Resistance", "Immunity", "Vulnerability"]
+PROFICIENCIES_DEFAULT: list[str] = ["Armor", "Language", "Tools", "Weapons"]

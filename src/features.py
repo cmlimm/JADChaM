@@ -4,12 +4,14 @@ from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: i
 from cs_types import Bonus, BonusTo, Feature, MainWindowProtocol
 from settings import MARKDOWN_TEXT_TABLE  # type: ignore
 from settings import (  # type: ignore
+    DAMAGE_EFFECTS_DEFAULT,
     DISADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
     INVISIBLE_TABLE_FLAGS,
     LIST_TYPE_TO_BONUS,
     MEDIUM_STRING_INPUT_WIDTH,
+    PROFICIENCIES_DEFAULT,
     SHORT_STRING_INPUT_WIDTH,
 )
 from util_imgui import end_table_nested
@@ -21,6 +23,7 @@ from util_sheet import (  # type: ignore
     draw_add_bonus,
     draw_counter,
     draw_edit_counter,
+    draw_new_text_item_popup,
     get_bonus_value,
     parse_text,
 )
@@ -253,6 +256,24 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
             imgui.open_popup("Edit Counter##popup")
         draw_edit_counter(feature["counters"], feature["name"], static)
 
+        imgui.same_line()
+
+        if imgui.button(f"New Damage Effect##{feature["name"]}"):
+            imgui.open_popup(f"New Text Table Item Popup##{feature["name"]}_damage_effects")
+            static.states["new_text_item_popups_opened"][f"{feature["name"]}_damage_effects"] = True
+        draw_new_text_item_popup(f"{feature["name"]}_damage_effects", DAMAGE_EFFECTS_DEFAULT, 
+                                 [static.data["damage_effects"], feature["damage_effects"]], static, 
+                                 feature["name"], False)
+
+        imgui.same_line()
+
+        if imgui.button(f"New Proficiency##{feature["name"]}"):
+            imgui.open_popup(f"New Text Table Item Popup##{feature["name"]}_proficiency")
+            static.states["new_text_item_popups_opened"][f"{feature["name"]}_proficiency"] = True
+        draw_new_text_item_popup(f"{feature["name"]}_proficiency", PROFICIENCIES_DEFAULT, 
+                                 [static.data["training"], feature["proficiencies"]], static, 
+                                 feature["name"], False)
+
         if imgui.begin_table(f"{feature["name"]}_bonuses_counters_spells_attacks", 4, INVISIBLE_TABLE_FLAGS): # type: ignore
             imgui.table_next_row(); imgui.table_next_column()
             imgui.separator_text("Bonuses")
@@ -293,11 +314,50 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
                             imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
                             imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
                             imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_bonus_{idx}"):
+                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_counter_{idx}"):
                                 del feature["counters"][idx]
                             imgui.pop_style_color(3)
                     end_table_nested()
+
+            imgui.table_next_column()
+            imgui.separator_text("Damage Effects")
+            if feature["damage_effects"] != []:
+                if imgui.begin_table("feature_damage_effects", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
+                    for idx, feature_damage_effect in enumerate(feature["damage_effects"]):
+                        imgui.table_next_row(); imgui.table_next_column()
+                        imgui.text(f"{feature_damage_effect["name"]} ({feature_damage_effect["type"]})")
+
+                        imgui.table_next_column()
+                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_damage_effect_{idx}"):
+                            del feature["damage_effects"][idx]
+                            idx_delete = static.data["damage_effects"].index(feature_damage_effect)
+                            del static.data["damage_effects"][idx_delete]
+                        imgui.pop_style_color(3)
+                    end_table_nested()
+
+            imgui.table_next_column()
+            imgui.separator_text("Proficiencies")
+            if feature["proficiencies"] != []:
+                if imgui.begin_table("feature_proficiencies", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
+                    for idx, feature_proficiency in enumerate(feature["proficiencies"]):
+                        imgui.table_next_row(); imgui.table_next_column()
+                        imgui.text(f"{feature_proficiency["name"]} ({feature_proficiency["type"]})")
+
+                        imgui.table_next_column()
+                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_proficiency_{idx}"):
+                            del feature["proficiencies"][idx]
+                            idx_delete = static.data["training"].index(feature_proficiency)
+                            del static.data["training"][idx_delete]
+                        imgui.pop_style_color(3)
+                    end_table_nested()
             end_table_nested()
+
         imgui.spacing()
 
         if imgui.button("Close", ImVec2(120, 0)):

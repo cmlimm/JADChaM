@@ -87,6 +87,34 @@
             }
         ]
     },
+    "damage_effects": [
+        {
+            "name": "Acid",
+            "source": "Some Item 1",
+            "type": "Vulnerability",
+            "manual": true
+        },
+        {
+            "name": "Fire",
+            "source": "Some Item 4",
+            "type": "Vulnerability",
+            "manual": true
+        },
+        {
+            "name": "Psychic",
+            "source": "Some Item 5",
+            "type": "Immunity",
+            "manual": true
+        }
+    ],
+    "custom_conditions": [
+        {
+            "name": "Sucks",
+            "description": "It really sucks",
+            "enabled": true,
+            "custom": true
+        }
+    ],
     "proficiency": {
         "name": "Proficiency",
         "total": 4
@@ -946,6 +974,8 @@
             "tags": [],
             "bonuses": [],
             "counters": [],
+            "damage_effects": [],
+            "proficiencies": [],
             "manual": false
         },
         {
@@ -969,6 +999,8 @@
                 }
             ],
             "counters": [],
+            "damage_effects": [],
+            "proficiencies": [],
             "manual": true
         },
         {
@@ -993,6 +1025,8 @@
                 }
             ],
             "counters": [],
+            "damage_effects": [],
+            "proficiencies": [],
             "manual": true
         },
         {
@@ -1022,6 +1056,8 @@
                     "manual": true
                 }
             ],
+            "damage_effects": [],
+            "proficiencies": [],
             "manual": true
         },
         {
@@ -1052,6 +1088,8 @@
                     "manual": true
                 }
             ],
+            "damage_effects": [],
+            "proficiencies": [],
             "manual": true
         },
         {
@@ -1081,6 +1119,8 @@
                     "manual": true
                 }
             ],
+            "damage_effects": [],
+            "proficiencies": [],
             "manual": true
         },
         {
@@ -1111,11 +1151,99 @@
                     "manual": true
                 }
             ],
+            "damage_effects": [],
+            "proficiencies": [],
             "manual": true
         }
     ],
     "feature_windows": [
         "Paladin",
         "Warlock"
+    ],
+    "default_conditions": [
+        {
+            "name": "Blinded",
+            "description": "Can't See.\nYou can't see and automatically fail any ability check that requires sight.\n\nAttacks Affected.\nAttack rolls against you have Advantage, and your attack rolls have Disadvantage.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Charmed",
+            "description": "Can't Harm the Charmer.\nYou can't attack the charmer or target the charmer with damaging abilities or magical effects.\n\nSocial Advantage.\nThe charmer has Advantage on any ability check to interact with you socially.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Deafened",
+            "description": "Can't Hear.\nYou can't hear and automatically fail any ability check that requires hearing.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Frightened",
+            "description": "Ability Checks and Attacks Affected.\nYou have Disadvantage on ability checks and attack rolls while the source of fear is within line of sight.\n\nCan't Approach.\nYou can't willingly move closer to the source of fear.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Grappled",
+            "description": "Speed 0.\nYour Speed is 0 and can't increase.\n\nAttacks Affected.\nYou have Disadvantage on attack rolls against any target other than the grappler.\n\nMovable.\nThe grappler can drag or carry you when it moves, but every foot of movement costs it 1 extra foot unless you are Tiny or two or more sizes smaller than it.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Incapacitated",
+            "description": "Inactive.\nYou can't take any action, Bonus Action, or Reaction.\n\nNo Concentration.\nYour Concentration is broken.\n\nSpeechless.\nYou can't speak.\n\nSurprised.\nIf you're Incapacitated when you roll Initiative, you have Disadvantage on the roll.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Invisible",
+            "description": "Surprise.\nIf you're Invisible when you roll Initiative, you have Advantage on the roll.\n\nConcealed.\nYou aren't affected by any effect that requires its target to be seen unless the effect's creator can somehow see you. Any equipment you are wearing or carrying is also concealed.\n\nAttacks Affected.\nAttack rolls against you have Disadvantage, and your attack rolls have Advantage. If a creature can somehow see you, you don't gain this benefit against that creature.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Paralyzed",
+            "description": "Incapacitated.\nYou have the Incapacitated condition.\n\nSpeed 0.\nYour Speed is 0 and can't increase.\n\nSaving Throws Affected.\nYou automatically fail Strength and Dexterity saving throws.\n\nAttacks Affected.\nAttack rolls against you have Advantage.\n\nAutomatic Critical Hits.\nAny attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Petrified",
+            "description": "Turned to Inanimate Substance.\nYou are transformed, along with any nonmagical objects you are wearing and carrying, into a solid inanimate substance (usually stone). Your weight increases by a factor of ten, and you cease aging.\n\nIncapacitated.\nYou have the Incapacitated condition.\n\nSpeed 0.\nYour Speed is 0 and can't increase.\n\nAttacks Affected.\nAttack rolls against you have Advantage.\n\nSaving Throws Affected.\nYou automatically fail Strength and Dexterity saving throws.\n\nResist Damage.\nYou have Resistance to all damage.\n\nPoison Immunity.\nYou have Immunity to the Poisoned condition.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Poisoned",
+            "description": "Ability Checks and Attacks Affected.\nYou have Disadvantage on attack rolls and ability checks.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Prone",
+            "description": "Restricted Movement.\nYour only movement options are to crawl or to spend an amount of movement equal to half your Speed (round down) to right yourself and thereby end the condition. If your Speed is 0, you can't right yourself.\n\nAttacks Affected.\nYou have Disadvantage on attack rolls. An attack roll against you has Advantage if the attacker is within 5 feet of you. Otherwise, that attack roll has Disadvantage.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Restrained",
+            "description": "Speed 0.\nYour Speed is 0 and can't increase.\n\nAttacks Affected.\nAttack rolls against you have Advantage, and your attack rolls have Disadvantage.\n\nSaving Throws Affected.\nYou have Disadvantage on Dexterity saving throws.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Stunned",
+            "description": "Incapacitated.\nYou have the Incapacitated condition.\n\nSaving Throws Affected.\nYou automatically fail Strength and Dexterity saving throws.\n\nAttacks Affected.\nAttack rolls against you have Advantage.",
+            "enabled": false,
+            "custom": false
+        },
+        {
+            "name": "Unconscious",
+            "description": "Inert.\nYou have the Incapacitated and Prone conditions, and you drop whatever you're holding. When this condition ends, you remain Prone.\n\nSpeed 0.\nYour Speed is 0 and can't increase.\n\nAttacks Affected.\nAttack rolls against you have Advantage.\n\nSaving Throws Affected.\nYou automatically fail Strength and Dexterity saving throws.\n\nAutomatic Critical Hits.\nAny attack roll that hits you is a Critical Hit if the attacker is within 5 feet of you. Unaware. You're unaware of your surroundings.",
+            "enabled": false,
+            "custom": false
+        }
     ]
 }

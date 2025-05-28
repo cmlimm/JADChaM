@@ -1,10 +1,19 @@
+import itertools
 import re
 from math import trunc
 from typing import Any, Optional
 
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: ignore
 
-from cs_types import Bonus, BonusTo, Counter, Feature, MainWindowProtocol, NewBonus
+from cs_types import (
+    Bonus,
+    BonusTo,
+    Counter,
+    Feature,
+    MainWindowProtocol,
+    NewBonus,
+    TextData,
+)
 from settings import STRIPED_NO_BORDERS_TABLE_FLAGS  # type: ignore
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
 from settings import (  # type: ignore
@@ -12,7 +21,9 @@ from settings import (  # type: ignore
     DISADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
+    INVISIBLE_TABLE_FLAGS,
     LIST_TYPE_TO_BONUS,
+    MAGICAL_WORD_WRAP_NUMBER_TABLE,
     MEDIUM_STRING_INPUT_WIDTH,
     OVERRIDE_COLOR,
     RE_VALUE,
@@ -465,6 +476,8 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
                 "tags": tags,
                 "bonuses": [],
                 "counters": [],
+                "damage_effects": [],
+                "proficiencies": [],
                 "manual": True
             })
         static.data_refs[f"{cache_prefix}:{item_name}"] = editable_list[-1]
@@ -481,6 +494,12 @@ def delete_item_from_list(item: Any, item_idx: int, editable_list: list[Any],
                 # from bonuses automatically when the program cannot find a reference, 
                 # see `get_bonus_value` and `sum_bonuses`
                 del static.data_refs[f"counter:{item["name"]}:{counter["name"]}"]
+            for damage_effect in item["damage_effects"]:
+                idx_delete = static.data["damage_effects"].index(damage_effect)
+                del static.data["damage_effects"][idx_delete]
+            for proficiency in item["proficiencies"]:
+                idx_delete = static.data["training"].index(proficiency)
+                del static.data["training"][idx_delete]
         del editable_list[item_idx]
         del static.data_refs[f"{cache_prefix}:{item["name"]}"]
 
@@ -617,4 +636,131 @@ def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: Mai
                 "manual": True
             }
         
+        imgui.end_popup()
+
+
+# When opening a popup, change the `static.states["new_text_item_popup_opened"]` variable to `True`
+# This way we can track popup opening and closing to clear temporary data for new items
+def draw_new_text_item_popup(table_name: str, default_types: list[str], target_lists: list[list[TextData]], 
+                             static: MainWindowProtocol, source: str = "", manual: bool = True) -> None:
+    if imgui.begin_popup(f"New Text Table Item Popup##{table_name}"):
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+        _, static.states["new_training"]["name"] = imgui.input_text_with_hint(
+            "##new_training_name", "Name", static.states["new_training"]["name"], 128)
+        imgui.pop_item_width()
+        
+        types = default_types + ["Other"]
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+        _, static.states["text_table_type_idx"] = imgui.combo(f"##{table_name}_select_type", 
+                                                            static.states["text_table_type_idx"], 
+                                                            types, len(types))
+        imgui.pop_item_width()
+
+        if static.states["text_table_type_idx"] == len(types) - 1:
+            imgui.same_line()
+            imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+            _, static.states["new_training"]["type"] = imgui.input_text_with_hint(
+                "##new_training_type", "Type (optional)", static.states["new_training"]["type"], 128)
+            imgui.pop_item_width()
+        else:
+            static.states["new_training"]["type"] = types[static.states["text_table_type_idx"]]
+        
+        if source == "":
+            imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+            _, static.states["new_training"]["source"] = imgui.input_text_with_hint(
+                "##new_training_source", "Source (optional)", static.states["new_training"]["source"], 128)
+            imgui.pop_item_width()
+        
+        if imgui.button("Add##add_new_training") and static.states["new_training"]["name"] != "":
+            if static.states["new_training"]["type"] == "":
+                static.states["new_training"]["type"] = "Other"
+
+            for target_list in target_lists:
+                target_list.append({
+                    "name": static.states["new_training"]["name"],
+                    "type": static.states["new_training"]["type"],
+                    "source": static.states["new_training"]["source"] if source == "" else source,
+                    "manual": manual
+                })
+
+            static.states["new_training"] = {
+                "name": "",
+                "type": "",
+                "source": "",
+                "manual": True
+            }
+        imgui.end_popup()
+    elif static.states["new_text_item_popups_opened"].get(table_name, False):
+        static.states["new_text_item_popups_opened"][table_name] = False
+        static.states["text_table_type_idx"] = 0
+        static.states["new_training"] = {
+            "name": "",
+            "type": "",
+            "source": "",
+            "manual": True
+        }
+
+def draw_text_table(table_name: str, data: list[TextData], default_types: list[str], 
+                    static: MainWindowProtocol) -> None:
+    if imgui.begin_table(F"{table_name}_text_table", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
+        width = imgui.get_window_width()
+        for item_type, item_list in itertools.groupby(sorted(data,  key=lambda x: x["type"]), key=lambda x: x["type"]):
+            imgui.table_next_row()
+            imgui.table_next_column()
+            imgui.text(item_type)
+            
+            # Sort so that the order of the types is always the same regargdless of the order
+            # proficiencies were added
+            items = list(item_list)
+            items.sort(key=lambda x: x["name"])
+            imgui.table_next_column()
+            imgui.push_text_wrap_pos(imgui.get_cursor_pos()[0] + width - MAGICAL_WORD_WRAP_NUMBER_TABLE)
+            imgui.text(", ".join([item["name"] for item in items]))
+            imgui.pop_text_wrap_pos()
+        end_table_nested()
+
+    center = imgui.get_main_viewport().get_center()
+    imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
+
+    popup_name = f"Edit {table_name}"
+    if imgui.begin_popup_modal(popup_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
+        if imgui.button(f"New Item##{table_name}"):
+            imgui.open_popup(f"New Text Table Item Popup##{table_name}")
+            static.states["new_text_item_popups_opened"][table_name] = True
+        draw_new_text_item_popup(table_name, default_types, [data], static)
+
+        if imgui.begin_table("training_edit_list", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
+            for item_type, item_list in itertools.groupby(sorted(data, key=lambda x: x["type"]), key=lambda x: x["type"]):
+                draw_text_cell(item_type); imgui.table_next_column()
+                
+                # Sort so that the order of the types is always the same regargdless of the order
+                # proficiencies were added
+                items = list(item_list)
+                items.sort(key=lambda x: x["name"])
+
+                if imgui.begin_table("training_of_type", 3, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+                    for item in items:
+                        draw_text_cell(item["name"]); imgui.table_next_column(); imgui.align_text_to_frame_padding()
+                        imgui.text(item["source"]); imgui.table_next_column()
+
+                        if item["manual"]:
+                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{item_type}_{item["name"]}"):
+                                delete_idx = data.index(item)
+                                del data[delete_idx]
+                            imgui.pop_style_color(3)
+                    end_table_nested()
+            end_table_nested()
+        
+        imgui.spacing()
+        if imgui.button("Close", ImVec2(120, 0)):
+            static.states["new_training"] = {
+                "name": "",
+                "type": "",
+                "source": "",
+                "manual": True
+            }
+            imgui.close_current_popup()
         imgui.end_popup()

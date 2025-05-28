@@ -1,4 +1,4 @@
-from imgui_bundle import imgui
+from imgui_bundle import imgui, imgui_md  # type: ignore
 
 
 # Local solution for squashed nested fixed fit table
@@ -14,3 +14,11 @@ def end_table_nested() -> None:
 def draw_text_cell(name: str) -> None:
     imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()
     imgui.text(name)
+
+def help_marker(desc: str) -> None:
+    imgui.text_disabled("(?)")
+    if imgui.begin_item_tooltip():
+        imgui.push_text_wrap_pos(imgui.get_font_size() * 35.0)
+        imgui.text_unformatted(desc)
+        imgui.pop_text_wrap_pos()
+        imgui.end_tooltip()

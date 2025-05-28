@@ -1,5 +1,3 @@
-import itertools
-
 from imgui_bundle import hello_imgui  # type: ignore
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, immapp  # type: ignore
 
@@ -9,14 +7,15 @@ from settings import (  # type: ignore
     ADVANTAGE_ACTIVE_COLOR,
     ADVANTAGE_COLOR,
     ADVANTAGE_HOVER_COLOR,
+    DAMAGE_EFFECTS_DEFAULT,
     DISADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_COLOR,
     DISADVANTAGE_HOVER_COLOR,
     INVISIBLE_TABLE_FLAGS,
+    LARGE_STRING_INPUT_WIDTH,
     LIST_TYPE_TO_BONUS,
-    MAGICAL_WORD_WRAP_NUMBER_TABLE,
     MEDIUM_STRING_INPUT_WIDTH,
-    SHORT_STRING_INPUT_WIDTH,
+    PROFICIENCIES_DEFAULT,
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_INPUT_WIDTH,
@@ -24,12 +23,13 @@ from settings import (  # type: ignore
 from stats import draw_rollable_stat_button, draw_static_stat_button
 from util_cs_types import isRepresentInt
 from util_gui import draw_open_image_button
-from util_imgui import draw_text_cell, end_table_nested
+from util_imgui import draw_text_cell, end_table_nested, help_marker
 from util_sheet import (
     draw_add_bonus,
     draw_bonuses,
     draw_edit_list_popup,
     draw_overrides,
+    draw_text_table,
     find_max_override,
     sum_bonuses,
 )
@@ -188,6 +188,77 @@ def draw_hp(static: MainWindowProtocol) -> None:
         _, static.data["hp"]["temp"] = imgui.input_int("##hp_temp", static.data["hp"]["temp"])
 
         end_table_nested()
+
+
+def draw_damage_effects(static: MainWindowProtocol) -> None:
+    draw_text_table("Damage Effects", static.data["damage_effects"], 
+                    DAMAGE_EFFECTS_DEFAULT, static)
+
+
+def draw_conditions(static: MainWindowProtocol) -> None:
+    all_conditions = static.data["default_conditions"] + static.data["custom_conditions"]
+
+    if imgui.begin_table("conditions_table", 1, STRIPED_TABLE_FLAGS): # type: ignore
+        for condition in all_conditions:
+            if condition["enabled"]:
+                draw_text_cell(condition["name"]); imgui.same_line()
+                help_marker(condition["description"])
+        end_table_nested()
+
+    popup_name = f"Edit Conditions"
+    if imgui.begin_popup_modal(popup_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
+        if imgui.begin_table("edit_conditions_table", 3, STRIPED_TABLE_FLAGS): # type: ignore
+            all_conditions = static.data["default_conditions"] + static.data["custom_conditions"]
+            for idx, condition in enumerate(all_conditions):
+                draw_text_cell(condition["name"]); imgui.same_line()
+                help_marker(condition["description"])
+
+                imgui.table_next_column()
+                _, condition["enabled"] = imgui.checkbox(f"##{condition["name"]}_{idx}", condition["enabled"])
+
+                if condition["custom"]:
+                    imgui.table_next_column()
+                    imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                    imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                    imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+                    if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{condition["name"]}_{idx}"):
+                        idx_delete = static.data["custom_conditions"].index(condition)
+                        del static.data["custom_conditions"][idx_delete]
+                    imgui.pop_style_color(3)
+            end_table_nested()
+
+        imgui.spacing()
+        imgui.separator_text("New Condition")
+        
+        imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
+        _, static.states["new_condition_name"] = imgui.input_text_with_hint("##new_condition_name", "Name", static.states["new_condition_name"], 128)
+        imgui.pop_item_width()
+        imgui.push_item_width(LARGE_STRING_INPUT_WIDTH)
+        _, static.states["new_condition_description"] = imgui.input_text_multiline("##new_condition_description", 
+                                                                                   static.states["new_condition_description"], 
+                                                                                   ImVec2(LARGE_STRING_INPUT_WIDTH, imgui.get_text_line_height() * 5), 
+                                                                                   128)
+        imgui.pop_item_width()
+        
+        if imgui.button("Add##new_item") and static.states["new_condition_name"] != "":
+            static.data["custom_conditions"].append(
+                {
+                    "name": static.states["new_condition_name"],
+                    "description": static.states["new_condition_description"],
+                    "enabled": False,
+                    "custom": True
+                }
+            )
+            static.states["new_condition_name"] = ""
+            static.states["new_condition_description"] = ""
+
+        imgui.spacing()
+        if imgui.button("Close", ImVec2(120, 0)):
+            static.states["new_condition_name"] = ""
+            static.states["new_condition_description"] = ""
+            imgui.close_current_popup()
+        imgui.end_popup()
+    
 
 
 def draw_abilities(static: MainWindowProtocol) -> None:
@@ -369,92 +440,8 @@ def draw_senses(static: MainWindowProtocol) -> None:
 
 
 def draw_training(static: MainWindowProtocol) -> None:
-    training = static.data["training"]
-
-    if imgui.begin_table("training", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
-        width = imgui.get_window_width()
-        for proficiency_type, proficiencies_list in itertools.groupby(training, key=lambda x: x["type"]):
-            imgui.table_next_row()
-            imgui.table_next_column()
-            imgui.text(proficiency_type)
-            
-            # Sort so that the order of the types is always the same regargdless of the order
-            # proficiencies were added
-            items = list(proficiencies_list)
-            items.sort(key=lambda x: x["name"])
-            imgui.table_next_column()
-            imgui.push_text_wrap_pos(imgui.get_cursor_pos()[0] + width - MAGICAL_WORD_WRAP_NUMBER_TABLE)
-            imgui.text(", ".join([item["name"] for item in items]))
-            imgui.pop_text_wrap_pos()
-        end_table_nested()
-    
-    center = imgui.get_main_viewport().get_center()
-    imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
-
-    popup_name = "Edit Tool and Language Proficiencies"
-    if imgui.begin_popup_modal(popup_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
-        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-        _, static.states["new_training"]["name"] = imgui.input_text_with_hint(
-            "##new_training_name", "Name", static.states["new_training"]["name"], 128)
-        imgui.same_line()
-        
-        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-        _, static.states["new_training"]["type"] = imgui.input_text_with_hint(
-            "##new_training_type", "Type", static.states["new_training"]["type"], 128)
-        imgui.same_line()
-        
-        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-        _, static.states["new_training"]["source"] = imgui.input_text_with_hint(
-            "##new_training_source", "Source", static.states["new_training"]["source"], 128)
-        imgui.same_line()
-        
-        if imgui.button("Add##add_new_training") and static.states["new_training"]["name"] != "":
-            if static.states["new_training"]["type"] == "":
-                static.states["new_training"]["type"] = "Other"
-
-            training.append({
-                "name": static.states["new_training"]["name"],
-                "type": static.states["new_training"]["type"],
-                "source": static.states["new_training"]["source"],
-                "manual": True
-            })
-
-            static.states["new_training"] = {
-                "name": "",
-                "type": "",
-                "source": "",
-                "manual": True
-            }
-
-        if imgui.begin_table("training_edit_list", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
-            for training_type, training_list in itertools.groupby(training, key=lambda x: x["type"]):
-                draw_text_cell(training_type); imgui.table_next_column()
-                
-                # Sort so that the order of the types is always the same regargdless of the order
-                # proficiencies were added
-                items = list(training_list)
-                items.sort(key=lambda x: x["name"])
-
-                if imgui.begin_table("training_of_type", 3, flags=INVISIBLE_TABLE_FLAGS):  # type: ignore
-                    for item in items:
-                        draw_text_cell(item["name"]); imgui.table_next_column(); imgui.align_text_to_frame_padding()
-                        imgui.text(item["source"]); imgui.table_next_column()
-
-                        if item["manual"]:
-                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{training_type}_{item["name"]}"):
-                                delete_idx = training.index(item)
-                                del training[delete_idx]
-                            imgui.pop_style_color(3)
-                    end_table_nested()
-            end_table_nested()
-        
-        imgui.spacing()
-        if imgui.button("Close", ImVec2(120, 0)):
-            imgui.close_current_popup()
-        imgui.end_popup()
+    draw_text_table("Proficiencies & Training", static.data["training"], 
+                    PROFICIENCIES_DEFAULT, static)
 
 
 def draw_skills(static: MainWindowProtocol) -> None:
