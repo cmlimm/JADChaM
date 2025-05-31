@@ -1,9 +1,8 @@
 import itertools
-import re
-from math import trunc
 from typing import Any, Optional
 
-from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: ignore
+from imgui_bundle import ImVec2, icons_fontawesome_6, imgui
+from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 from cs_types import (
     Bonus,
@@ -27,105 +26,21 @@ from settings import (  # type: ignore
     MAGICAL_WORD_WRAP_NUMBER_TABLE,
     MEDIUM_STRING_INPUT_WIDTH,
     OVERRIDE_COLOR,
-    RE_VALUE,
     SHORT_STRING_INPUT_WIDTH,
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
 )
+from util.calc import get_bonus_value, sum_bonuses
+from util.core import open_image
 from util.cs_types import (
     isAbilityList,
     isClassList,
     isFeature,
     isFeatureList,
-    isRepresentFloat,
-    isRepresentInt,
     isRollableStatList,
     isStaticStatList,
 )
 from util.custom_imgui import draw_text_cell, end_table_nested, help_marker
-
-
-def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus: int = 100, return_delete: bool = True) -> int | float | str:
-    if isRepresentInt(value):
-        return int(value)
-    elif isinstance(value, str):
-        if value == "level:total":
-            return static.data["level"]["total"]
-        elif value == "proficiency":
-            return static.data["proficiency"]["total"]
-        elif value == "initiative":
-            return static.data["initiative"]["total"]
-        elif value == "armor_class":
-            return static.data["armor_class"]["total"]
-        elif value == "hp:current":
-            return static.data["hp"]["current"]
-        elif value == "hp:max":
-            return static.data["hp"]["max_total"]
-        elif value.startswith("ability") and value.endswith(":score"):
-            return static.data_refs.get(value[:-6], {"total_base_score": 0})["total_base_score"] # type: ignore
-        elif value == "advantage":
-            return "advantage"
-        elif value == "disadvantage":
-            return "disadvantage"
-        elif value == "ability:DEX":
-            return min(static.data_refs.get("ability:DEX", {"total": 0})["total"], max_dex_bonus) # type: ignore
-        elif value.startswith("counter") and value.endswith("max"):
-            try:
-                return static.data_refs[value[:-4]]["max"] # type: ignore
-            except KeyError:
-                return "delete"
-        elif value.startswith("counter") and value.endswith("current"):
-            try:
-                return static.data_refs[value[:-8]]["current"] # type: ignore
-            except KeyError:
-                return "delete"
-        else:
-            # TODO: in release verison wrap everything with try-except
-            return static.data_refs.get(value, {"total": 0})["total"] # type: ignore
-    
-    return 0
-
-
-# Returns (total_bonus, (-1 if advantage, 0 if straight, 1 if advantage))
-def sum_bonuses(bonus_list: list[Bonus], static: MainWindowProtocol, max_dex_bonus: int = 100) -> tuple[int, int]:
-    total_bonus = 0
-    advantage = False
-    disadvantage = False
-
-    for idx, bonus in enumerate(bonus_list):
-        value = get_bonus_value(bonus["value"], static, max_dex_bonus)
-
-        if value == "delete":
-            del bonus_list[idx]
-            continue
-
-        if value == "advantage":
-            advantage = True
-        if value == "disadvantage":
-            disadvantage = True
-        elif isRepresentInt(value):
-            mult = bonus["multiplier"]
-            total_bonus += trunc(value * mult)
-
-    if not advantage ^ disadvantage:
-        roll = 0
-    elif advantage:
-        roll = 1
-    else:
-        roll = -1
-
-    return (total_bonus, roll)
-
-def find_max_override(override_list: list[Bonus], static: MainWindowProtocol) -> tuple[int, int]:
-    max_idx = -1
-    max_override = 0
-    for idx, override in enumerate(override_list):
-        override_value = trunc(get_bonus_value(override["value"], static) * override["multiplier"]) # type: ignore
-        if override_value > max_override or max_idx == -1:
-            max_idx = idx
-            max_override = override_value
-
-    return (max_idx, max_override)
 
 
 def draw_exhaustion_penalty(stat_type: StatTypes, static: MainWindowProtocol) -> None:
@@ -144,29 +59,6 @@ def draw_exhaustion_penalty(stat_type: StatTypes, static: MainWindowProtocol) ->
         imgui.same_line()
         imgui.text_colored(DISADVANTAGE_COLOR, "Dead"); imgui.same_line()
         help_marker(static.data["exhaustion"]["description"])
-
-
-def replace_value(match: re.Match[str], static: MainWindowProtocol) -> str:
-    text = match.group(0).strip("{}")
-    text_split = text.split(", mult=")
-    value = text_split[0]
-    multiplier = 1.0
-    if len(text_split) == 2:
-        multiplier_text = text_split[1]
-        if isRepresentFloat(multiplier_text) or isRepresentInt(multiplier_text) :
-            multiplier = float(multiplier_text)
-    
-    numerical_value = get_bonus_value(value, static)
-    if numerical_value == "delete": numerical_value = "Error"
-
-    if isRepresentInt(numerical_value):
-        return str(trunc(int(numerical_value)*multiplier))
-    else:
-        return ""
-
-
-def parse_text(text: str, static: MainWindowProtocol) -> str:
-    return re.sub(RE_VALUE, lambda x: replace_value(x, static), text) # type: ignore
 
 
 def draw_entities_menu(menu_name: str, menu_id: str, types: list[str], 
@@ -658,10 +550,13 @@ def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: Mai
         imgui.end_popup()
 
 
-# When opening a popup, change the `static.states["new_text_item_popup_opened"]` variable to `True`
-# This way we can track popup opening and closing to clear temporary data for new items
 def draw_new_text_item_popup(table_name: str, default_types: list[str], target_lists: list[list[TextData]], 
                              static: MainWindowProtocol, source: str = "", manual: bool = True) -> None:
+    """
+    When opening a popup, change the `static.states["new_text_item_popup_opened"]` variable to `True`
+    This way we can track popup opening and closing to clear temporary data for new items
+    """
+    
     if imgui.begin_popup(f"New Text Table Item Popup##{table_name}"):
         imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.states["new_training"]["name"] = imgui.input_text_with_hint(
@@ -785,3 +680,13 @@ def draw_text_table(table_name: str, data: list[TextData], default_types: list[s
             }
             imgui.close_current_popup()
         imgui.end_popup()
+
+
+def draw_open_image_button(static: MainWindowProtocol) -> None:
+    if not hasattr(static, "open_image_dialog"):
+        static.open_image_dialog = None
+
+    if imgui.button(f"{icons_fontawesome_6.ICON_FA_IMAGE}##open_image"):
+        static.open_image_dialog = pfd.open_file("Select file", filters=["Image Files", "*.png *.jpg *.jpeg *.bmp"])
+
+    open_image(static)

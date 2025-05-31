@@ -11,13 +11,8 @@ from settings import (
     MEDIUM_STRING_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
 )
-from util.sheet import (
-    draw_add_bonus,
-    draw_bonuses,
-    draw_overrides,
-    find_max_override,
-    sum_bonuses,
-)
+from util.calc import find_max_override, sum_bonuses
+from util.sheet import draw_add_bonus, draw_bonuses, draw_overrides
 
 
 def draw_rollable_stat_button(stat_id: str, stat: RollableStat, 

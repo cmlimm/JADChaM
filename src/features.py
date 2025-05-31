@@ -14,6 +14,7 @@ from settings import (  # type: ignore
     PROFICIENCIES_DEFAULT,
     SHORT_STRING_INPUT_WIDTH,
 )
+from util.calc import get_bonus_value, parse_text
 from util.custom_imgui import end_table_nested
 from util.sheet import STRIPED_TABLE_FLAGS  # type: ignore
 from util.sheet import (  # type: ignore
@@ -24,8 +25,6 @@ from util.sheet import (  # type: ignore
     draw_counter,
     draw_edit_counter,
     draw_new_text_item_popup,
-    get_bonus_value,
-    parse_text,
 )
 
 
@@ -449,7 +448,6 @@ def draw_features(window_name: str, static: MainWindowProtocol) -> None:
                 del static.data["feature_windows"][idx]
                 hello_imgui.remove_dockable_window(window_name)
         imgui.end_popup()
-    # TODO: research if you can add a callback to the built-in close window button
 
     features_list_length = len(static.data["features"])
     if features_list_length != 0 and imgui.begin_table("features_table", 1, flags=MARKDOWN_TEXT_TABLE): # type: ignore

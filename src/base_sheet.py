@@ -21,17 +21,16 @@ from settings import (  # type: ignore
     TWO_DIGIT_INPUT_WIDTH,
 )
 from stats import draw_rollable_stat_button, draw_static_stat_button
+from util.calc import find_max_override, sum_bonuses
 from util.cs_types import isRepresentInt
 from util.custom_imgui import draw_text_cell, end_table_nested, help_marker
-from util.gui import draw_open_image_button
 from util.sheet import (
     draw_add_bonus,
     draw_bonuses,
     draw_edit_list_popup,
+    draw_open_image_button,
     draw_overrides,
     draw_text_table,
-    find_max_override,
-    sum_bonuses,
 )
 
 
