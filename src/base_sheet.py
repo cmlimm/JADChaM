@@ -22,8 +22,8 @@ from settings import (  # type: ignore
 )
 from stats import draw_rollable_stat_button, draw_static_stat_button
 from util.cs_types import isRepresentInt
+from util.custom_imgui import draw_text_cell, end_table_nested, help_marker
 from util.gui import draw_open_image_button
-from util.imgui import draw_text_cell, end_table_nested, help_marker
 from util.sheet import (
     draw_add_bonus,
     draw_bonuses,

@@ -1,39 +1,18 @@
-from imgui_bundle import hello_imgui  # type: ignore
-from imgui_bundle import imgui_md  # type: ignore
-from imgui_bundle import icons_fontawesome_6, imgui, immapp  # type: ignore
+import os
 
-from base_sheet import (
-    draw_abilities,
-    draw_armor_class_button,
-    draw_class,
-    draw_conditions,
-    draw_damage_effects,
-    draw_hp,
-    draw_image,
-    draw_initiative_button,
-    draw_name,
-    draw_passives,
-    draw_proficiency_button,
-    draw_saves,
-    draw_senses,
-    draw_skills,
-    draw_speed,
-    draw_training,
-)
+from imgui_bundle import imgui_md  # type: ignore
+from imgui_bundle import hello_imgui, imgui, immapp  # type: ignore
+from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
+
 from cs_types import MainWindowProtocol
-from features import draw_features
-from settings import INVISIBLE_TABLE_FLAGS, STRIPED_TABLE_FLAGS  # type: ignore
-from util.gui import draw_open_file_button, draw_toolbar
-from util.imgui import draw_text_cell, end_table_nested
-from util.sheet import draw_exhaustion_penalty
+from util.character_loading import draw_load_character_button, load_character
+from util.core import save_file
 
 # TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
-# TODO[BUG]: fix hotkeys
 # TODO[BUG]: deleted skill is not deleted from the feature bonuses
 # TODO[BUG]: can't rename a counter, delete name editing entirely, it is not needed
 # TODO[BUG]: spell save does not update if it is not visible
 
-# TODO: exhaustion
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
 # TODO: add `min=` to the text parsing
 # TODO: hide long feature descriptions?
@@ -82,227 +61,82 @@ def post_init(state: MainWindowProtocol) -> None:
     state.theme = hello_imgui.ImGuiTheme_.imgui_colors_dark.name
 
 
-def draw_name_class_image_hp(static: MainWindowProtocol) -> None:
-    if static.is_character_loaded:
-        table_id = "name_image_class"
-        if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            imgui.table_next_row(); imgui.table_next_column()
-            draw_name(static)
-
-            imgui.table_next_row(); imgui.table_next_column()
-            draw_image(static)
-
-            imgui.table_next_column()
-            draw_class(static)
-
-            end_table_nested()
-
-        imgui.spacing()
-        draw_hp(static)
-
-        imgui.spacing()
-
-        table_id = "damage_effects_conditions"
-        if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            imgui.table_next_row(); imgui.table_next_column()
-            imgui.align_text_to_frame_padding()
-            imgui.text("Damage Effects"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_damage_effects"):
-                imgui.open_popup("Edit Damage Effects")
-            draw_damage_effects(static)
-
-            imgui.table_next_column()
-
-            imgui.align_text_to_frame_padding()
-            imgui.text("Conditions"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_conditions"):
-                imgui.open_popup("Edit Conditions")
-            draw_conditions(static)
-            end_table_nested()
-    else:
-        draw_open_file_button(static)
+def draw_home_window(static: MainWindowProtocol) -> None:
+    if not static.is_character_loaded:
+        draw_load_character_button(static)
 
 
-def draw_abilities_saves_misc(static: MainWindowProtocol) -> None:
-    if static.is_character_loaded:
-        imgui.align_text_to_frame_padding()
-        imgui.text("Abilities"); imgui.same_line()
-        if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_abilities"):
-            imgui.open_popup("Edit Abilities")
-        draw_abilities(static)
-
-        table_id = "saves_prof_init_ac"
-        if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            draw_text_cell("Saving Throws"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_saves"):
-                imgui.open_popup("Edit Saves") 
-            draw_exhaustion_penalty("rollable", static)
-            imgui.table_next_column()
-
-            imgui.table_next_row(); imgui.table_next_column()
-            draw_saves(static); imgui.table_next_column()
-            
-            table_id = "prof_init_ac"
-            if imgui.begin_table("prof_init_ac", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
-                draw_text_cell("Proficiency"); imgui.table_next_column()
-                draw_proficiency_button(static)
-                
-                draw_text_cell("Initiative"); imgui.table_next_column()
-                draw_initiative_button(static)
-
-                draw_text_cell("Armor Class"); imgui.table_next_column()
-                draw_armor_class_button(static)
-
-                end_table_nested()
-            end_table_nested()
+def draw_toolbar(static: MainWindowProtocol) -> None:
+    if imgui.begin_menu("File", True):
+        if imgui.menu_item_simple("Open", "Ctrl+N"):
+            static.open_file_dialog = pfd.open_file("Select file", os.getcwd())
+        if static.is_character_loaded and imgui.menu_item_simple("Save", "Ctrl+S"):
+            save_file(static)
+        imgui.end_menu()
 
 
-def draw_speed_sense(static: MainWindowProtocol) -> None:
-    if static.is_character_loaded:
-        table_id = "speed_proficiencies_skills"
-        if imgui.begin_table(table_id, 2, flags=INVISIBLE_TABLE_FLAGS):  # type: ignore
-            imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()
-            imgui.text("Speed"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_speed"):
-                imgui.open_popup("Edit Speed")
-            draw_exhaustion_penalty("static", static)
-            
-            imgui.table_next_column(); imgui.align_text_to_frame_padding()
-            imgui.text("Senses"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_senses"):
-                imgui.open_popup("Edit Senses")
+def register_callbacks(static: MainWindowProtocol) -> None:
+    if imgui.is_key_chord_pressed(imgui.Key.mod_ctrl | imgui.Key.n):  # type: ignore
+        static.open_file_dialog = pfd.open_file("Select file", os.getcwd())
+    # We need to continously try to open a file, otherwise it is called
+    # once when the files have not yet been selected
+    load_character(static)
 
-            imgui.table_next_row()
-            imgui.table_next_column()
-            draw_speed(static)
-            
-            imgui.table_next_column()
-            draw_senses(static)
+    if imgui.is_key_chord_pressed(imgui.Key.mod_ctrl | imgui.Key.s):  # type: ignore
+        save_file(static)
 
-            end_table_nested()
-
-def draw_training_window(static: MainWindowProtocol) -> None:
-    if static.is_character_loaded:
-        imgui.align_text_to_frame_padding()
-        imgui.text("Proficiencies & Training"); imgui.same_line()
-        if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}"):
-            imgui.open_popup("Edit Proficiencies & Training")
-        draw_training(static)
-
-
-def draw_skills_window(static: MainWindowProtocol) -> None:
-    if static.is_character_loaded:
-        table_id = "skills"
-        if imgui.begin_table(table_id, 1, flags=INVISIBLE_TABLE_FLAGS):  # type: ignore
-            imgui.align_text_to_frame_padding()
-            draw_text_cell("Skills"); imgui.same_line()
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_skills"):
-                imgui.open_popup("Edit Skills")
-            draw_exhaustion_penalty("rollable", static)
-            imgui.table_next_row(); imgui.table_next_column()
-            draw_skills(static)
-
-            end_table_nested()
-
-        imgui.spacing()
-
-        imgui.align_text_to_frame_padding()
-        imgui.text("Passive Skills"); imgui.same_line()
-        draw_exhaustion_penalty("rollable", static); imgui.same_line()
-        if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_passive_skills"):
-            imgui.open_popup("Edit Passive Skills")
-        draw_passives(static)
-
-def draw_features_window(static: MainWindowProtocol) -> None:
-    if static.is_character_loaded:
-        draw_features("All Features", static)
 
 def create_default_docking_splits() -> list[hello_imgui.DockingSplit]:
-    split_main = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
-    split_main.initial_dock = "MainDockSpace"
-    split_main.new_dock = "LeftSpace"
-    split_main.direction = imgui.Dir.left
-    split_main.ratio = 0.5
+    left = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
+    left.initial_dock = "MainDockSpace"
+    left.new_dock = "Left"
+    left.direction = imgui.Dir.left
+    left.ratio = 0.6
 
-    split_left = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
-    split_left.initial_dock = "LeftSpace"
-    split_left.new_dock = "SkillsSpace"
-    split_left.direction = imgui.Dir.right
-    split_left.ratio = 0.3
+    middle = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
+    middle.initial_dock = "Left"
+    middle.new_dock = "Skills"
+    middle.direction = imgui.Dir.right
+    middle.ratio = 0.33
 
-    split_training = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
-    split_training.initial_dock = "LeftSpace"
-    split_training.new_dock = "TrainingSpace"
-    split_training.direction = imgui.Dir.down
-    split_training.ratio = 0.25
+    # Name Class Image HP
+    ncip = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
+    ncip.initial_dock = "Left"
+    ncip.new_dock = "Name Class Image HP"
+    ncip.direction = imgui.Dir.up
+    ncip.ratio = 0.25
 
-    split_speed_sense = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
-    split_speed_sense.initial_dock = "LeftSpace"
-    split_speed_sense.new_dock = "SpeedSenseSpace"
-    split_speed_sense.direction = imgui.Dir.down
-    split_speed_sense.ratio = 0.25
+    # Abilities Saves Misc
+    asm = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
+    asm.initial_dock = "Left"
+    asm.new_dock = "Abilities Saves Misc"
+    asm.direction = imgui.Dir.up
+    asm.ratio = 0.25
 
-    split_abilities_saves_misc = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
-    split_abilities_saves_misc.initial_dock = "LeftSpace"
-    split_abilities_saves_misc.new_dock = "AbilitiesSavesMiscSpace"
-    split_abilities_saves_misc.direction = imgui.Dir.down
-    split_abilities_saves_misc.ratio = 0.4
+    # Speed Sense
+    ss = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
+    ss.initial_dock = "Left"
+    ss.new_dock = "Speed Sense"
+    ss.direction = imgui.Dir.up
+    ss.ratio = 0.25
 
-    split_name_class_image_hp = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
-    split_name_class_image_hp.initial_dock = "LeftSpace"
-    split_name_class_image_hp.new_dock = "NameClassImageHPSpace"
-    split_name_class_image_hp.direction = imgui.Dir.down
-    split_name_class_image_hp.ratio = 0.6
+    # Proficiencies & Training
+    pt = hello_imgui.DockingSplit(node_flags_=imgui.DockNodeFlags_.auto_hide_tab_bar) # type: ignore
+    pt.initial_dock = "Left"
+    pt.new_dock = "Proficiencies & Training"
+    pt.direction = imgui.Dir.up
+    pt.ratio = 0.25
 
-    splits = [split_main, 
-              split_left, 
-              split_training, 
-              split_speed_sense, 
-              split_abilities_saves_misc, 
-              split_name_class_image_hp]
-    return splits
+    return [left, middle, ncip, asm, ss, pt]
 
 
 def create_dockable_windows(static: MainWindowProtocol) -> list[hello_imgui.DockableWindow]:
-    name_class_image_hp_window = hello_imgui.DockableWindow()
-    name_class_image_hp_window.label = "Name Class Image HP"
-    name_class_image_hp_window.dock_space_name = "NameClassImageHPSpace"
-    name_class_image_hp_window.gui_function = lambda: draw_name_class_image_hp(static)
-
-    abilities_saves_misc_window = hello_imgui.DockableWindow()
-    abilities_saves_misc_window.label = "Abilities Saves Misc"
-    abilities_saves_misc_window.dock_space_name = "AbilitiesSavesMiscSpace"
-    abilities_saves_misc_window.gui_function = lambda: draw_abilities_saves_misc(static)
-
-    speed_sense_window = hello_imgui.DockableWindow()
-    speed_sense_window.label = "Speed Sense"
-    speed_sense_window.dock_space_name = "SpeedSenseSpace"
-    speed_sense_window.gui_function = lambda: draw_speed_sense(static)
-
-    training_window = hello_imgui.DockableWindow()
-    training_window.label = "Training"
-    training_window.dock_space_name = "TrainingSpace"
-    training_window.gui_function = lambda: draw_training_window(static)
-
-    skills_window = hello_imgui.DockableWindow()
-    skills_window.label = "Skills"
-    skills_window.dock_space_name = "SkillsSpace"
-    skills_window.gui_function = lambda: draw_skills_window(static)
-
-    right_window = hello_imgui.DockableWindow()
-    right_window.label = "All Features"
-    right_window.dock_space_name = "MainDockSpace"
-    right_window.gui_function = lambda: draw_features_window(static)
-
-    dockable_windows = [
-        name_class_image_hp_window,
-        abilities_saves_misc_window,
-        speed_sense_window,
-        training_window,
-        skills_window,
-        right_window
-    ]
-    return dockable_windows
+    home_window = hello_imgui.DockableWindow()
+    home_window.label = "Home"
+    home_window.dock_space_name = "MainDockSpace"
+    home_window.gui_function = lambda: draw_home_window(static)
+    
+    return [home_window]
 
 
 def create_default_layout(static: MainWindowProtocol) -> hello_imgui.DockingParams:
@@ -341,6 +175,7 @@ def make_params() -> tuple[hello_imgui.RunnerParams, immapp.AddOnsParams]:
 
     runner_params.callbacks.load_additional_fonts = lambda: load_fonts(main_window_state)
     runner_params.callbacks.post_init = lambda: post_init(main_window_state)
+    runner_params.callbacks.before_imgui_render = lambda: register_callbacks(main_window_state)
 
     runner_params.imgui_window_params.default_imgui_window_type = (
         hello_imgui.DefaultImGuiWindowType.provide_full_screen_dock_space

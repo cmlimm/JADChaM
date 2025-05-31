@@ -42,7 +42,7 @@ from util.cs_types import (
     isRollableStatList,
     isStaticStatList,
 )
-from util.imgui import draw_text_cell, end_table_nested, help_marker
+from util.custom_imgui import draw_text_cell, end_table_nested, help_marker
 
 
 def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus: int = 100, return_delete: bool = True) -> int | float | str:
