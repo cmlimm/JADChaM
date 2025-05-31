@@ -32,7 +32,7 @@ from settings import (  # type: ignore
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
 )
-from util_cs_types import (
+from util.cs_types import (
     isAbilityList,
     isClassList,
     isFeature,
@@ -42,7 +42,7 @@ from util_cs_types import (
     isRollableStatList,
     isStaticStatList,
 )
-from util_imgui import draw_text_cell, end_table_nested, help_marker
+from util.imgui import draw_text_cell, end_table_nested, help_marker
 
 
 def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus: int = 100, return_delete: bool = True) -> int | float | str:

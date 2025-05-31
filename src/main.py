@@ -23,9 +23,9 @@ from base_sheet import (
 from cs_types import MainWindowProtocol
 from features import draw_features
 from settings import INVISIBLE_TABLE_FLAGS, STRIPED_TABLE_FLAGS  # type: ignore
-from util_gui import draw_open_file_button, draw_toolbar
-from util_imgui import draw_text_cell, end_table_nested
-from util_sheet import draw_exhaustion_penalty
+from util.gui import draw_open_file_button, draw_toolbar
+from util.imgui import draw_text_cell, end_table_nested
+from util.sheet import draw_exhaustion_penalty
 
 # TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
 # TODO[BUG]: fix hotkeys

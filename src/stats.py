@@ -11,7 +11,7 @@ from settings import (
     MEDIUM_STRING_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
 )
-from util_sheet import (
+from util.sheet import (
     draw_add_bonus,
     draw_bonuses,
     draw_overrides,

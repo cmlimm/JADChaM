@@ -14,9 +14,9 @@ from settings import (  # type: ignore
     PROFICIENCIES_DEFAULT,
     SHORT_STRING_INPUT_WIDTH,
 )
-from util_imgui import end_table_nested
-from util_sheet import STRIPED_TABLE_FLAGS  # type: ignore
-from util_sheet import (  # type: ignore
+from util.imgui import end_table_nested
+from util.sheet import STRIPED_TABLE_FLAGS  # type: ignore
+from util.sheet import (  # type: ignore
     add_item_to_list,
     delete_feature_bonus,
     delete_item_from_list,

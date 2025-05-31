@@ -4,7 +4,7 @@ from imgui_bundle import icons_fontawesome_6, imgui
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 from cs_types import MainWindowProtocol
-from util import open_file, open_image, save_file
+from util.core import open_file, open_image, save_file
 
 
 def draw_toolbar(static: MainWindowProtocol) -> None:

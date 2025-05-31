@@ -21,10 +21,10 @@ from settings import (  # type: ignore
     TWO_DIGIT_INPUT_WIDTH,
 )
 from stats import draw_rollable_stat_button, draw_static_stat_button
-from util_cs_types import isRepresentInt
-from util_gui import draw_open_image_button
-from util_imgui import draw_text_cell, end_table_nested, help_marker
-from util_sheet import (
+from util.cs_types import isRepresentInt
+from util.gui import draw_open_image_button
+from util.imgui import draw_text_cell, end_table_nested, help_marker
+from util.sheet import (
     draw_add_bonus,
     draw_bonuses,
     draw_edit_list_popup,
