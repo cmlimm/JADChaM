@@ -25,10 +25,13 @@ from features import draw_features
 from settings import INVISIBLE_TABLE_FLAGS, STRIPED_TABLE_FLAGS  # type: ignore
 from util_gui import draw_open_file_button, draw_toolbar
 from util_imgui import draw_text_cell, end_table_nested
+from util_sheet import draw_exhaustion_penalty
 
 # TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
 # TODO[BUG]: fix hotkeys
 # TODO[BUG]: deleted skill is not deleted from the feature bonuses
+# TODO[BUG]: can't rename a counter, delete name editing entirely, it is not needed
+# TODO[BUG]: spell save does not update if it is not visible
 
 # TODO: exhaustion
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
@@ -133,6 +136,7 @@ def draw_abilities_saves_misc(static: MainWindowProtocol) -> None:
             draw_text_cell("Saving Throws"); imgui.same_line()
             if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_saves"):
                 imgui.open_popup("Edit Saves") 
+            draw_exhaustion_penalty("rollable", static)
             imgui.table_next_column()
 
             imgui.table_next_row(); imgui.table_next_column()
@@ -161,6 +165,7 @@ def draw_speed_sense(static: MainWindowProtocol) -> None:
             imgui.text("Speed"); imgui.same_line()
             if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_speed"):
                 imgui.open_popup("Edit Speed")
+            draw_exhaustion_penalty("static", static)
             
             imgui.table_next_column(); imgui.align_text_to_frame_padding()
             imgui.text("Senses"); imgui.same_line()
@@ -193,6 +198,7 @@ def draw_skills_window(static: MainWindowProtocol) -> None:
             draw_text_cell("Skills"); imgui.same_line()
             if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_skills"):
                 imgui.open_popup("Edit Skills")
+            draw_exhaustion_penalty("rollable", static)
             imgui.table_next_row(); imgui.table_next_column()
             draw_skills(static)
 
@@ -202,6 +208,7 @@ def draw_skills_window(static: MainWindowProtocol) -> None:
 
         imgui.align_text_to_frame_padding()
         imgui.text("Passive Skills"); imgui.same_line()
+        draw_exhaustion_penalty("rollable", static); imgui.same_line()
         if imgui.button(f"{icons_fontawesome_6.ICON_FA_PENCIL}##edit_passive_skills"):
             imgui.open_popup("Edit Passive Skills")
         draw_passives(static)

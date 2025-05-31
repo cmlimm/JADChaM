@@ -1,6 +1,6 @@
 {
     "name": "Mirkezim",
-    "image_path": "images/Mirkezim.jpeg",
+    "image_path": "images/Mirkezim Surprised.png",
     "level": {
         "name": "Level",
         "total": 11,
@@ -115,6 +115,10 @@
             "custom": true
         }
     ],
+    "exhaustion": {
+        "total": 0,
+        "description": "D20 Tests are reduced by two times your current level of Exhaustion, and your speed is reduced by 5 feet per level.\nAt 6 levels of Exhaustion your character dies."
+    },
     "proficiency": {
         "name": "Proficiency",
         "total": 4

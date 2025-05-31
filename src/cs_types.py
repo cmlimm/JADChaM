@@ -3,6 +3,8 @@ from typing import Any, Literal, Optional, TypedDict
 from imgui_bundle import imgui
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
+StatTypes = Literal["static", "rollable"]
+
 
 class ListTypeToBonus(TypedDict):
     all: list[str]
@@ -117,6 +119,11 @@ class Condition(TypedDict):
     custom: bool
 
 
+class Exhaustion(TypedDict):
+    total: int
+    description: str
+
+
 # class Property(TypedDict):
 #     name: str
 #     description: str
@@ -194,6 +201,7 @@ class CharacterData(TypedDict):
     damage_effects: list[TextData]
     default_conditions: list[Condition]
     custom_conditions: list[Condition]
+    exhaustion: Exhaustion
 
     proficiency: Proficiency
     initiative: RollableStat

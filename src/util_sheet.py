@@ -12,6 +12,7 @@ from cs_types import (
     Feature,
     MainWindowProtocol,
     NewBonus,
+    StatTypes,
     TextData,
 )
 from settings import STRIPED_NO_BORDERS_TABLE_FLAGS  # type: ignore
@@ -41,7 +42,7 @@ from util_cs_types import (
     isRollableStatList,
     isStaticStatList,
 )
-from util_imgui import draw_text_cell, end_table_nested
+from util_imgui import draw_text_cell, end_table_nested, help_marker
 
 
 def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus: int = 100, return_delete: bool = True) -> int | float | str:
@@ -125,6 +126,24 @@ def find_max_override(override_list: list[Bonus], static: MainWindowProtocol) ->
             max_override = override_value
 
     return (max_idx, max_override)
+
+
+def draw_exhaustion_penalty(stat_type: StatTypes, static: MainWindowProtocol) -> None:
+    if static.data["exhaustion"]["total"] != 0 and static.data["exhaustion"]["total"] != 6:
+        mult = 0
+        if stat_type == "rollable":
+            mult = 2
+        elif stat_type == "static":
+            mult = 5
+        
+        penalty = static.data["exhaustion"]["total"] * mult
+        imgui.same_line()
+        imgui.text_colored(DISADVANTAGE_COLOR, f"-{penalty}"); imgui.same_line()
+        help_marker(static.data["exhaustion"]["description"])
+    elif static.data["exhaustion"]["total"] == 6:
+        imgui.same_line()
+        imgui.text_colored(DISADVANTAGE_COLOR, "Dead"); imgui.same_line()
+        help_marker(static.data["exhaustion"]["description"])
 
 
 def replace_value(match: re.Match[str], static: MainWindowProtocol) -> str:

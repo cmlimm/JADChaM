@@ -199,6 +199,13 @@ def draw_conditions(static: MainWindowProtocol) -> None:
     all_conditions = static.data["default_conditions"] + static.data["custom_conditions"]
 
     if imgui.begin_table("conditions_table", 1, STRIPED_TABLE_FLAGS): # type: ignore
+        if static.data["exhaustion"]["total"] > 0 and static.data["exhaustion"]["total"] < 6:
+            draw_text_cell(f"Exhaustion ({static.data["exhaustion"]["total"]})"); imgui.same_line()
+            help_marker(static.data["exhaustion"]["description"])
+        elif static.data["exhaustion"]["total"] == 6:
+            draw_text_cell("Exhaustion (Dead)"); imgui.same_line()
+            help_marker(static.data["exhaustion"]["description"])
+
         for condition in all_conditions:
             if condition["enabled"]:
                 draw_text_cell(condition["name"]); imgui.same_line()
@@ -207,8 +214,22 @@ def draw_conditions(static: MainWindowProtocol) -> None:
 
     popup_name = f"Edit Conditions"
     if imgui.begin_popup_modal(popup_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
+        imgui.align_text_to_frame_padding()
+        imgui.text("Exhaustion"); imgui.same_line()
+        help_marker(static.data["exhaustion"]["description"]); imgui.same_line()
+        imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+        changed, static.data["exhaustion"]["total"] = imgui.input_int("##exhaustion",
+                                                                      static.data["exhaustion"]["total"])
+        imgui.pop_item_width()
+        
+        if changed and static.data["exhaustion"]["total"] > 6:
+            static.data["exhaustion"]["total"] = 6
+        elif changed and static.data["exhaustion"]["total"] < 0:
+            static.data["exhaustion"]["total"] = 0
+
         if imgui.begin_table("edit_conditions_table", 3, STRIPED_TABLE_FLAGS): # type: ignore
             all_conditions = static.data["default_conditions"] + static.data["custom_conditions"]
+
             for idx, condition in enumerate(all_conditions):
                 draw_text_cell(condition["name"]); imgui.same_line()
                 help_marker(condition["description"])
