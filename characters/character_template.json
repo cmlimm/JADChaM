@@ -125,7 +125,7 @@
     },
     "initiative": {
         "name": "Initiative",
-        "total": 9,
+        "total": 4,
         "bonuses": [
             {
                 "name": "Manual",
@@ -144,12 +144,6 @@
                 "value": "proficiency",
                 "multiplier": 1.0,
                 "manual": false
-            },
-            {
-                "name": "Misty Step (Steps of the Fey) Max (Manual)",
-                "value": "counter:Steps of the Fey:Misty Step:max",
-                "multiplier": 1.0,
-                "manual": true
             }
         ],
         "manual_advantage": false,
@@ -625,7 +619,7 @@
         },
         {
             "name": "Perception",
-            "total": 9,
+            "total": 0,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -638,12 +632,6 @@
                     "name": "WIS (Basic Rules)",
                     "value": "ability:WIS",
                     "multiplier": 1,
-                    "manual": true
-                },
-                {
-                    "name": "Initiative (Manual)",
-                    "value": "initiative",
-                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -793,32 +781,18 @@
         },
         {
             "name": "Walking",
-            "total": 39,
+            "total": 30,
             "base": 30,
             "base_overrides": [],
-            "bonuses": [
-                {
-                    "name": "Initiative (Manual)",
-                    "value": "initiative",
-                    "multiplier": 1.0,
-                    "manual": true
-                }
-            ],
+            "bonuses": [],
             "manual": true
         },
         {
             "name": "Climbing",
-            "total": 39,
+            "total": 0,
             "base": 0,
             "base_overrides": [],
-            "bonuses": [
-                {
-                    "name": "Speed, Walking (Manual)",
-                    "value": "speed:Walking",
-                    "multiplier": 1.0,
-                    "manual": true
-                }
-            ],
+            "bonuses": [],
             "manual": true
         },
         {

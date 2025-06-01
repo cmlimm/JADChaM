@@ -131,6 +131,11 @@ def check_for_cycles(static: MainWindowProtocol, target_ref: str, bonus_ref: str
         visited = [bonus_ref] # type: ignore
 
     if bonus_ref != "proficiency" and not bonus_ref.startswith("ability:") and not bonus_ref.startswith("level:") and not bonus_ref.startswith("feature:"): # type: ignore
+        # Even though cyclic references with current values of counters
+        # do not lead to obvious cycles, we still need to check for them
+        # because they lead to increasing the max value of the counter
+        # when using the counter
+        # EXAMPLE: initiative + misty step, perceprion + initiative, misty step + perception
         if bonus_ref.endswith(":current"): bonus_ref = bonus_ref[:-8] # type: ignore
         if bonus_ref.endswith(":max"): bonus_ref = bonus_ref[:-4] # type: ignore
         

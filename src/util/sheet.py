@@ -259,7 +259,7 @@ def draw_add_bonus(bonus_id: str,
         
         if imgui.begin_popup_modal("Cyclic Bonus Path", None, imgui.WindowFlags_.always_auto_resize.value)[0]:
             imgui.text_colored(DISADVANTAGE_ACTIVE_COLOR, 
-                               f"{' > '.join(static.states['cyclic_bonus_path'] + [target_ref])}")
+                               f"{' > '.join([target_ref] + static.states['cyclic_bonus_path'] + [target_ref])}")
         
             if imgui.button("Close", ImVec2(120, 0)):
                 static.states["cyclic_bonus"] = False
