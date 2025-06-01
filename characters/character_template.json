@@ -125,7 +125,7 @@
     },
     "initiative": {
         "name": "Initiative",
-        "total": 4,
+        "total": 9,
         "bonuses": [
             {
                 "name": "Manual",
@@ -144,6 +144,12 @@
                 "value": "proficiency",
                 "multiplier": 1.0,
                 "manual": false
+            },
+            {
+                "name": "Misty Step (Steps of the Fey) Max (Manual)",
+                "value": "counter:Steps of the Fey:Misty Step:max",
+                "multiplier": 1.0,
+                "manual": true
             }
         ],
         "manual_advantage": false,
@@ -619,7 +625,7 @@
         },
         {
             "name": "Perception",
-            "total": 0,
+            "total": 9,
             "custom_mod": 0,
             "bonuses": [
                 {
@@ -632,6 +638,12 @@
                     "name": "WIS (Basic Rules)",
                     "value": "ability:WIS",
                     "multiplier": 1,
+                    "manual": true
+                },
+                {
+                    "name": "Initiative (Manual)",
+                    "value": "initiative",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -781,18 +793,32 @@
         },
         {
             "name": "Walking",
-            "total": 30,
+            "total": 39,
             "base": 30,
             "base_overrides": [],
-            "bonuses": [],
+            "bonuses": [
+                {
+                    "name": "Initiative (Manual)",
+                    "value": "initiative",
+                    "multiplier": 1.0,
+                    "manual": true
+                }
+            ],
             "manual": true
         },
         {
             "name": "Climbing",
-            "total": 0,
+            "total": 39,
             "base": 0,
             "base_overrides": [],
-            "bonuses": [],
+            "bonuses": [
+                {
+                    "name": "Speed, Walking (Manual)",
+                    "value": "speed:Walking",
+                    "multiplier": 1.0,
+                    "manual": true
+                }
+            ],
             "manual": true
         },
         {

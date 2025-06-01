@@ -30,7 +30,7 @@ from settings import (  # type: ignore
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
 )
-from util.calc import get_bonus_value, sum_bonuses
+from util.calc import check_for_cycles, get_bonus_value, sum_bonuses
 from util.core import open_image
 from util.cs_types import (
     isAbilityList,
@@ -194,7 +194,9 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
     imgui.pop_item_flag()
 
 
-def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus], 
+def draw_add_bonus(bonus_id: str, 
+                   target_ref: str,
+                   bonus_list: list[Bonus],
                    bonus_types: list[str], static: MainWindowProtocol,
                    numerical_step: int = 1,
                    is_feature_bonus: bool = False, add_manual_text : bool = True) -> None:
@@ -231,18 +233,41 @@ def draw_add_bonus(bonus_id: str, bonus_list: list[Bonus],
             imgui.same_line()
 
         if new_bonus["new_bonus_type"] != "" and imgui.button(f"Add Bonus##{bonus_id}_new_bonus"):
-            bonus_list.append({
-                "name": f"{new_bonus["new_bonus_type"]}{" (Manual)" if add_manual_text else ""}",
-                "value": new_bonus["new_bonus_value"],
-                "multiplier": new_bonus["new_bonus_mult"],
-                "manual": True
-            })
+            static.states["cyclic_bonus"], static.states["cyclic_bonus_path"] = check_for_cycles(static, 
+                                                                                                 target_ref, 
+                                                                                                 new_bonus["new_bonus_value"])
+            
+            if static.states["cyclic_bonus"]:
+                imgui.open_popup("Cyclic Bonus Path")
+            else:
+                bonus_list.append({
+                    "name": f"{new_bonus["new_bonus_type"]}{" (Manual)" if add_manual_text else ""}",
+                    "value": new_bonus["new_bonus_value"],
+                    "multiplier": new_bonus["new_bonus_mult"],
+                    "manual": True
+                })
 
-            static.states["new_bonuses"][bonus_id] = {
-                "new_bonus_type": "",
-                "new_bonus_value": "",
-                "new_bonus_mult": 1.0
-            }
+                static.states["new_bonuses"][bonus_id] = {
+                    "new_bonus_type": "",
+                    "new_bonus_value": "",
+                    "new_bonus_mult": 1.0
+                }
+
+    if static.states["cyclic_bonus"]:
+        center = imgui.get_main_viewport().get_center()
+        imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
+        
+        if imgui.begin_popup_modal("Cyclic Bonus Path", None, imgui.WindowFlags_.always_auto_resize.value)[0]:
+            imgui.text_colored(DISADVANTAGE_ACTIVE_COLOR, 
+                               f"{' > '.join(static.states['cyclic_bonus_path'] + [target_ref])}")
+        
+            if imgui.button("Close", ImVec2(120, 0)):
+                static.states["cyclic_bonus"] = False
+                static.states["cyclic_bonus_path"] = []
+
+                imgui.close_current_popup()
+            imgui.end_popup()
+                
 
 
 def draw_bonuses(list_id: str, bonus_list: list[Bonus], static: MainWindowProtocol) -> None:
@@ -529,7 +554,12 @@ def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: Mai
             draw_bonuses("counter_bonus_list", counter["bonuses"], static)
 
         imgui.separator_text(f"New bonus")
-        draw_add_bonus(f"counter_new_bonus", counter["bonuses"], LIST_TYPE_TO_BONUS["all_no_advantage"], static, add_manual_text=False)
+        draw_add_bonus(f"counter_new_bonus", 
+                       f"counter:{parent_name}:{counter["name"]}", 
+                       counter["bonuses"], 
+                       LIST_TYPE_TO_BONUS["all_no_advantage"], 
+                       static, 
+                       add_manual_text=False)
         
         if draw_add_button and imgui.button("Add Counter") and counter["name"] != "":
             counter["max"], _ = sum_bonuses(counter["bonuses"], static)

@@ -17,6 +17,7 @@ from util.sheet import draw_add_bonus, draw_bonuses, draw_overrides
 
 def draw_rollable_stat_button(stat_id: str, stat: RollableStat, 
                               bonus_types: list[str],
+                              cache_prefix: str,
                               static: MainWindowProtocol) -> None:
     stat["total"], roll = sum_bonuses(stat["bonuses"], static)
 
@@ -79,13 +80,18 @@ def draw_rollable_stat_button(stat_id: str, stat: RollableStat,
             draw_bonuses("stat_bonus_list", stat["bonuses"], static)
             
         imgui.separator_text(f"New bonus")
-        draw_add_bonus(f"{stat_id}_stat_bonus", stat["bonuses"], bonus_types, static)
+        draw_add_bonus(f"{stat_id}_stat_bonus",
+                       f"{cache_prefix}:{stat["name"]}", 
+                       stat["bonuses"], 
+                       bonus_types, 
+                       static)
 
         imgui.end_popup()
 
 
 def draw_static_stat_button(stat_id: str, stat: StaticStat, 
                             bonus_types: list[str],
+                            cache_prefix: str,
                             static: MainWindowProtocol,
                             numerical_step: int = 1) -> None:
     override_idx, override_value = find_max_override(stat["base_overrides"], static)
@@ -124,8 +130,17 @@ def draw_static_stat_button(stat_id: str, stat: StaticStat,
         imgui.pop_item_width()
         
         if static.states["static_bonus_type_idx"] == 0:
-            draw_add_bonus(f"{stat_id}_stat_bonus", stat["bonuses"], bonus_types, static, numerical_step)
+            draw_add_bonus(f"{stat_id}_stat_bonus", 
+                           f"{cache_prefix}:{stat["name"]}",
+                           stat["bonuses"], 
+                           bonus_types, 
+                           static, 
+                           numerical_step)
         elif static.states["static_bonus_type_idx"] == 1:
-            draw_add_bonus(f"{stat_id}_base_override", stat["base_overrides"], bonus_types, static)
+            draw_add_bonus(f"{stat_id}_base_override",
+                           f"{cache_prefix}:{stat["name"]}",
+                           stat["base_overrides"], 
+                           bonus_types, 
+                           static)
         
         imgui.end_popup()

@@ -148,8 +148,11 @@ def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> Non
                          f"{feature["name"]}_target", static)
         
         if static.states["target_ref"] != "":
-            draw_add_bonus(bonus_id, static.bonus_list_refs[static.states["target_ref"]],
-                           LIST_TYPE_TO_BONUS["all"], static, is_feature_bonus=True)
+            draw_add_bonus(bonus_id,
+                           static.states["target_ref"], 
+                           static.bonus_list_refs[static.states["target_ref"]],
+                           LIST_TYPE_TO_BONUS["all"],
+                           static, is_feature_bonus=True)
 
         imgui.spacing()
 

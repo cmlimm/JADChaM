@@ -114,3 +114,44 @@ def replace_value(match: re.Match[str], static: MainWindowProtocol) -> str:
 
 def parse_text(text: str, static: MainWindowProtocol) -> str:
     return re.sub(RE_VALUE, lambda x: replace_value(x, static), text) # type: ignore
+
+
+# Abosolutely disgusting code, this can break anytime
+def check_for_cycles(static: MainWindowProtocol, target_ref: str, bonus_ref: str | int, visited: list[str] = []) -> tuple[bool, list[str]]:
+    if target_ref.startswith("initiative") or target_ref.startswith("armor_class") or target_ref.startswith("hp"):
+        target_ref = target_ref.split(":")[0]
+
+    if isRepresentInt(bonus_ref):
+        return (False, visited)
+    
+    if target_ref == bonus_ref:
+        return (True, [])
+
+    if visited == []:
+        visited = [bonus_ref] # type: ignore
+
+    if bonus_ref != "proficiency" and not bonus_ref.startswith("ability:") and not bonus_ref.startswith("level:") and not bonus_ref.startswith("feature:"): # type: ignore
+        if bonus_ref.endswith(":current"): bonus_ref = bonus_ref[:-8] # type: ignore
+        if bonus_ref.endswith(":max"): bonus_ref = bonus_ref[:-4] # type: ignore
+        
+        for bonus in static.data_refs[bonus_ref]["bonuses"]: # type: ignore
+            value = bonus["value"] # type: ignore
+
+            if isRepresentInt(value):
+                continue
+            
+            if value.startswith("initiative") or value.startswith("armor_class") or value.startswith("hp"): # type: ignore
+                value = value.split(":")[0] # type: ignore
+            
+            if value.endswith(":current"): value = value[:-8] # type: ignore
+            if value.endswith(":max"): value = value[:-4] # type: ignore
+            
+            if value == target_ref: # type: ignore
+                return (True, visited)
+            
+            if check_for_cycles(static, target_ref, value, visited)[0]: # type: ignore
+                visited.append(str(value)) # type: ignore
+
+                return (True, visited)
+                    
+    return (False, visited)

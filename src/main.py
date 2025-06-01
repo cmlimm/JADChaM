@@ -1,14 +1,12 @@
 import os
 
-from imgui_bundle import imgui_md  # type: ignore
-from imgui_bundle import hello_imgui, imgui, immapp  # type: ignore
+from imgui_bundle import ImVec2, hello_imgui, imgui, imgui_md, immapp  # type: ignore
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 from cs_types import MainWindowProtocol
 from util.character_loading import draw_load_character_button, load_character
 from util.core import save_file
 
-# TODO[BUG]: do not allow cyclical references for bonuses (e.g. Walking has a Flying bonus, Flying has a Walking Bonus)
 # TODO[BUG]: deleted skill is not deleted from the feature bonuses
 # TODO[BUG]: can't rename a counter, delete name editing entirely, it is not needed
 # TODO[BUG]: spell save does not update if it is not visible
@@ -51,7 +49,9 @@ def post_init(state: MainWindowProtocol) -> None:
         "new_tag": "",
         "new_condition_name": "",
         "new_condition_description": "",
-        "new_text_item_popups_opened": {}
+        "new_text_item_popups_opened": {},
+        "cyclic_bonus": False,
+        "cyclic_bonus_path": []
     }
 
     state.is_character_loaded = False
@@ -85,6 +85,10 @@ def register_callbacks(static: MainWindowProtocol) -> None:
 
     if imgui.is_key_chord_pressed(imgui.Key.mod_ctrl | imgui.Key.s):  # type: ignore
         save_file(static)
+
+
+def each_frame(static: MainWindowProtocol) -> None:
+    register_callbacks(static)
 
 
 def create_default_docking_splits() -> list[hello_imgui.DockingSplit]:
@@ -176,7 +180,7 @@ def make_params() -> tuple[hello_imgui.RunnerParams, immapp.AddOnsParams]:
 
     runner_params.callbacks.load_additional_fonts = lambda: load_fonts(main_window_state)
     runner_params.callbacks.post_init = lambda: post_init(main_window_state)
-    runner_params.callbacks.before_imgui_render = lambda: register_callbacks(main_window_state)
+    runner_params.callbacks.before_imgui_render = lambda: each_frame(main_window_state)
 
     runner_params.imgui_window_params.default_imgui_window_type = (
         hello_imgui.DefaultImGuiWindowType.provide_full_screen_dock_space

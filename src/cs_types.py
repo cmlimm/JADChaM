@@ -253,6 +253,9 @@ class States(TypedDict):
 
     new_text_item_popups_opened: dict[str, bool]
 
+    cyclic_bonus: bool
+    cyclic_bonus_path: list[str]
+
     # A temporary storage for the new feature name
     # Used when opening a feature popup to be able to change 
     # the name of the feature without the popup closing,

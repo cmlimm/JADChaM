@@ -47,7 +47,7 @@ LIST_TYPE_TO_BONUS: ListTypeToBonus = {
            "HP", "Counter", "Advantage", "Disadvantage"],
     "all_no_advantage": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
            "Proficiency", "Initiative", "Armor Class", "Spell Save", "Speed", "Passive Skill", "Sense", "Counter"],
-    "base_score": ["Numerical", "Level", "Counter"],
+    "base_score": ["Numerical", "Level"],
     "armor_class": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 
                     "Proficiency", "Initiative", "Spell Save", "Passive Skill", "Counter"],
     "speed": ["Numerical", "Speed", "Level", "Ability", "Ability Score", "Skill",
