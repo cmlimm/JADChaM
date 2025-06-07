@@ -1,0 +1,21 @@
+from typing import TypedDict
+
+from cs_types.components import Bonus
+
+
+class RollableStat(TypedDict):
+    name: str
+    total: int
+    bonuses: list[Bonus]
+    manual_advantage: bool
+    manual_disadvantage: bool
+    manual: bool
+
+
+class StaticStat(TypedDict):
+    name: str
+    total: int
+    base: int
+    base_overrides: list[Bonus]
+    bonuses: list[Bonus]
+    manual: bool

@@ -18,9 +18,10 @@ from base_sheet import (
     draw_speed,
     draw_training,
 )
-from cs_types import MainWindowProtocol
+from cs_types.core import MainWindowProtocol
 from features import draw_features
 from settings import INVISIBLE_TABLE_FLAGS, STRIPED_TABLE_FLAGS  # type: ignore
+from spells import draw_spells
 from util.custom_imgui import draw_text_cell, end_table_nested
 from util.sheet import draw_exhaustion_penalty
 
@@ -150,6 +151,11 @@ def draw_skills_window(static: MainWindowProtocol) -> None:
 def draw_features_window(static: MainWindowProtocol) -> None:
     if static.is_character_loaded:
         draw_features("All Features", static)
+
+
+def draw_spells_window(static: MainWindowProtocol) -> None:
+    if static.is_character_loaded:
+        draw_spells(static)
 
 
 def draw_training_window(static: MainWindowProtocol) -> None:

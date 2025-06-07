@@ -1,6 +1,6 @@
 from imgui_bundle import imgui
 
-from settings import (  # type: ignore
+from settings import (
     ADVANTAGE_ACTIVE_COLOR,
     ADVANTAGE_COLOR,
     ADVANTAGE_HOVER_COLOR,

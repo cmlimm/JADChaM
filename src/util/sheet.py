@@ -4,15 +4,15 @@ from typing import Any, Optional
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
-from cs_types import (
-    Bonus,
-    BonusTo,
-    Counter,
-    Feature,
-    MainWindowProtocol,
-    NewBonus,
-    StatTypes,
-    TextData,
+from cs_types.components import Bonus, BonusTo, Counter, TextData
+from cs_types.core import Feature, MainWindowProtocol, NewBonus, StatTypes
+from cs_types.guards import (
+    isAbilityList,
+    isClassList,
+    isFeature,
+    isFeatureList,
+    isRollableStatList,
+    isStaticStatList,
 )
 from settings import STRIPED_NO_BORDERS_TABLE_FLAGS  # type: ignore
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
@@ -31,14 +31,6 @@ from settings import (  # type: ignore
 )
 from util.calc import check_for_cycles, get_bonus_value, sum_bonuses
 from util.core import open_image
-from util.cs_types import (
-    isAbilityList,
-    isClassList,
-    isFeature,
-    isFeatureList,
-    isRollableStatList,
-    isStaticStatList,
-)
 from util.custom_imgui import ColorButton, draw_text_cell, end_table_nested, help_marker
 
 

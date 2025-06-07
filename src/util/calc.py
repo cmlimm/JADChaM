@@ -1,9 +1,10 @@
 import re
 from math import trunc
 
-from cs_types import Bonus, MainWindowProtocol
+from cs_types.components import Bonus
+from cs_types.core import MainWindowProtocol
+from cs_types.guards import isRepresentFloat, isRepresentInt
 from settings import RE_VALUE
-from util.cs_types import isRepresentFloat, isRepresentInt
 
 
 def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus: int = 100, return_delete: bool = True) -> int | float | str:

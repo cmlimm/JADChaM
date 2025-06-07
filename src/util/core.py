@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 
-from cs_types import MainWindowProtocol
+from cs_types.core import MainWindowProtocol
 
 
 def save_file(static: MainWindowProtocol) -> None:

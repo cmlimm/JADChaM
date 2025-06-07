@@ -1,6 +1,7 @@
 from imgui_bundle import imgui
 
-from cs_types import MainWindowProtocol, RollableStat, StaticStat
+from cs_types.core import MainWindowProtocol
+from cs_types.stats import RollableStat, StaticStat
 from settings import MEDIUM_STRING_INPUT_WIDTH, TWO_DIGIT_BUTTONS_INPUT_WIDTH
 from util.calc import find_max_override, sum_bonuses
 from util.custom_imgui import ColorButton

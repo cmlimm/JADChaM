@@ -3,7 +3,7 @@ import os
 from imgui_bundle import ImVec2, hello_imgui, imgui, imgui_md, immapp  # type: ignore
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
-from cs_types import MainWindowProtocol
+from cs_types.core import MainWindowProtocol
 from util.character_loading import draw_load_character_button, load_character
 from util.core import save_file
 
@@ -11,6 +11,7 @@ from util.core import save_file
 # TODO[BUG]: can't rename a counter, delete name editing entirely, it is not needed
 # TODO[BUG]: spell save does not update if it is not visible
 
+# TODO: for damage effects change the input field to a dropdown with damage types + other
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
 # TODO: add `min=` to the text parsing
 # TODO: hide long feature descriptions?

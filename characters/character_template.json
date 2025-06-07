@@ -1160,6 +1160,128 @@
             "manual": true
         }
     ],
+    "spells": [
+        {
+			"name": "Alarm",
+            "description": [
+				"You set an alarm against unwanted intrusion. Choose a door, a window, or an area within range that is no larger than a 20-foot cube. Until the spell ends, an alarm alerts you whenever a Tiny or larger creature touches or enters the warded area. When you cast the spell, you can designate creatures that won't set off the alarm. You also choose whether the alarm is mental or audible.",
+				"A mental alarm alerts you with a ping in your mind if you are within 1 mile of the warded area. This ping awakens you if you are sleeping.",
+				"An audible alarm produces the sound of a hand bell for 10 seconds within 60 feet."
+			],
+			"level": 1,
+			"school": "A",
+            "classes": ["Loh", "Ne loh"],
+            "subclasse": ["LohSub", "Ne LohSub"],
+			"casting_time": [
+				{
+					"type": "minute",
+					"amount": 1
+				},
+                {
+					"type": "special",
+                    "amount": 0
+				}
+			],
+            "duration": [
+				{
+					"type": "timed",
+					"time": {
+						"type": "hour",
+						"amount": 8
+					}
+				},
+                {
+					"type": "instant",
+                    "time": {
+						"type": "no_display",
+						"amount": 0
+					}
+				}
+			],
+            "concentration": true,
+			"range": [
+                {
+                    "type": "feet",
+                    "amount": 30
+                },
+                {
+                    "type": "self",
+                    "amount": 0
+                }
+            ],
+            "area": [
+                "cube",
+                "sphere"
+            ],
+			"components": {
+				"v": true,
+				"s": true,
+				"m": "a tiny bell and a piece of fine silver wire"
+			},
+            "ritual": true,
+            "to_hit": {
+                "name": "Alarm (To Hit)",
+                "total": 0,
+                "bonuses": [
+                    {
+                        "name": "Manual",
+                        "value": 0,
+                        "multiplier": 1.0,
+                        "manual": false
+                    },
+                    {
+                        "name": "CHA (Basic Rules)",
+                        "value": "ability:CHA",
+                        "multiplier": 1.0,
+                        "manual": true
+                    }
+                ],
+                "manual_advantage": false,
+                "manual_disadvantage": false,
+                "manual": true
+            },
+			"damage_inflicted": [
+                {
+                    "type": "acid",
+                    "roll": {
+                        "dice": 6,
+                        "amount": 1
+                    },
+                    "scaling": {
+                        "1": {
+                            "dice": 6,
+                            "amount": 1
+                        },
+                        "5": {
+                            "dice": 6,
+                            "amount": 2
+                        },
+                        "11": {
+                            "dice": 6,
+                            "amount": 3
+                        },
+                        "14": {
+                            "dice": 6,
+                            "amount": 4
+                        }
+                    }
+			    }
+            ],
+            "condition_inflicted": [
+                {
+                    "name": "Blinded",
+                    "description": "Can't See.\nYou can't see and automatically fail any ability check that requires sight.\n\nAttacks Affected.\nAttack rolls against you have Advantage, and your attack rolls have Disadvantage.",
+                    "enabled": false,
+                    "custom": false
+                }
+            ],
+			"saving_throw": [
+                "DEX",
+                "CHA"
+			],
+            "tags": ["Warlock"]
+		}
+    ],
     "feature_windows": [
         "Paladin",
         "Warlock"

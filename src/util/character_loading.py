@@ -12,9 +12,10 @@ from character_sheet import (
     draw_name_class_image_hp,
     draw_skills_window,
     draw_speed_sense,
+    draw_spells_window,
     draw_training_window,
 )
-from cs_types import MainWindowProtocol
+from cs_types.core import MainWindowProtocol
 from features import draw_features
 
 
@@ -27,6 +28,7 @@ def open_character_window(static: MainWindowProtocol) -> None:
         {"name": "Speed Sense", "function": draw_speed_sense},
         {"name": "Proficiencies & Training", "function": draw_training_window},
         {"name": "Features", "function": draw_features_window},
+        {"name": "Spells", "function": draw_spells_window}
     ]
 
     for window in windows:
@@ -35,7 +37,7 @@ def open_character_window(static: MainWindowProtocol) -> None:
         additional_window.include_in_view_menu = True
         additional_window.remember_is_visible = True
 
-        if window["name"] == "Features":
+        if window["name"] == "Features" or window["name"] == "Spells":
             additional_window.dock_space_name = "MainDockSpace"
         else:
             additional_window.dock_space_name = window["name"] # type: ignore
@@ -116,6 +118,13 @@ def process_character(static: MainWindowProtocol) -> None:
         static.data_refs[f"feature:{feature["name"]}"] = feature
         for counter in feature["counters"]:
             static.data_refs[f"counter:{feature["name"]}:{counter["name"]}"] = counter
+
+    # Spells
+    for spell in static.data["spells"]:
+        if spell["to_hit"]["name"] != "no_display":
+            static.data_refs[f"spell:{spell["name"]}:to_hit"] = spell["to_hit"]
+            static.bonus_list_refs[f"spell:{spell["name"]}:to_hit:bonuses"] = spell["to_hit"]["bonuses"]
+        
 
     # Open windows for feature tags
     for window_name in static.data["feature_windows"]:

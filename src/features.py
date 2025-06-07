@@ -1,7 +1,8 @@
 from imgui_bundle import hello_imgui  # type: ignore
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: ignore
 
-from cs_types import Bonus, BonusTo, Feature, MainWindowProtocol
+from cs_types.components import Bonus, BonusTo
+from cs_types.core import Feature, MainWindowProtocol
 from settings import MARKDOWN_TEXT_TABLE  # type: ignore
 from settings import (  # type: ignore
     DAMAGE_EFFECTS_DEFAULT,
@@ -435,9 +436,9 @@ def draw_features(window_name: str, static: MainWindowProtocol) -> None:
         imgui.end_popup()
 
     features_list_length = len(static.data["features"])
-    if features_list_length != 0 and imgui.begin_table("features_table", 1, flags=MARKDOWN_TEXT_TABLE): # type: ignore
+    if features_list_length != 0 and imgui.begin_table(f"{window_name}_features_table", 1, flags=MARKDOWN_TEXT_TABLE): # type: ignore
         for idx, feature in enumerate(static.data["features"]):
-            if not feature["name"].startswith("no_display") and (window_name in feature["tags"] or window_name == "All Features"):
+            if feature["name"] != "no_display" and (window_name in feature["tags"] or window_name == "All Features"):
                 imgui.table_next_row(); imgui.table_next_column()
                 draw_feature(feature, idx, window_name, static)
         end_table_nested()

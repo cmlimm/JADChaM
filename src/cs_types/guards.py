@@ -2,7 +2,8 @@ from typing import Any, TypeGuard
 
 from pydantic import TypeAdapter, ValidationError
 
-from cs_types import Ability, CharacterClass, Feature, RollableStat, StaticStat
+from cs_types.core import Ability, CharacterClass, Feature
+from cs_types.stats import RollableStat, StaticStat
 
 
 def isRepresentInt(value: Any) -> TypeGuard[int]:

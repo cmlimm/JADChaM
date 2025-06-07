@@ -1,7 +1,11 @@
 from typing import Any, Literal, Optional, TypedDict
 
 from imgui_bundle import imgui
-from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
+from imgui_bundle import portable_file_dialogs as pfd
+
+from cs_types.components import Bonus, BonusTo, Condition, Counter, TextData
+from cs_types.spell import Spell
+from cs_types.stats import RollableStat, StaticStat  # type: ignore
 
 StatTypes = Literal["static", "rollable"]
 
@@ -20,31 +24,6 @@ class ListTypeToBonus(TypedDict):
 class FontHolder:
     regular_font: imgui.ImFont
     bold_font: imgui.ImFont
-
-
-class Bonus(TypedDict):
-    name: str
-    value: str | int
-    multiplier: float
-    manual: bool
-
-
-class RollableStat(TypedDict):
-    name: str
-    total: int
-    bonuses: list[Bonus]
-    manual_advantage: bool
-    manual_disadvantage: bool
-    manual: bool
-
-
-class StaticStat(TypedDict):
-    name: str
-    total: int
-    base: int
-    base_overrides: list[Bonus]
-    bonuses: list[Bonus]
-    manual: bool
 
 
 class CharacterClass(TypedDict):
@@ -105,81 +84,9 @@ class Ability(TypedDict):
     manual: bool
 
 
-class TextData(TypedDict):
-    name: str
-    type: str
-    source: str
-    manual: bool
-
-
-class Condition(TypedDict):
-    name: str
-    description: str
-    enabled: bool
-    custom: bool
-
-
 class Exhaustion(TypedDict):
     total: int
     description: str
-
-
-# class Property(TypedDict):
-#     name: str
-#     description: str
-
-
-# class Reference(TypedDict):
-#     name: str
-#     ref: str
-#     manual: bool
-
-
-# class CounterReference(Reference):
-#     amount: int
-
-
-# class Damage(TypedDict):
-#     name: str
-#     total: int
-#     dice_count: list[IntegerValue]
-#     manual: bool
-
-
-# class Attack(TypedDict):
-#     name: str
-#     description: str
-#     properties: list[Property]
-#     tags: list[str]
-
-#     action: str
-
-#     to_hit: IntegerValue
-#     damage: list[Damage]
-#     difficulty_class: list[IntegerValue]
-#     range: IntegerValue
-#     long_range: IntegerValue
-#     area_of_effect: IntegerValue
-
-#     uses: list[CounterReference]
-
-
-class BonusTo(TypedDict):
-    name: str
-    target: str
-    bonus: Bonus
-    manual: bool
-
-
-class Counter(TypedDict):
-    name: str
-    parent: str
-    current: int
-    max: int
-    display_type: Literal["Checkboxes", "+- Buttons"] 
-    bonuses: list[Bonus]
-    min: int
-    manual: bool
 
 
 class Feature(TypedDict):
@@ -219,6 +126,8 @@ class CharacterData(TypedDict):
 
     features: list[Feature]
     feature_windows: list[str]
+
+    spells: list[Spell]
 
     # attacks: list[Attack]
     # counters: list[IntegerValue]

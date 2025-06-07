@@ -1,6 +1,6 @@
 from imgui_bundle import imgui
 
-from cs_types import ListTypeToBonus
+from cs_types.core import ListTypeToBonus
 
 INVISIBLE_TABLE_FLAGS = imgui.TableFlags_.sizing_fixed_fit
 STRIPED_TABLE_FLAGS = ( # type: ignore
@@ -60,5 +60,12 @@ LIST_TYPE_TO_BONUS: ListTypeToBonus = {
                  "Proficiency", "Initiative", "Spell Save", "Counter"] 
 }
 
+DAMAGE_TYPES = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"]
 DAMAGE_EFFECTS_DEFAULT: list[str] = ["Resistance", "Immunity", "Vulnerability"]
 PROFICIENCIES_DEFAULT: list[str] = ["Armor", "Language", "Tools", "Weapons"]
+
+SPELL_RANGE_TYPE_DEFAULT: list[str] = ["feet", "yards", "miles", "self", "touch", "unlimited", "plane", "sight"]
+SPELL_AREA_TYPE_DEFAULT: list[str] = ["special", "point", "line", "cube", "cone", "emanation", "radius", "sphere", "hemisphere", "cylinder"]
+SPELL_TIME_TYPE_DEFAULT: list[str] = ["action", "bonus", "reaction", "round", "minute", "hour", "special"]
+SPELL_DURATION_TYPE_DEFAULT: list[str] = ["instant", "timed", "permanent", "special"]
+
