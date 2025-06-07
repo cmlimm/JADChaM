@@ -312,6 +312,7 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
                 if imgui.begin_table("feature_damage_effects", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
                     for idx, feature_damage_effect in enumerate(feature["damage_effects"]):
                         imgui.table_next_row(); imgui.table_next_column()
+                        imgui.align_text_to_frame_padding()
                         imgui.text(f"{feature_damage_effect["name"]} ({feature_damage_effect["type"]})")
 
                         imgui.table_next_column()
@@ -328,6 +329,7 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
                 if imgui.begin_table("feature_proficiencies", 2, flags=STRIPED_TABLE_FLAGS): # type: ignore
                     for idx, feature_proficiency in enumerate(feature["proficiencies"]):
                         imgui.table_next_row(); imgui.table_next_column()
+                        imgui.align_text_to_frame_padding()
                         imgui.text(f"{feature_proficiency["name"]} ({feature_proficiency["type"]})")
 
                         imgui.table_next_column()
