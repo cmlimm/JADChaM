@@ -187,6 +187,7 @@ class MainWindowProtocol():
     
     data: CharacterData
     is_character_loaded: bool
+    are_windows_loaded: bool
 
     data_refs: dict[str, CharacterClass | Ability | RollableStat | StaticStat | ArmorClass | Hp | Proficiency | Feature | Counter]
     bonus_list_refs: dict[str, list[Bonus]]

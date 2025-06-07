@@ -148,7 +148,9 @@ def load_character(static: MainWindowProtocol) -> None:
             character_file = open(static.file_path[0], "r+")
 
             static.data = json.load(character_file)
-            open_character_window(static)
+            if not static.are_windows_loaded:
+                open_character_window(static)
+                static.are_windows_loaded = True
             hello_imgui.remove_dockable_window("Home")
             process_character(static)
             static.is_character_loaded = True

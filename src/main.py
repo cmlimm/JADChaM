@@ -57,6 +57,7 @@ def post_init(state: MainWindowProtocol) -> None:
         "number": 0
     }
 
+    state.are_windows_loaded = False
     state.is_character_loaded = False
 
     theme = hello_imgui.ImGuiTweakedTheme()
