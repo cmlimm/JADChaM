@@ -11,6 +11,7 @@ from util.core import save_file
 # TODO[BUG]: can't rename a counter, delete name editing entirely, it is not needed
 # TODO[BUG]: spell save does not update if it is not visible
 
+# TODO: material components that are consumed should be marked
 # TODO: for damage effects change the input field to a dropdown with damage types + other
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
 # TODO: add `min=` to the text parsing
@@ -52,7 +53,8 @@ def post_init(state: MainWindowProtocol) -> None:
         "new_condition_description": "",
         "new_text_item_popups_opened": {},
         "cyclic_bonus": False,
-        "cyclic_bonus_path": []
+        "cyclic_bonus_path": [],
+        "number": 0
     }
 
     state.is_character_loaded = False

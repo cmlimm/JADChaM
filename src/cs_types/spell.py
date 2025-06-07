@@ -31,7 +31,6 @@ class DiceRoll(TypedDict):
 
 
 class SpellDamage(TypedDict):
-    type: str
     roll: DiceRoll
     scaling: dict[int, DiceRoll]
 
@@ -57,7 +56,8 @@ class Spell(TypedDict):
     ritual: bool
 
     to_hit: RollableStat
-    damage_inflicted: list[SpellDamage]
+    damage: list[SpellDamage]
+    damage_type: list[str]
     condition_inflicted: list[Condition]
 
     saving_throw: list[str]

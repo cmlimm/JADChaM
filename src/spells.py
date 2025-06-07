@@ -1,3 +1,6 @@
+import copy
+import json
+
 from imgui_bundle import imgui, imgui_md  # type: ignore
 
 from cs_types.core import MainWindowProtocol
@@ -8,8 +11,170 @@ from stats import draw_rollable_stat_button
 from util.custom_imgui import end_table_nested, help_marker
 
 
+def process_spell_from_file(static: MainWindowProtocol, idx: int) -> None:
+    with open("assets/spells-phb.json") as spell_file:
+        spells = json.load(spell_file)["spell"]
+    
+    for spell_json in spells:
+        # spell_json = spells[idx]
+        spell_py = {}
+
+        spell_py["name"] = spell_json["name"]
+        spell_py["level"] = spell_json["level"]
+        spell_py["school"] = spell_json["school"]
+
+        spell_py["description"] = ""
+        description_lines = []
+        entries = spell_json.get("entries", [])
+        higher_level = spell_json.get("entriesHigherLevel", [])
+        for entry in entries:
+            if isinstance(entry, str):
+                description_lines.append(entry) # type: ignore
+        if higher_level: 
+            description_lines.append("\nAt Higher Levels:") # type: ignore
+        for entry in higher_level:
+            higher_entries = entry.get("entries", [])
+            for higher_entry in higher_entries:
+                if isinstance(higher_entry, str):
+                    description_lines.append(higher_entry) # type: ignore
+        spell_py["description"] = "\n".join(description_lines) # type: ignore
+
+        # TODO: temp
+        spell_py["classes"] = []
+        spell_py["subclasses"] = []
+
+        spell_py["casting_time"] = []
+        if times := spell_json.get("casting_time"):
+            for time in times:
+                spell_py["casting_time"].append({ # type: ignore
+                    "type": time["unit"],
+                    "amount": time["number"]
+                })
+
+        spell_py["concentration"] = False
+        spell_py["duration"] = []
+        if durations := spell_json.get("duration"):
+            for duration in durations:
+                duration_type = duration["type"]
+                time_type = "no_display"
+                time_amount = 0
+                if time := duration.get("duration"):
+                    time_type = time["type"]
+                    time_amount = int(time["amount"])
+                spell_py["duration"].append({ # type: ignore
+                    "type": duration_type,
+                    "time": {
+                        "type": time_type,
+                        "amount": time_amount
+                    }
+                })
+                if duration.get("concentration", False):
+                    spell_py["concentration"] = True
+
+        spell_py["range"] = []
+        if range := spell_json.get("range"):
+            if range["type"] == "special":
+                spell_py["range"].append({ # type: ignore
+                        "type": "special",
+                        "amount": 0
+                })
+            else:
+                spell_py["range"].append({ # type: ignore
+                    "type": range["distance"]["type"],
+                    "amount": range["distance"].get("amount", 0)
+                })
+                        
+        area_dict =  {
+            "C": "Cube",
+            "H": "Hemisphere",
+            "L": "Line",
+            "MT": "Multiple Targets",
+            "N": "Cone",
+            "Q": "Square",
+            "R": "Circle",
+            "ST": "Single Target",
+            "S": "Sphere",
+            "W": "Wall",
+            "Y": "Cylinder",
+        }
+        spell_py["area"] = []
+        if areas := spell_json.get("areaTags"):
+            for area in areas:
+                spell_py["area"].append(area_dict[area]) # type: ignore
+
+        spell_py["components"] = {
+            "v": spell_json.get("components", {}).get("v", False),
+            "s": spell_json.get("components", {}).get("s", False),
+            "m": spell_json.get("components", {}).get("m", False)
+        }
+        if isinstance(spell_py["components"]["m"], dict):
+            spell_py["components"]["m"] = spell_py["components"]["m"]["text"]
+
+        spell_py["ritual"] = spell_json.get("meta", {}).get("ritual", False)
+
+        spell_py["to_hit"] = {
+            "name": spell_py["name"],
+            "total": 0,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": False
+                },
+            ],
+            "manual_advantage": False,
+            "manual_disadvantage": False,
+            "manual": True
+        }
+
+        
+        spell_py["damage"] = []
+        if damage := spell_json.get("scalingLevelDice"):
+            roll = {
+                "dice": damage["scaling"]["1"].split("d")[1],
+                "amount": damage["scaling"]["1"].split("d")[0]
+            }
+            scaling = {} # type: ignore
+            for key, value in damage["scaling"].items():
+                scaling[int(key)] = {}
+                scaling[int(key)]["dice"] = value.split("d")[1]
+                scaling[int(key)]["amount"] = value.split("d")[0]
+            spell_py["damage"].append({ # type: ignore
+                "roll": roll,
+                "scaling": scaling
+            })
+
+        spell_py["damage_type"] = spell_json.get("damageInflict", [])
+
+        spell_py["condition_inflicted"] = []
+        if conditions := spell_json.get("conditionInflict", None):
+            for condition in conditions:
+                condition_py = next((item for item in static.data["default_conditions"] if item["name"] == condition.title()), None)
+                if condition_py:
+                    spell_py["condition_inflicted"].append(condition_py) # type: ignore
+                else:
+                    spell_py["condition_inflicted"].append({ # type: ignore
+                        "name": condition.title(),
+                        "description": "",
+                        "enabled": False,
+                        "custom": True
+                    })
+        
+        spell_py["saving_throw"] = []
+        if saves := spell_json.get("savingThrow", None):
+            for save in saves:
+                spell_py["saving_throw"].append(save[:3].upper()) # type: ignore
+
+        spell_py["tags"] = []
+
+        static.data["spells"].append(copy.deepcopy(spell_py)) # type: ignore
+        static.data_refs[f"spell:{spell_py["name"]}:to_hit"] = static.data["spells"][-1]["to_hit"] # type: ignore
+        static.bonus_list_refs[f"spell:{spell_py["name"]}:to_hit:bonuses"] = static.data["spells"][-1]["to_hit"]["bonuses"]
+
+
 def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
-    if imgui.begin_table(f"{spell["name"]}_preview", 13, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+    if imgui.begin_table(f"{spell["name"]}_preview", 14, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
         imgui.table_next_row(); imgui.table_next_column()
         if imgui.button(f"Use##{spell["name"]}_use_button"):
             pass
@@ -19,6 +184,7 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
         # NAME
         imgui.align_text_to_frame_padding()
         imgui.text(f"{spell["name"]}"); imgui.same_line()
+        help_marker(spell["description"])
 
         imgui.table_next_column()
 
@@ -91,9 +257,18 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
 
         # DAMAGE
         if imgui.begin_table(f"{spell["name"]}_damage", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            for damage in spell["damage_inflicted"]:
+            for damage in spell["damage"]:
                 imgui.table_next_row(); imgui.table_next_column()
-                imgui.text(f"{damage["roll"]["amount"]}d{damage["roll"]["dice"]} {damage["type"]}")
+                imgui.text(f"{damage["roll"]["amount"]}d{damage["roll"]["dice"]}")
+            end_table_nested()
+
+        imgui.table_next_column()
+
+        # DAMAGE TYPE
+        if imgui.begin_table(f"{spell["name"]}_damage_type", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+            for damage_type in spell["damage_type"]:
+                imgui.table_next_row(); imgui.table_next_column()
+                imgui.text(f"{damage_type}")
             end_table_nested()
 
         imgui.table_next_column()
@@ -162,9 +337,15 @@ def draw_spells(static: MainWindowProtocol) -> None:
 
     if imgui.begin_popup("Modify Spells"):
         if imgui.button("New Spell"):
-            imgui.open_popup("New Spell")
+            # imgui.open_popup("New Spell")
+            imgui.open_popup("New spell name")
         if imgui.begin_popup("New spell name"):
-            imgui.text("Placeholder")
+            _, static.states["number"] = imgui.input_int("idx", static.states["number"])
+            if static.states["number"] < 0: static.states["number"] = 0
+            if imgui.button("Add##new_spell"):
+                static.states["number"] += 1
+                print(static.states["number"])
+                process_spell_from_file(static, static.states["number"])
             imgui.end_popup()
 
         if imgui.button("Edit Spell Slots"):

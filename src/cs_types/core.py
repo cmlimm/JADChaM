@@ -1,7 +1,7 @@
 from typing import Any, Literal, Optional, TypedDict
 
 from imgui_bundle import imgui
-from imgui_bundle import portable_file_dialogs as pfd
+from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 from cs_types.components import Bonus, BonusTo, Condition, Counter, TextData
 from cs_types.spell import Spell
@@ -170,6 +170,8 @@ class States(TypedDict):
     # the name of the feature without the popup closing,
     # otherwise the popup name changes with the feature name.
     feat_name: str
+
+    number: int
     
 
 class MainWindowProtocol():
