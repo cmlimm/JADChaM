@@ -20,7 +20,6 @@ from settings import (  # type: ignore
     ADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_COLOR,
-    DISADVANTAGE_HOVER_COLOR,
     INVISIBLE_TABLE_FLAGS,
     LIST_TYPE_TO_BONUS,
     MAGICAL_WORD_WRAP_NUMBER_TABLE,
@@ -40,7 +39,7 @@ from util.cs_types import (
     isRollableStatList,
     isStaticStatList,
 )
-from util.custom_imgui import draw_text_cell, end_table_nested, help_marker
+from util.custom_imgui import ColorButton, draw_text_cell, end_table_nested, help_marker
 
 
 def draw_exhaustion_penalty(stat_type: StatTypes, static: MainWindowProtocol) -> None:
@@ -290,13 +289,10 @@ def draw_bonuses(list_id: str, bonus_list: list[Bonus], static: MainWindowProtoc
                 imgui.text(f"{get_bonus_value(value, static)}{" x" + str(mult) if mult != 1.0 else ""}")
 
             if manual:
-                imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                imgui.table_next_column()
-                if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
-                    del bonus_list[idx]
-                imgui.pop_style_color(3)
+                with ColorButton("bad"):
+                    imgui.table_next_column()
+                    if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                        del bonus_list[idx]
         end_table_nested()
 
 
@@ -320,13 +316,11 @@ def draw_overrides(list_id: str, override_list: list[Bonus], override_idx: int, 
                 imgui.text_disabled(value_text)
 
             if manual:
-                imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                imgui.table_next_column()
-                if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
-                    del override_list[idx]
-                imgui.pop_style_color(3)
+                with ColorButton("bad"):
+                    imgui.table_next_column()
+                    if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                        del override_list[idx]
+                    imgui.pop_style_color(3)
         end_table_nested()
 
 
@@ -468,12 +462,9 @@ def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str,
                 if item["name"] != "no_display":
                     draw_text_cell(item["name"]); imgui.table_next_column()
                     if item["manual"]:
-                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
-                            delete_item_from_list(item, idx, editable_list, cache_prefix, static)
-                        imgui.pop_style_color(3)
+                        with ColorButton("bad"):
+                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
+                                delete_item_from_list(item, idx, editable_list, cache_prefix, static)
 
             end_table_nested()
 
@@ -690,13 +681,10 @@ def draw_text_table(table_name: str, data: list[TextData], default_types: list[s
                         imgui.text(item["source"]); imgui.table_next_column()
 
                         if item["manual"]:
-                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{item_type}_{item["name"]}"):
-                                delete_idx = data.index(item)
-                                del data[delete_idx]
-                            imgui.pop_style_color(3)
+                            with ColorButton("bad"):
+                                if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{item_type}_{item["name"]}"):
+                                    delete_idx = data.index(item)
+                                    del data[delete_idx]
                     end_table_nested()
             end_table_nested()
         

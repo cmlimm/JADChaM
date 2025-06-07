@@ -3,14 +3,8 @@ from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, immapp  # type: ign
 
 from cs_types import MainWindowProtocol
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
-from settings import (  # type: ignore
-    ADVANTAGE_ACTIVE_COLOR,
-    ADVANTAGE_COLOR,
-    ADVANTAGE_HOVER_COLOR,
+from settings import (
     DAMAGE_EFFECTS_DEFAULT,
-    DISADVANTAGE_ACTIVE_COLOR,
-    DISADVANTAGE_COLOR,
-    DISADVANTAGE_HOVER_COLOR,
     INVISIBLE_TABLE_FLAGS,
     LARGE_STRING_INPUT_WIDTH,
     LIST_TYPE_TO_BONUS,
@@ -23,7 +17,7 @@ from settings import (  # type: ignore
 from stats import draw_rollable_stat_button, draw_static_stat_button
 from util.calc import find_max_override, sum_bonuses
 from util.cs_types import isRepresentInt
-from util.custom_imgui import draw_text_cell, end_table_nested, help_marker
+from util.custom_imgui import ColorButton, draw_text_cell, end_table_nested, help_marker
 from util.sheet import (
     draw_add_bonus,
     draw_bonuses,
@@ -125,40 +119,34 @@ def draw_hp(static: MainWindowProtocol) -> None:
         imgui.table_next_row()
         imgui.table_next_column()
 
-        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-        if imgui.button("Damage"):
-            if isRepresentInt(static.states["hp_add"]):
-                int_hp_add = int(static.states["hp_add"])
-                if static.data["hp"]["temp"] != 0:
-                    if int_hp_add <= static.data["hp"]["temp"]:
-                        static.data["hp"]["temp"] -= int_hp_add
-                        int_hp_add = 0
-                    else:
-                        int_hp_add -= static.data["hp"]["temp"]
-                        static.data["hp"]["temp"] = 0
-                static.data["hp"]["current"] -= int_hp_add
-                if static.data["hp"]["current"] < 0:
-                    static.data["hp"]["current"] = 0
-            static.states["hp_add"] = ""
-        imgui.pop_style_color(3)
+        with ColorButton("bad"):
+            if imgui.button("Damage"):
+                if isRepresentInt(static.states["hp_add"]):
+                    int_hp_add = int(static.states["hp_add"])
+                    if static.data["hp"]["temp"] != 0:
+                        if int_hp_add <= static.data["hp"]["temp"]:
+                            static.data["hp"]["temp"] -= int_hp_add
+                            int_hp_add = 0
+                        else:
+                            int_hp_add -= static.data["hp"]["temp"]
+                            static.data["hp"]["temp"] = 0
+                    static.data["hp"]["current"] -= int_hp_add
+                    if static.data["hp"]["current"] < 0:
+                        static.data["hp"]["current"] = 0
+                static.states["hp_add"] = ""
         imgui.same_line()
 
         imgui.push_item_width(TWO_DIGIT_INPUT_WIDTH)
         _, static.states["hp_add"] = imgui.input_text("##hp_add", static.states["hp_add"], 128)
         imgui.same_line()
 
-        imgui.push_style_color(imgui.Col_.button.value, ADVANTAGE_COLOR)
-        imgui.push_style_color(imgui.Col_.button_hovered.value, ADVANTAGE_HOVER_COLOR)
-        imgui.push_style_color(imgui.Col_.button_active.value, ADVANTAGE_ACTIVE_COLOR)
-        if imgui.button("Heal"):
-            if isRepresentInt(static.states["hp_add"]):
-                static.data["hp"]["current"] += int(static.states["hp_add"])
-                if static.data["hp"]["current"] >= static.data["hp"]["max_total"]:
-                    static.data["hp"]["current"] = static.data["hp"]["max_total"]
-            static.states["hp_add"] = ""
-        imgui.pop_style_color(3)
+        with ColorButton("good"):
+            if imgui.button("Heal"):
+                if isRepresentInt(static.states["hp_add"]):
+                    static.data["hp"]["current"] += int(static.states["hp_add"])
+                    if static.data["hp"]["current"] >= static.data["hp"]["max_total"]:
+                        static.data["hp"]["current"] = static.data["hp"]["max_total"]
+                static.states["hp_add"] = ""
 
         imgui.table_next_column()
         total_bonus, _ = sum_bonuses(static.data["hp"]["bonuses"], static)
@@ -245,13 +233,11 @@ def draw_conditions(static: MainWindowProtocol) -> None:
 
                 if condition["custom"]:
                     imgui.table_next_column()
-                    imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                    imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                    imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                    if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{condition["name"]}_{idx}"):
-                        idx_delete = static.data["custom_conditions"].index(condition)
-                        del static.data["custom_conditions"][idx_delete]
-                    imgui.pop_style_color(3)
+
+                    with ColorButton("bad"):
+                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{condition["name"]}_{idx}"):
+                            idx_delete = static.data["custom_conditions"].index(condition)
+                            del static.data["custom_conditions"][idx_delete]
             end_table_nested()
 
         imgui.spacing()

@@ -5,9 +5,6 @@ from cs_types import Bonus, BonusTo, Feature, MainWindowProtocol
 from settings import MARKDOWN_TEXT_TABLE  # type: ignore
 from settings import (  # type: ignore
     DAMAGE_EFFECTS_DEFAULT,
-    DISADVANTAGE_ACTIVE_COLOR,
-    DISADVANTAGE_COLOR,
-    DISADVANTAGE_HOVER_COLOR,
     INVISIBLE_TABLE_FLAGS,
     LIST_TYPE_TO_BONUS,
     MEDIUM_STRING_INPUT_WIDTH,
@@ -15,7 +12,7 @@ from settings import (  # type: ignore
     SHORT_STRING_INPUT_WIDTH,
 )
 from util.calc import get_bonus_value, parse_text
-from util.custom_imgui import end_table_nested
+from util.custom_imgui import ColorButton, end_table_nested
 from util.sheet import STRIPED_TABLE_FLAGS  # type: ignore
 from util.sheet import (  # type: ignore
     add_item_to_list,
@@ -203,16 +200,13 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
         _, static.states["feat_name"] = imgui.input_text(f"##{feature["name"]}_feature_name", static.states["feat_name"], 128)
         imgui.pop_item_width(); imgui.same_line()
 
-        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-        if imgui.button("Delete Feature"):
-            imgui.close_current_popup()
-            if static.states["feat_name"] != "":
-                feature["name"] = static.states["feat_name"]
-            static.states["feat_name"] = ""
-            delete_item_from_list(feature, idx, static.data["features"], "feature", static)
-        imgui.pop_style_color(3)
+        with ColorButton("bad"):
+            if imgui.button("Delete Feature"):
+                imgui.close_current_popup()
+                if static.states["feat_name"] != "":
+                    feature["name"] = static.states["feat_name"]
+                static.states["feat_name"] = ""
+                delete_item_from_list(feature, idx, static.data["features"], "feature", static)
 
         imgui.text("Description")
         imgui.set_next_window_size_constraints(ImVec2(window_size.x/2, imgui.get_text_line_height() * 5),
@@ -240,12 +234,9 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
             imgui.same_line(); imgui.align_text_to_frame_padding()
             imgui.text(f"{tag}"); imgui.same_line()
 
-            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{tag}_{idx}"):
-                del feature["tags"][idx]
-            imgui.pop_style_color(3)
+            with ColorButton("bad"):
+                if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{tag}_{idx}"):
+                    del feature["tags"][idx]
         imgui.dummy(ImVec2(0, 0))
 
         if imgui.button(f"New Bonus##{feature["name"]}"):
@@ -293,12 +284,9 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
 
                         imgui.table_next_column()
                         if feature_bonus["manual"]:
-                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_bonus_{idx}"):
-                                delete_feature_bonus(feature, feature_bonus, static)
-                            imgui.pop_style_color(3)
+                            with ColorButton("bad"):
+                                if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_bonus_{idx}"):
+                                    delete_feature_bonus(feature, feature_bonus, static)
                     end_table_nested()
 
             imgui.table_next_column()
@@ -313,12 +301,9 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
 
                         imgui.table_next_column()
                         if feature_counter["manual"]:
-                            imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                            imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_counter_{idx}"):
-                                del feature["counters"][idx]
-                            imgui.pop_style_color(3)
+                            with ColorButton("bad"):
+                                if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_counter_{idx}"):
+                                    del feature["counters"][idx]
                     end_table_nested()
 
             imgui.table_next_column()
@@ -330,14 +315,11 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
                         imgui.text(f"{feature_damage_effect["name"]} ({feature_damage_effect["type"]})")
 
                         imgui.table_next_column()
-                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_damage_effect_{idx}"):
-                            del feature["damage_effects"][idx]
-                            idx_delete = static.data["damage_effects"].index(feature_damage_effect)
-                            del static.data["damage_effects"][idx_delete]
-                        imgui.pop_style_color(3)
+                        with ColorButton("bad"):
+                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_damage_effect_{idx}"):
+                                del feature["damage_effects"][idx]
+                                idx_delete = static.data["damage_effects"].index(feature_damage_effect)
+                                del static.data["damage_effects"][idx_delete]
                     end_table_nested()
 
             imgui.table_next_column()
@@ -349,14 +331,11 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
                         imgui.text(f"{feature_proficiency["name"]} ({feature_proficiency["type"]})")
 
                         imgui.table_next_column()
-                        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-                        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-                        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
-                        if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_proficiency_{idx}"):
-                            del feature["proficiencies"][idx]
-                            idx_delete = static.data["training"].index(feature_proficiency)
-                            del static.data["training"][idx_delete]
-                        imgui.pop_style_color(3)
+                        with ColorButton("bad"):
+                            if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##feature_proficiency_{idx}"):
+                                del feature["proficiencies"][idx]
+                                idx_delete = static.data["training"].index(feature_proficiency)
+                                del static.data["training"][idx_delete]
                     end_table_nested()
             end_table_nested()
 

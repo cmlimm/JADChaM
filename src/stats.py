@@ -1,17 +1,9 @@
 from imgui_bundle import imgui
 
 from cs_types import MainWindowProtocol, RollableStat, StaticStat
-from settings import (
-    ADVANTAGE_ACTIVE_COLOR,
-    ADVANTAGE_COLOR,
-    ADVANTAGE_HOVER_COLOR,
-    DISADVANTAGE_ACTIVE_COLOR,
-    DISADVANTAGE_COLOR,
-    DISADVANTAGE_HOVER_COLOR,
-    MEDIUM_STRING_INPUT_WIDTH,
-    TWO_DIGIT_BUTTONS_INPUT_WIDTH,
-)
+from settings import MEDIUM_STRING_INPUT_WIDTH, TWO_DIGIT_BUTTONS_INPUT_WIDTH
 from util.calc import find_max_override, sum_bonuses
+from util.custom_imgui import ColorButton
 from util.sheet import draw_add_bonus, draw_bonuses, draw_overrides
 
 
@@ -21,19 +13,15 @@ def draw_rollable_stat_button(stat_id: str, stat: RollableStat,
                               static: MainWindowProtocol) -> None:
     stat["total"], roll = sum_bonuses(stat["bonuses"], static)
 
+    color = ""
     if roll == 1:
-        imgui.push_style_color(imgui.Col_.button.value, ADVANTAGE_COLOR)
-        imgui.push_style_color(imgui.Col_.button_hovered.value, ADVANTAGE_HOVER_COLOR)
-        imgui.push_style_color(imgui.Col_.button_active.value, ADVANTAGE_ACTIVE_COLOR)
+        color = "good"
     elif roll == -1:
-        imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
-        imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
-        imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+        color = "bad"
     
-    if imgui.button(f"{stat["total"]:^+}##{stat_id}"):
-        imgui.open_popup(f"{stat["name"]}_edit_stat")
-    if roll == 1 or roll == -1:
-        imgui.pop_style_color(3)
+    with ColorButton(color):
+        if imgui.button(f"{stat["total"]:^+}##{stat_id}"):
+            imgui.open_popup(f"{stat["name"]}_edit_stat")
 
     if imgui.begin_popup(f"{stat["name"]}_edit_stat"):
         imgui.align_text_to_frame_padding();

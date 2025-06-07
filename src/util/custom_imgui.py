@@ -1,4 +1,13 @@
-from imgui_bundle import imgui, imgui_md  # type: ignore
+from imgui_bundle import imgui
+
+from settings import (  # type: ignore
+    ADVANTAGE_ACTIVE_COLOR,
+    ADVANTAGE_COLOR,
+    ADVANTAGE_HOVER_COLOR,
+    DISADVANTAGE_ACTIVE_COLOR,
+    DISADVANTAGE_COLOR,
+    DISADVANTAGE_HOVER_COLOR,
+)
 
 
 def end_table_nested() -> None:
@@ -25,3 +34,24 @@ def help_marker(desc: str) -> None:
         imgui.text_unformatted(desc)
         imgui.pop_text_wrap_pos()
         imgui.end_tooltip()
+
+
+class ColorButton():
+    def __init__(self, color: str) -> None:
+        self.color = color
+
+    def __enter__(self) -> None:
+        if self.color == "bad" or self.color == "good":
+            if self.color == "bad":
+                imgui.push_style_color(imgui.Col_.button.value, DISADVANTAGE_COLOR)
+                imgui.push_style_color(imgui.Col_.button_hovered.value, DISADVANTAGE_HOVER_COLOR)
+                imgui.push_style_color(imgui.Col_.button_active.value, DISADVANTAGE_ACTIVE_COLOR)
+            elif self.color == "good":
+                imgui.push_style_color(imgui.Col_.button.value, ADVANTAGE_COLOR)
+                imgui.push_style_color(imgui.Col_.button_hovered.value, ADVANTAGE_HOVER_COLOR)
+                imgui.push_style_color(imgui.Col_.button_active.value, ADVANTAGE_ACTIVE_COLOR)
+
+    def __exit__(self, exception_type, exception_value, exception_traceback) -> None: # type: ignore
+        if self.color == "bad" or self.color == "good":
+            imgui.pop_style_color(3)
+        
