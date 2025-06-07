@@ -427,10 +427,11 @@ def draw_features(window_name: str, static: MainWindowProtocol) -> None:
             imgui.end_popup()
 
         if window_name != "All Features":
-            if imgui.button(f"Delete {window_name} tab"):
-                idx = static.data["feature_windows"].index(window_name)
-                del static.data["feature_windows"][idx]
-                hello_imgui.remove_dockable_window(window_name)
+            with ColorButton("bad"):
+                if imgui.button(f"Delete {window_name} tab"):
+                    idx = static.data["feature_windows"].index(window_name)
+                    del static.data["feature_windows"][idx]
+                    hello_imgui.remove_dockable_window(window_name)
         imgui.end_popup()
 
     features_list_length = len(static.data["features"])
