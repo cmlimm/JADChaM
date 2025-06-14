@@ -1,7 +1,7 @@
 import copy
 import json
 
-from imgui_bundle import ImVec2, imgui  # type: ignore
+from imgui_bundle import ImVec2, icons_fontawesome_6, imgui  # type: ignore
 
 from cs_types.core import MainWindowProtocol
 from cs_types.spell import Spell
@@ -51,14 +51,13 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
             for time in times:
                 type = time["unit"]
                 types = {
-                    "minute": "m",
-                    "minutes": "m",
-                    "hour": "h",
-                    "hours": "h",
-                    "round": "r",
                     "action": "A",
                     "bonus": "BA",
-                    "reaction": "R"
+                    "reaction": "R",
+                    "round": "r",
+                    "minute": "m",
+                    "hour": "h",
+                    "special": "sp"
                 }
 
                 spell_py["casting_time"].append({ # type: ignore
@@ -75,16 +74,14 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
                 time_amount = 0
                 if time := duration.get("duration"):
                     types = {
-                        "minute": "m",
-                        "minutes": "m",
-                        "hour": "h",
-                        "hours": "h",
-                        "day": "d",
-                        "year": "y",
+                        "turn": "",
                         "round": "r",
-                        "action": "A",
-                        "bonus": "BA",
-                        "reaction": "R",
+                        "minute": "m",
+                        "hour": "h",
+                        "day": "d",
+                        "week": "w",
+                        "month": "mth",
+                        "year": "y"
                     }
                     time_type = types[time["type"]]
                     time_amount = int(time["amount"])
@@ -134,7 +131,12 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
             "s": spell_json.get("components", {}).get("s", False),
             "m": spell_json.get("components", {}).get("m", False)
         }
+        spell_py["components"]["c"] = False
         if isinstance(spell_py["components"]["m"], dict):
+            if spell_py["components"]["m"].get("cost", False) or spell_py["components"]["m"].get("consume", False):
+                spell_py["components"]["c"] = True
+            else:
+                spell_py["components"]["c"] = False
             spell_py["components"]["m"] = spell_py["components"]["m"]["text"]
 
         spell_py["ritual"] = spell_json.get("meta", {}).get("ritual", False)
@@ -203,7 +205,17 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
         pass
     
     imgui.table_next_column()
-    
+
+    # CONCENTRATION + RITUAL
+    cr_str = []
+    if spell["concentration"]:
+        cr_str.append("C")
+    if spell["ritual"]:
+        cr_str.append("R")
+    imgui.text("/".join(cr_str))
+
+    imgui.table_next_column()
+
     # NAME
     imgui.align_text_to_frame_padding()
     imgui.text(f"{spell["name"]}"); imgui.same_line()
@@ -212,56 +224,63 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
     imgui.table_next_column()
 
     # CASTING TIME
-    if imgui.begin_table(f"{spell["name"]}_casting_times", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-        for casting_time in spell["casting_time"]:
-            imgui.table_next_row(); imgui.table_next_column()
-            type = casting_time["type"]
-            if type in ["h", "m", "r"]:
-                amount = casting_time["amount"]
-                imgui.text(f"{amount}{type}" if amount != 0 else type)
-            else:
-                imgui.text(type)
-        end_table_nested()
+    casting_times: list[str] = []
+    for casting_time in spell["casting_time"]:
+        type = casting_time["type"]
+        if type in ["h", "m", "r"]:
+            amount = casting_time["amount"]
+            casting_times.append(f"{amount}{type}" if amount != 0 else type)
+        else:
+            casting_times.append(type)
+    imgui.text(", ".join(casting_times))
     
     imgui.table_next_column()
 
     # DURATION
-    if imgui.begin_table(f"{spell["name"]}_durations", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-        for duration in spell["duration"]:
-            imgui.table_next_row(); imgui.table_next_column()
-            duration_type = duration["type"]
-            if duration_type == "timed":
-                time = duration["time"]
-                time_type = time["type"]
-                if time_type in ["h", "m", "r"]:
-                    amount = time["amount"]
-                    imgui.text(f"{amount}{time_type}" if amount != 0 else time_type)
-                else:
-                    imgui.text(time_type)
+    durations: list[str] = []
+    for duration in spell["duration"]:
+        duration_type = duration["type"]
+        if duration_type == "timed":
+            time = duration["time"]
+            time_type: str = time["type"]
+            if time_type in ["h", "m", "r", "d", "w", "mth", "y"]:
+                amount = time["amount"]
+                durations.append(f"{amount}{time_type}" if amount != 0 else time_type)
             else:
-                imgui.text(duration_type)
-        end_table_nested()
+                durations.append(time_type)
+        else:
+            duration_dict = {
+                "instant": "inst",
+                "permanent": "perm",
+                "special": "S"
+            }
+            durations.append(duration_dict[duration_type])
+    imgui.text(", ".join(durations))
 
     imgui.table_next_column()
 
     # RANGE
-    if imgui.begin_table(f"{spell["name"]}_ranges", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-        for spell_range in spell["range"]:
-            imgui.table_next_row(); imgui.table_next_column()
-            type = spell_range["type"]
-            amount = spell_range["amount"]
-            imgui.text(f"{amount} {type}" if amount != 0 else type)
-        end_table_nested()
+    ranges = [f"{spell_range["amount"]} {spell_range["type"]}" if spell_range["amount"] != 0 else spell_range["type"] for spell_range in spell["range"]]
+    imgui.text(", ".join(ranges))
 
     imgui.table_next_column()
 
     # AREA OF EFFECT
-    if imgui.begin_table(f"{spell["name"]}_areas", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-        for area in spell["area"]:
-            imgui.table_next_row(); imgui.table_next_column()
-            imgui.text(f"{area}")
-        end_table_nested()
-
+    area_dict =  {
+        "Cube": icons_fontawesome_6.ICON_FA_CUBE,
+        "Hemisphere": icons_fontawesome_6.ICON_FA_CIRCLE_HALF_STROKE,
+        "Line": icons_fontawesome_6.ICON_FA_MINUS,
+        "Multiple Targets": icons_fontawesome_6.ICON_FA_PEOPLE_GROUP,
+        "Cone": icons_fontawesome_6.ICON_FA_CIRCLE_NODES,
+        "Square": icons_fontawesome_6.ICON_FA_EXPAND,
+        "Circle": icons_fontawesome_6.ICON_FA_BULLSEYE,
+        "Single Target": icons_fontawesome_6.ICON_FA_PERSON,
+        "Sphere": icons_fontawesome_6.ICON_FA_GLOBE,
+        "Wall": icons_fontawesome_6.ICON_FA_ALIGN_JUSTIFY,
+        "Cylinder": icons_fontawesome_6.ICON_FA_DATABASE,
+    }
+    imgui.text(" ".join([f"{area_dict[area]}" for area in spell["area"]]))
+    
     imgui.table_next_column()
 
     # TO HIT
@@ -274,55 +293,49 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
 
     imgui.table_next_column()
 
-    # DAMAGE
-    if imgui.begin_table(f"{spell["name"]}_damage", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-        for damage in spell["damage"]:
-            imgui.table_next_row(); imgui.table_next_column()
-            imgui.text(f"{damage["roll"]["amount"]}d{damage["roll"]["dice"]}")
-        end_table_nested()
-
-    imgui.table_next_column()
-
-    # DAMAGE TYPE
-    if imgui.begin_table(f"{spell["name"]}_damage_type", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-        for damage_type in spell["damage_type"]:
-            imgui.table_next_row(); imgui.table_next_column()
-            imgui.text(f"{damage_type}")
-        end_table_nested()
-
-    imgui.table_next_column()
-
-    # CONDITION
-    if imgui.begin_table(f"{spell["name"]}_condition", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-        for condition in spell["condition_inflicted"]:
-            imgui.table_next_row(); imgui.table_next_column()
-            imgui.text(f"{condition["name"]}")
-            imgui.same_line()
-            help_marker(condition["description"])
-        end_table_nested()
+    # DAMAGE + DAMAGE TYPE + CONDITIONS
+    damage = [f"{damage["roll"]["amount"]}d{damage["roll"]["dice"]}" for damage in spell["damage"]]
+    damage_types_dict = {
+        "acid": "acid",
+        "bludgeoning": "bldg",
+        "cold": "cold",
+        "fire": "fire",
+        "force": "frce",
+        "lightning": "lght",
+        "necrotic": "necr",
+        "piercing": "prcng",
+        "poison": "poisn",
+        "psychic": "psy",
+        "radiant": "rad",
+        "slashing": "slsh",
+        "thunder": "tndr"
+    }
+    damage_types = [f"{damage_types_dict[damage_type]}" for damage_type in spell["damage_type"]]
+    conditions = [condition["name"] for condition in spell["condition_inflicted"]]
+    conditions_descs = [f"{condition["name"]}\n\n{condition["description"]}" for condition in spell["condition_inflicted"]]
+    
+    damage_str = ", ".join(damage)
+    damage_types_str = ", ".join(damage_types)
+    conditions_str = ", ".join(conditions)
+    conditions_descs_str = "\n\n\n".join(conditions_descs)
+    total_str = ""
+    if damage_str != "":
+        total_str += damage_str
+    if damage_types_str != "":
+        if total_str != "": total_str += " | " 
+        total_str += damage_types_str
+    if conditions_str != "":
+        if total_str != "": total_str += " | "
+        total_str += conditions_str
+    imgui.text(total_str)
+    if conditions_str != "":
+        imgui.same_line()
+        help_marker(conditions_descs_str)
 
     imgui.table_next_column()
     
     # SAVES
-    if imgui.begin_table(f"{spell["name"]}_saves", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-        for save in spell["saving_throw"]:
-            imgui.table_next_row(); imgui.table_next_column()
-            imgui.text(f"{save}")
-        end_table_nested()
-
-    imgui.table_next_column()
-
-    # CONCENTRATION
-    if spell["concentration"]:
-        imgui.align_text_to_frame_padding()
-        imgui.text("C")
-
-    imgui.table_next_column()
-
-    # RITUAL
-    if spell["ritual"]:
-        imgui.align_text_to_frame_padding()
-        imgui.text("R")
+    imgui.text(", ".join([save for save in spell["saving_throw"]]))
 
     imgui.table_next_column()
 
@@ -337,6 +350,9 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
         components += ["M"]
         material_desc = spell["components"]["m"] # type: ignore
     components_string = ", ".join(components)
+    if spell["components"]["c"]:
+        components_string += " (C)"
+
     imgui.align_text_to_frame_padding()
     imgui.text(components_string)
     if material_desc != "":
@@ -385,22 +401,19 @@ def draw_spells(static: MainWindowProtocol) -> None:
     min_height = imgui.get_frame_height() * 1.5 * (spells_list_len + 2)
     max_height = imgui.get_window_size().y - imgui.get_text_line_height_with_spacing()*4
     outer_size = ImVec2(0.0, min(min_height, max_height))
-    if spells_list_len != 0 and imgui.begin_table("spells_table", 14, flags=STRIPED_TABLE_FLAGS | imgui.TableFlags_.scroll_y, outer_size=outer_size): # type: ignore
+    if spells_list_len != 0 and imgui.begin_table("spells_table", 11, flags=STRIPED_TABLE_FLAGS | imgui.TableFlags_.scroll_y, outer_size=outer_size): # type: ignore
         imgui.table_setup_scroll_freeze(0, 1)
         imgui.table_setup_column("Use")
+        imgui.table_setup_column("C/R")
         imgui.table_setup_column("Name")
-        imgui.table_setup_column("Casting Time")
-        imgui.table_setup_column("Duration")
+        imgui.table_setup_column("CT")
+        imgui.table_setup_column("Dur")
         imgui.table_setup_column("Range")
         imgui.table_setup_column("Area")
         imgui.table_setup_column("To Hit")
-        imgui.table_setup_column("Damage")
-        imgui.table_setup_column("Damage Type")
-        imgui.table_setup_column("Conditions")
+        imgui.table_setup_column("Effect")
         imgui.table_setup_column("Saves")
-        imgui.table_setup_column("Conc.")
-        imgui.table_setup_column("Ritual")
-        imgui.table_setup_column("Components")
+        imgui.table_setup_column("Comp.")
         imgui.table_headers_row()
 
         for _, spell in enumerate(static.data["spells"]):

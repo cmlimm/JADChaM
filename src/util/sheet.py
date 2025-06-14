@@ -731,6 +731,8 @@ def draw_search_popup(search_id: str, search_list: list[Any],
             static.states["search_data"][search_id]["search_results"] = list(filter(lambda x: fuzzy_search(static.states["search_data"][search_id]["search_text"],
                                                                                                            x[search_key]), search_list))
 
+        
+        # TODO: the search results are always one line. Use Clipper to clip the results table
         outer_size = ImVec2(0.0, imgui.get_text_line_height_with_spacing()*10)
         if static.states["search_data"][search_id]["search_results"] != [] and imgui.begin_table(f"search_results_{search_id}", 1, flags=STRIPED_TABLE_FLAGS | imgui.TableFlags_.scroll_y, outer_size=outer_size): # type: ignore
             for result in static.states["search_data"][search_id]["search_results"]:

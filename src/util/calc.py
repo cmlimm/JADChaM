@@ -166,7 +166,7 @@ def check_for_cycles(static: MainWindowProtocol, target_ref: str, bonus_ref: str
 
 
 def fuzzy_search(text: str, line: str) -> bool:
-    matches = find_near_matches(text, line, max_l_dist=1) # type: ignore
+    matches = find_near_matches(text.lower(), line.lower(), max_l_dist=1) # type: ignore
     if matches != []:
         return True
 

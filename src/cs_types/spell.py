@@ -8,6 +8,7 @@ class SpellComponent(TypedDict):
     v: bool
     s: bool
     m: bool | str
+    c: bool
 
 
 class SpellRange(TypedDict):
