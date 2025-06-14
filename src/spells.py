@@ -1,20 +1,27 @@
 import copy
 import json
 
-from imgui_bundle import imgui, imgui_md  # type: ignore
+from fuzzysearch import find_near_matches
+from imgui_bundle import ImVec2, imgui, imgui_md  # type: ignore
 
 from cs_types.core import MainWindowProtocol
 from cs_types.spell import Spell
-from settings import MARKDOWN_TEXT_TABLE  # type: ignore
-from settings import INVISIBLE_TABLE_FLAGS, LIST_TYPE_TO_BONUS  # type: ignore
+from settings import STRIPED_TABLE_FLAGS  # type: ignore
+from settings import (  # type: ignore
+    INVISIBLE_TABLE_FLAGS,
+    LARGE_STRING_INPUT_WIDTH,
+    LIST_TYPE_TO_BONUS,
+)
 from stats import draw_rollable_stat_button
 from util.custom_imgui import end_table_nested, help_marker
 
 
-def process_spell_from_file(static: MainWindowProtocol, idx: int) -> None:
+def process_spell_from_file(static: MainWindowProtocol) -> None:
     with open("assets/spells-phb.json") as spell_file:
         spells = json.load(spell_file)["spell"]
     
+    static.loaded_spells = []
+
     for spell_json in spells:
         # spell_json = spells[idx]
         spell_py = {}
@@ -44,10 +51,22 @@ def process_spell_from_file(static: MainWindowProtocol, idx: int) -> None:
         spell_py["subclasses"] = []
 
         spell_py["casting_time"] = []
-        if times := spell_json.get("casting_time"):
+        if times := spell_json.get("time"):
             for time in times:
+                type = time["unit"]
+                types = {
+                    "minute": "m",
+                    "minutes": "m",
+                    "hour": "h",
+                    "hours": "h",
+                    "round": "r",
+                    "action": "A",
+                    "bonus": "BA",
+                    "reaction": "R"
+                }
+
                 spell_py["casting_time"].append({ # type: ignore
-                    "type": time["unit"],
+                    "type": types[type],
                     "amount": time["number"]
                 })
 
@@ -59,7 +78,19 @@ def process_spell_from_file(static: MainWindowProtocol, idx: int) -> None:
                 time_type = "no_display"
                 time_amount = 0
                 if time := duration.get("duration"):
-                    time_type = time["type"]
+                    types = {
+                        "minute": "m",
+                        "minutes": "m",
+                        "hour": "h",
+                        "hours": "h",
+                        "day": "d",
+                        "year": "y",
+                        "round": "r",
+                        "action": "A",
+                        "bonus": "BA",
+                        "reaction": "R",
+                    }
+                    time_type = types[time["type"]]
                     time_amount = int(time["amount"])
                 spell_py["duration"].append({ # type: ignore
                     "type": duration_type,
@@ -168,199 +199,242 @@ def process_spell_from_file(static: MainWindowProtocol, idx: int) -> None:
 
         spell_py["tags"] = []
 
-        static.data["spells"].append(copy.deepcopy(spell_py)) # type: ignore
-        static.data_refs[f"spell:{spell_py["name"]}:to_hit"] = static.data["spells"][-1]["to_hit"] # type: ignore
-        static.bonus_list_refs[f"spell:{spell_py["name"]}:to_hit:bonuses"] = static.data["spells"][-1]["to_hit"]["bonuses"]
+        static.loaded_spells.append(copy.deepcopy(spell_py)) # type: ignore
+        # static.data["spells"].append(copy.deepcopy(spell_py)) # type: ignore
+        # static.data_refs[f"spell:{spell_py["name"]}:to_hit"] = static.data["spells"][-1]["to_hit"] # type: ignore
+        # static.bonus_list_refs[f"spell:{spell_py["name"]}:to_hit:bonuses"] = static.data["spells"][-1]["to_hit"]["bonuses"]
 
 
 def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
-    if imgui.begin_table(f"{spell["name"]}_preview", 14, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-        imgui.table_next_row(); imgui.table_next_column()
-        if imgui.button(f"Use##{spell["name"]}_use_button"):
-            pass
-        
-        imgui.table_next_column()
-        
-        # NAME
-        imgui.align_text_to_frame_padding()
-        imgui.text(f"{spell["name"]}"); imgui.same_line()
-        help_marker(spell["description"])
+    # if imgui.begin_table(f"{spell["name"]}_preview", 14, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+    #     imgui.table_next_row(); imgui.table_next_column()
 
-        imgui.table_next_column()
+    if imgui.button(f"Use##{spell["name"]}_use_button"):
+        pass
+    
+    imgui.table_next_column()
+    
+    # NAME
+    imgui.align_text_to_frame_padding()
+    imgui.text(f"{spell["name"]}"); imgui.same_line()
+    help_marker(spell["description"])
 
-        # CASTING TIME
-        if imgui.begin_table(f"{spell["name"]}_casting_times", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            for casting_time in spell["casting_time"]:
-                imgui.table_next_row(); imgui.table_next_column()
-                type = casting_time["type"]
-                if type in ["hour", "minute", "round"]:
-                    amount = casting_time["amount"]
-                    if amount > 1:
-                        type += "s"
-                    imgui.text(f"{amount} {type}" if amount != 0 else type)
-                else:
-                    imgui.text(type)
-            end_table_nested()
-        
-        imgui.table_next_column()
+    imgui.table_next_column()
 
-        # DURATION
-        if imgui.begin_table(f"{spell["name"]}_durations", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            for duration in spell["duration"]:
-                imgui.table_next_row(); imgui.table_next_column()
-                duration_type = duration["type"]
-                if duration_type == "timed":
-                    time = duration["time"]
-                    time_type = time["type"]
-                    if time_type in ["hour", "minute", "round"]:
-                        amount = time["amount"]
-                        if amount > 1:
-                            time_type += "s"
-                        imgui.text(f"{amount} {time_type}" if amount != 0 else time_type)
-                    else:
-                        imgui.text(time_type)
-                else:
-                    imgui.text(duration_type)
-            end_table_nested()
-
-        imgui.table_next_column()
-
-        # RANGE
-        if imgui.begin_table(f"{spell["name"]}_ranges", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            for spell_range in spell["range"]:
-                imgui.table_next_row(); imgui.table_next_column()
-                type = spell_range["type"]
-                amount = spell_range["amount"]
-                imgui.text(f"{amount} {type}" if amount != 0 else type)
-            end_table_nested()
-
-        imgui.table_next_column()
-
-        # AREA OF EFFECT
-        if imgui.begin_table(f"{spell["name"]}_areas", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            for area in spell["area"]:
-                imgui.table_next_row(); imgui.table_next_column()
-                imgui.text(f"{area}")
-            end_table_nested()
-
-        imgui.table_next_column()
-
-        # TO HIT
-        if spell.get("to_hit", None):
-            draw_rollable_stat_button(f"{spell["name"]}_to_hit", 
-                                    spell["to_hit"],
-                                    LIST_TYPE_TO_BONUS["rollable"],
-                                    f"spell:{spell["name"]}:to_hit",
-                                    static)
-
-        imgui.table_next_column()
-
-        # DAMAGE
-        if imgui.begin_table(f"{spell["name"]}_damage", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            for damage in spell["damage"]:
-                imgui.table_next_row(); imgui.table_next_column()
-                imgui.text(f"{damage["roll"]["amount"]}d{damage["roll"]["dice"]}")
-            end_table_nested()
-
-        imgui.table_next_column()
-
-        # DAMAGE TYPE
-        if imgui.begin_table(f"{spell["name"]}_damage_type", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            for damage_type in spell["damage_type"]:
-                imgui.table_next_row(); imgui.table_next_column()
-                imgui.text(f"{damage_type}")
-            end_table_nested()
-
-        imgui.table_next_column()
-
-        # CONDITION
-        if imgui.begin_table(f"{spell["name"]}_condition", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            for condition in spell["condition_inflicted"]:
-                imgui.table_next_row(); imgui.table_next_column()
-                imgui.text(f"{condition["name"]}")
-                imgui.same_line()
-                help_marker(condition["description"])
-            end_table_nested()
-
-        imgui.table_next_column()
-        
-        # SAVES
-        if imgui.begin_table(f"{spell["name"]}_saves", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-            for save in spell["saving_throw"]:
-                imgui.table_next_row(); imgui.table_next_column()
-                imgui.text(f"{save}")
-            end_table_nested()
-
-        imgui.table_next_column()
-
-        # CONCENTRATION
-        if spell["concentration"]:
-            imgui.align_text_to_frame_padding()
-            imgui.text("C")
-
-        imgui.table_next_column()
-
-        # RITUAL
-        if spell["ritual"]:
-            imgui.align_text_to_frame_padding()
-            imgui.text("R")
-
-        imgui.table_next_column()
-
-        # COMPONENTS
-        components: list[str] = []
-        material_desc = ""
-        if spell["components"]["v"]:
-            components += ["V"]
-        if spell["components"]["s"]:
-            components += ["S"]
-        if spell["components"]["m"]:
-            components += ["M"]
-            material_desc = spell["components"]["m"] # type: ignore
-        components_string = ", ".join(components)
-        imgui.align_text_to_frame_padding()
-        imgui.text(components_string)
-        if material_desc != "":
-            imgui.same_line()
-            help_marker(material_desc) # type: ignore
-
+    # CASTING TIME
+    if imgui.begin_table(f"{spell["name"]}_casting_times", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+        for casting_time in spell["casting_time"]:
+            imgui.table_next_row(); imgui.table_next_column()
+            type = casting_time["type"]
+            if type in ["h", "m", "r"]:
+                amount = casting_time["amount"]
+                imgui.text(f"{amount}{type}" if amount != 0 else type)
+            else:
+                imgui.text(type)
         end_table_nested()
     
-    imgui.push_id(f"tags_{spell["name"]}")
-    imgui_md.render(f"**Tags**: {", ".join(spell["tags"])}")
-    imgui.pop_id()
+    imgui.table_next_column()
+
+    # DURATION
+    if imgui.begin_table(f"{spell["name"]}_durations", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+        for duration in spell["duration"]:
+            imgui.table_next_row(); imgui.table_next_column()
+            duration_type = duration["type"]
+            if duration_type == "timed":
+                time = duration["time"]
+                time_type = time["type"]
+                if time_type in ["h", "m", "r"]:
+                    amount = time["amount"]
+                    imgui.text(f"{amount}{time_type}" if amount != 0 else time_type)
+                else:
+                    imgui.text(time_type)
+            else:
+                imgui.text(duration_type)
+        end_table_nested()
+
+    imgui.table_next_column()
+
+    # RANGE
+    if imgui.begin_table(f"{spell["name"]}_ranges", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+        for spell_range in spell["range"]:
+            imgui.table_next_row(); imgui.table_next_column()
+            type = spell_range["type"]
+            amount = spell_range["amount"]
+            imgui.text(f"{amount} {type}" if amount != 0 else type)
+        end_table_nested()
+
+    imgui.table_next_column()
+
+    # AREA OF EFFECT
+    if imgui.begin_table(f"{spell["name"]}_areas", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+        for area in spell["area"]:
+            imgui.table_next_row(); imgui.table_next_column()
+            imgui.text(f"{area}")
+        end_table_nested()
+
+    imgui.table_next_column()
+
+    # TO HIT
+    if spell.get("to_hit", None):
+        draw_rollable_stat_button(f"{spell["name"]}_to_hit", 
+                                spell["to_hit"],
+                                LIST_TYPE_TO_BONUS["rollable"],
+                                f"spell:{spell["name"]}:to_hit",
+                                static)
+
+    imgui.table_next_column()
+
+    # DAMAGE
+    if imgui.begin_table(f"{spell["name"]}_damage", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+        for damage in spell["damage"]:
+            imgui.table_next_row(); imgui.table_next_column()
+            imgui.text(f"{damage["roll"]["amount"]}d{damage["roll"]["dice"]}")
+        end_table_nested()
+
+    imgui.table_next_column()
+
+    # DAMAGE TYPE
+    if imgui.begin_table(f"{spell["name"]}_damage_type", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+        for damage_type in spell["damage_type"]:
+            imgui.table_next_row(); imgui.table_next_column()
+            imgui.text(f"{damage_type}")
+        end_table_nested()
+
+    imgui.table_next_column()
+
+    # CONDITION
+    if imgui.begin_table(f"{spell["name"]}_condition", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+        for condition in spell["condition_inflicted"]:
+            imgui.table_next_row(); imgui.table_next_column()
+            imgui.text(f"{condition["name"]}")
+            imgui.same_line()
+            help_marker(condition["description"])
+        end_table_nested()
+
+    imgui.table_next_column()
+    
+    # SAVES
+    if imgui.begin_table(f"{spell["name"]}_saves", 1, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
+        for save in spell["saving_throw"]:
+            imgui.table_next_row(); imgui.table_next_column()
+            imgui.text(f"{save}")
+        end_table_nested()
+
+    imgui.table_next_column()
+
+    # CONCENTRATION
+    if spell["concentration"]:
+        imgui.align_text_to_frame_padding()
+        imgui.text("C")
+
+    imgui.table_next_column()
+
+    # RITUAL
+    if spell["ritual"]:
+        imgui.align_text_to_frame_padding()
+        imgui.text("R")
+
+    imgui.table_next_column()
+
+    # COMPONENTS
+    components: list[str] = []
+    material_desc = ""
+    if spell["components"]["v"]:
+        components += ["V"]
+    if spell["components"]["s"]:
+        components += ["S"]
+    if spell["components"]["m"]:
+        components += ["M"]
+        material_desc = spell["components"]["m"] # type: ignore
+    components_string = ", ".join(components)
+    imgui.align_text_to_frame_padding()
+    imgui.text(components_string)
+    if material_desc != "":
+        imgui.same_line()
+        help_marker(material_desc) # type: ignore
+    
+    # imgui.push_id(f"tags_{spell["name"]}")
+    # imgui_md.render(f"**Tags**: {", ".join(spell["tags"])}")
+    # imgui.pop_id()
+
+
+def fuzzy(text: str, line: str) -> bool:
+    matches = find_near_matches(text, line, max_l_dist=1)
+    if matches != []:
+        return True
+
+    return False
 
     
 def draw_spells(static: MainWindowProtocol) -> None:
     if imgui.button("Spells"):
         imgui.open_popup("Modify Spells")
 
-    if imgui.begin_popup("Modify Spells"):
-        if imgui.button("New Spell"):
-            # imgui.open_popup("New Spell")
-            imgui.open_popup("New spell name")
-        if imgui.begin_popup("New spell name"):
-            _, static.states["number"] = imgui.input_int("idx", static.states["number"])
-            if static.states["number"] < 0: static.states["number"] = 0
-            if imgui.button("Add##new_spell"):
-                static.states["number"] += 1
-                print(static.states["number"])
-                process_spell_from_file(static, static.states["number"])
-            imgui.end_popup()
+    imgui.same_line()
 
-        if imgui.button("Edit Spell Slots"):
-            imgui.open_popup("Edit Spell Slots")
-        if imgui.begin_popup("Edit Spell Slots"):
-            imgui.text("Placeholder")
-            imgui.end_popup()
-        
+    if imgui.button("Add Spell"):
+        process_spell_from_file(static)
+        imgui.open_popup("Add Spell")
+        static.states["search_window_opened"]["spell_search"] = True
+
+    if imgui.begin_popup("Modify Spells"):
+        if imgui.button("Add Spell"):
+            imgui.open_popup("Add Spell")
         imgui.end_popup()
 
+    if imgui.begin_popup("Add Spell"):
+        imgui.push_item_width(LARGE_STRING_INPUT_WIDTH)
+        changed, static.states["search_spell_text"] = imgui.input_text_with_hint("##search_spell", "Spell Name", 
+                                                                           static.states["search_spell_text"], 128)
+        imgui.pop_item_width()
+
+        if static.states["search_spell_text"] != "" and changed:
+            static.states["searched_spells"] = list(filter(lambda x: fuzzy(static.states["search_spell_text"], x["name"]), static.loaded_spells))
+
+        outer_size = ImVec2(0.0, imgui.get_text_line_height_with_spacing()*10)
+        if static.states["searched_spells"] != [] and imgui.begin_table("spells_table", 1, flags=STRIPED_TABLE_FLAGS | imgui.TableFlags_.scroll_y, outer_size=outer_size): # type: ignore
+            for spell in static.states["searched_spells"]:
+                imgui.table_next_row(); imgui.table_next_column()
+                imgui.set_next_item_allow_overlap()
+                imgui.selectable(spell["name"], False, imgui.SelectableFlags_.span_all_columns)
+                if imgui.is_item_hovered():
+                    help_marker(spell["description"], with_question_mark=False)
+                    imgui.set_mouse_cursor(imgui.MouseCursor_.hand)
+                    if imgui.is_mouse_clicked(imgui.MouseButton_.left):
+                        static.data["spells"].append(spell)
+                imgui.same_line()
+            imgui.end_table()
+
+        imgui.end_popup()
+    elif static.states["search_window_opened"].get("spell_search", False):
+        static.states["search_window_opened"]["spell_search"] = False
+        static.states["search_spell_text"] = ""
+        static.states["searched_spells"] = []
+
     spells_list_len = len(static.data["spells"])
-    if spells_list_len != 0 and imgui.begin_table("spells_table", 1, flags=MARKDOWN_TEXT_TABLE): # type: ignore
+    outer_size = ImVec2(0.0, imgui.get_window_size().y - imgui.get_text_line_height_with_spacing()*4)
+    if spells_list_len != 0 and imgui.begin_table("spells_table", 14, flags=STRIPED_TABLE_FLAGS | imgui.TableFlags_.scroll_y, outer_size=outer_size): # type: ignore
+        imgui.table_setup_scroll_freeze(0, 1)
+        imgui.table_setup_column("Use")
+        imgui.table_setup_column("Name")
+        imgui.table_setup_column("Casting Time")
+        imgui.table_setup_column("Duration")
+        imgui.table_setup_column("Range")
+        imgui.table_setup_column("Area")
+        imgui.table_setup_column("To Hit")
+        imgui.table_setup_column("Damage")
+        imgui.table_setup_column("Damage Type")
+        imgui.table_setup_column("Conditions")
+        imgui.table_setup_column("Saves")
+        imgui.table_setup_column("Conc.")
+        imgui.table_setup_column("Ritual")
+        imgui.table_setup_column("Components")
+        imgui.table_headers_row()
+
+        # clipper = imgui.ListClipper()
+        # clipper.begin()
         for _, spell in enumerate(static.data["spells"]):
             if spell["name"] != "no_display":
                 imgui.table_next_row(); imgui.table_next_column()
                 draw_spell(spell, static)
-        end_table_nested()
-        
+        imgui.end_table()

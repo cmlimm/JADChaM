@@ -171,7 +171,10 @@ class States(TypedDict):
     # otherwise the popup name changes with the feature name.
     feat_name: str
 
-    number: int
+    search_window_opened: dict[str, bool]
+    search_spell_text: str
+    searched_spells: list[Spell]
+    selected_spell_idx: int
     
 
 class MainWindowProtocol():
@@ -188,6 +191,8 @@ class MainWindowProtocol():
     data: CharacterData
     is_character_loaded: bool
     are_windows_loaded: bool
+
+    loaded_spells: list[Spell]
 
     data_refs: dict[str, CharacterClass | Ability | RollableStat | StaticStat | ArmorClass | Hp | Proficiency | Feature | Counter]
     bonus_list_refs: dict[str, list[Bonus]]

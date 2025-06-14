@@ -10,6 +10,7 @@ from util.core import save_file
 # TODO[BUG]: deleted skill is not deleted from the feature bonuses
 # TODO[BUG]: can't rename a counter, delete name editing entirely, it is not needed
 # TODO[BUG]: spell save does not update if it is not visible
+# TODO[BUG]: widgets in feature windows (i.e. Warlock or Paladin) duplicate when loading a new character sheet
 
 # TODO: material components that are consumed should be marked
 # TODO: for damage effects change the input field to a dropdown with damage types + other
@@ -54,7 +55,10 @@ def post_init(state: MainWindowProtocol) -> None:
         "new_text_item_popups_opened": {},
         "cyclic_bonus": False,
         "cyclic_bonus_path": [],
-        "number": 0
+        "search_window_opened": {},
+        "search_spell_text": "",
+        "searched_spells": [],
+        "selected_spell_idx": -1
     }
 
     state.are_windows_loaded = False
