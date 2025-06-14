@@ -27,6 +27,7 @@ def draw_text_cell(name: str) -> None:
     imgui.table_next_row(); imgui.table_next_column(); imgui.align_text_to_frame_padding()
     imgui.text(name)
 
+
 def help_marker(desc: str, with_question_mark: bool=True) -> None:
     if with_question_mark:
         imgui.text_disabled("(?)")

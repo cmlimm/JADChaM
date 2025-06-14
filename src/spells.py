@@ -1,19 +1,15 @@
 import copy
 import json
 
-from fuzzysearch import find_near_matches
-from imgui_bundle import ImVec2, imgui, imgui_md  # type: ignore
+from imgui_bundle import ImVec2, imgui  # type: ignore
 
 from cs_types.core import MainWindowProtocol
 from cs_types.spell import Spell
 from settings import STRIPED_TABLE_FLAGS  # type: ignore
-from settings import (  # type: ignore
-    INVISIBLE_TABLE_FLAGS,
-    LARGE_STRING_INPUT_WIDTH,
-    LIST_TYPE_TO_BONUS,
-)
+from settings import INVISIBLE_TABLE_FLAGS, LIST_TYPE_TO_BONUS  # type: ignore
 from stats import draw_rollable_stat_button
 from util.custom_imgui import end_table_nested, help_marker
+from util.sheet import draw_search_popup
 
 
 def process_spell_from_file(static: MainWindowProtocol) -> None:
@@ -200,15 +196,9 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
         spell_py["tags"] = []
 
         static.loaded_spells.append(copy.deepcopy(spell_py)) # type: ignore
-        # static.data["spells"].append(copy.deepcopy(spell_py)) # type: ignore
-        # static.data_refs[f"spell:{spell_py["name"]}:to_hit"] = static.data["spells"][-1]["to_hit"] # type: ignore
-        # static.bonus_list_refs[f"spell:{spell_py["name"]}:to_hit:bonuses"] = static.data["spells"][-1]["to_hit"]["bonuses"]
 
 
 def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
-    # if imgui.begin_table(f"{spell["name"]}_preview", 14, flags=INVISIBLE_TABLE_FLAGS): # type: ignore
-    #     imgui.table_next_row(); imgui.table_next_column()
-
     if imgui.button(f"Use##{spell["name"]}_use_button"):
         pass
     
@@ -358,14 +348,12 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
     # imgui.pop_id()
 
 
-def fuzzy(text: str, line: str) -> bool:
-    matches = find_near_matches(text, line, max_l_dist=1)
-    if matches != []:
-        return True
+def on_add_spell(static: MainWindowProtocol) -> None:
+    name = static.data["spells"][-1]["name"]
+    static.data_refs[f"spell:{name}:to_hit"] = static.data["spells"][-1]["to_hit"]
+    static.bonus_list_refs[f"spell:{name}:to_hit:bonuses"] = static.data["spells"][-1]["to_hit"]["bonuses"]
 
-    return False
 
-    
 def draw_spells(static: MainWindowProtocol) -> None:
     if imgui.button("Spells"):
         imgui.open_popup("Modify Spells")
@@ -374,45 +362,29 @@ def draw_spells(static: MainWindowProtocol) -> None:
 
     if imgui.button("Add Spell"):
         process_spell_from_file(static)
-        imgui.open_popup("Add Spell")
-        static.states["search_window_opened"]["spell_search"] = True
+        imgui.open_popup("search_spells")
+        if not static.states["search_data"].get("spells", False):
+            static.states["search_data"]["spells"] = {
+                "search_window_opened": True,
+                "search_text": "",
+                "search_results": []
+            }
 
     if imgui.begin_popup("Modify Spells"):
-        if imgui.button("Add Spell"):
-            imgui.open_popup("Add Spell")
+        imgui.text("Placeholder")
         imgui.end_popup()
 
-    if imgui.begin_popup("Add Spell"):
-        imgui.push_item_width(LARGE_STRING_INPUT_WIDTH)
-        changed, static.states["search_spell_text"] = imgui.input_text_with_hint("##search_spell", "Spell Name", 
-                                                                           static.states["search_spell_text"], 128)
-        imgui.pop_item_width()
+    if not hasattr(static, "loaded_spells"):
+        static.loaded_spells = []
 
-        if static.states["search_spell_text"] != "" and changed:
-            static.states["searched_spells"] = list(filter(lambda x: fuzzy(static.states["search_spell_text"], x["name"]), static.loaded_spells))
+    draw_search_popup("spells", static.loaded_spells, "name", "description", static.data["spells"], static,
+                      callback_on_add=lambda x=static: on_add_spell(x)) # type: ignore
 
-        outer_size = ImVec2(0.0, imgui.get_text_line_height_with_spacing()*10)
-        if static.states["searched_spells"] != [] and imgui.begin_table("spells_table", 1, flags=STRIPED_TABLE_FLAGS | imgui.TableFlags_.scroll_y, outer_size=outer_size): # type: ignore
-            for spell in static.states["searched_spells"]:
-                imgui.table_next_row(); imgui.table_next_column()
-                imgui.set_next_item_allow_overlap()
-                imgui.selectable(spell["name"], False, imgui.SelectableFlags_.span_all_columns)
-                if imgui.is_item_hovered():
-                    help_marker(spell["description"], with_question_mark=False)
-                    imgui.set_mouse_cursor(imgui.MouseCursor_.hand)
-                    if imgui.is_mouse_clicked(imgui.MouseButton_.left):
-                        static.data["spells"].append(spell)
-                imgui.same_line()
-            imgui.end_table()
-
-        imgui.end_popup()
-    elif static.states["search_window_opened"].get("spell_search", False):
-        static.states["search_window_opened"]["spell_search"] = False
-        static.states["search_spell_text"] = ""
-        static.states["searched_spells"] = []
-
+    # TODO: maybe use Clipper to clip the table, but in that case all rows must be the same height
     spells_list_len = len(static.data["spells"])
-    outer_size = ImVec2(0.0, imgui.get_window_size().y - imgui.get_text_line_height_with_spacing()*4)
+    min_height = imgui.get_frame_height() * 1.5 * (spells_list_len + 2)
+    max_height = imgui.get_window_size().y - imgui.get_text_line_height_with_spacing()*4
+    outer_size = ImVec2(0.0, min(min_height, max_height))
     if spells_list_len != 0 and imgui.begin_table("spells_table", 14, flags=STRIPED_TABLE_FLAGS | imgui.TableFlags_.scroll_y, outer_size=outer_size): # type: ignore
         imgui.table_setup_scroll_freeze(0, 1)
         imgui.table_setup_column("Use")
@@ -431,8 +403,6 @@ def draw_spells(static: MainWindowProtocol) -> None:
         imgui.table_setup_column("Components")
         imgui.table_headers_row()
 
-        # clipper = imgui.ListClipper()
-        # clipper.begin()
         for _, spell in enumerate(static.data["spells"]):
             if spell["name"] != "no_display":
                 imgui.table_next_row(); imgui.table_next_column()

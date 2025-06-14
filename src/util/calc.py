@@ -1,6 +1,8 @@
 import re
 from math import trunc
 
+from fuzzysearch import find_near_matches  # type: ignore
+
 from cs_types.components import Bonus
 from cs_types.core import MainWindowProtocol
 from cs_types.guards import isRepresentFloat, isRepresentInt
@@ -161,3 +163,11 @@ def check_for_cycles(static: MainWindowProtocol, target_ref: str, bonus_ref: str
                 return (True, visited)
                     
     return (False, visited)
+
+
+def fuzzy_search(text: str, line: str) -> bool:
+    matches = find_near_matches(text, line, max_l_dist=1) # type: ignore
+    if matches != []:
+        return True
+
+    return False

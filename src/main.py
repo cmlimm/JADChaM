@@ -55,10 +55,7 @@ def post_init(state: MainWindowProtocol) -> None:
         "new_text_item_popups_opened": {},
         "cyclic_bonus": False,
         "cyclic_bonus_path": [],
-        "search_window_opened": {},
-        "search_spell_text": "",
-        "searched_spells": [],
-        "selected_spell_idx": -1
+        "search_data": {}
     }
 
     state.are_windows_loaded = False

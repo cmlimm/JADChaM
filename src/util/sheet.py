@@ -1,5 +1,5 @@
 import itertools
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
@@ -21,6 +21,7 @@ from settings import (  # type: ignore
     DISADVANTAGE_ACTIVE_COLOR,
     DISADVANTAGE_COLOR,
     INVISIBLE_TABLE_FLAGS,
+    LARGE_STRING_INPUT_WIDTH,
     LIST_TYPE_TO_BONUS,
     MAGICAL_WORD_WRAP_NUMBER_TABLE,
     MEDIUM_STRING_INPUT_WIDTH,
@@ -29,7 +30,7 @@ from settings import (  # type: ignore
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
 )
-from util.calc import check_for_cycles, get_bonus_value, sum_bonuses
+from util.calc import check_for_cycles, fuzzy_search, get_bonus_value, sum_bonuses
 from util.core import open_image
 from util.custom_imgui import ColorButton, draw_text_cell, end_table_nested, help_marker
 
@@ -700,3 +701,54 @@ def draw_open_image_button(static: MainWindowProtocol) -> None:
         static.open_image_dialog = pfd.open_file("Select file", filters=["Image Files", "*.png *.jpg *.jpeg *.bmp"])
 
     open_image(static)
+
+
+def draw_search_popup(search_id: str, search_list: list[Any],
+                      search_key: str, tooltip_key: str,
+                      target_list: list[Any], static: MainWindowProtocol,
+                      callback_on_add: Optional[Callable[..., Any]]=None) -> None:
+    """
+    When opening a search popup, make sure to set up search data:
+
+    ```
+    if not static.states["search_data"].get("spells", False):
+        static.states["search_data"]["spells"] = {
+            "search_window_opened": True,
+            "search_text": "",
+            "search_results": []
+        }
+    ```
+    """
+    if imgui.begin_popup(f"search_{search_id}"):
+        imgui.push_item_width(LARGE_STRING_INPUT_WIDTH)
+        changed, static.states["search_data"][search_id]["search_text"] = imgui.input_text_with_hint(f"##search_{search_id}",
+                                                                                                     "Search",
+                                                                                                     static.states["search_data"][search_id]["search_text"],
+                                                                                                     128)
+        imgui.pop_item_width()
+
+        if changed and static.states["search_data"][search_id]["search_text"] != "":
+            static.states["search_data"][search_id]["search_results"] = list(filter(lambda x: fuzzy_search(static.states["search_data"][search_id]["search_text"],
+                                                                                                           x[search_key]), search_list))
+
+        outer_size = ImVec2(0.0, imgui.get_text_line_height_with_spacing()*10)
+        if static.states["search_data"][search_id]["search_results"] != [] and imgui.begin_table(f"search_results_{search_id}", 1, flags=STRIPED_TABLE_FLAGS | imgui.TableFlags_.scroll_y, outer_size=outer_size): # type: ignore
+            for result in static.states["search_data"][search_id]["search_results"]:
+                imgui.table_next_row(); imgui.table_next_column()
+                imgui.set_next_item_allow_overlap()
+                imgui.selectable(result[search_key], False, imgui.SelectableFlags_.span_all_columns) # type: ignore
+                if imgui.is_item_hovered():
+                    help_marker(result[tooltip_key], with_question_mark=False)
+                    imgui.set_mouse_cursor(imgui.MouseCursor_.hand) # type: ignore
+                    if imgui.is_mouse_clicked(imgui.MouseButton_.left): # type: ignore
+                        target_list.append(result)
+                        if callback_on_add:
+                            callback_on_add()
+                imgui.same_line()
+            imgui.end_table()
+
+        imgui.end_popup()
+    elif static.states["search_data"].get(search_id, False) and static.states["search_data"][search_id]["search_window_opened"]:
+        static.states["search_data"][search_id]["search_window_opened"] = False
+        static.states["search_data"][search_id]["search_text"] = ""
+        static.states["search_data"][search_id]["search_results"] = []

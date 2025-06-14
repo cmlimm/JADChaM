@@ -138,6 +138,13 @@ class NewBonus(TypedDict):
     new_bonus_value: int | str
     new_bonus_mult: float
 
+
+class SearchData(TypedDict):
+    search_window_opened: bool
+    search_text: str
+    search_results: list[Any]
+
+
 class States(TypedDict):
     hp_dice_idx: int
     ability_bonus_type_idx: int
@@ -171,10 +178,7 @@ class States(TypedDict):
     # otherwise the popup name changes with the feature name.
     feat_name: str
 
-    search_window_opened: dict[str, bool]
-    search_spell_text: str
-    searched_spells: list[Spell]
-    selected_spell_idx: int
+    search_data: dict[str, SearchData]
     
 
 class MainWindowProtocol():
