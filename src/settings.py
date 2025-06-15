@@ -40,6 +40,8 @@ OVERRIDE_COLOR = imgui.ImColor.hsv(0.15, 0.8, 0.8).value
 
 RE_VALUE = "{\w+?.+?}" # type: ignore
 RE_NEW_LINE = "\\n"
+RE_SPELL_DAMAGE = "{@damage (\d+d\d+)}"
+RE_SPELL_SCALING = "{@scaledamage ((\d+d\d+;{0,1})+)\|(\d+-\d+)\|(\d+d\d+)}"
 
 LIST_TYPE_TO_BONUS: ListTypeToBonus = {
     "all": ["Numerical", "Level", "Ability", "Ability Score", "Saving Throw", "Skill", 

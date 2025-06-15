@@ -33,7 +33,8 @@ class DiceRoll(TypedDict):
 
 class SpellDamage(TypedDict):
     roll: DiceRoll
-    scaling: dict[int, DiceRoll]
+    scaling_level: dict[int, DiceRoll]
+    scaling_slot: dict[int, DiceRoll]
 
 
 class Spell(TypedDict):

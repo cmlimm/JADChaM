@@ -1,12 +1,18 @@
 import copy
 import json
+import re
 
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui  # type: ignore
 
 from cs_types.core import MainWindowProtocol
 from cs_types.spell import Spell
-from settings import STRIPED_TABLE_FLAGS  # type: ignore
-from settings import INVISIBLE_TABLE_FLAGS, LIST_TYPE_TO_BONUS  # type: ignore
+from settings import (  # type: ignore
+    INVISIBLE_TABLE_FLAGS,
+    LIST_TYPE_TO_BONUS,
+    RE_SPELL_DAMAGE,
+    RE_SPELL_SCALING,
+    STRIPED_TABLE_FLAGS,
+)
 from stats import draw_rollable_stat_button
 from util.custom_imgui import end_table_nested, help_marker
 from util.sheet import draw_search_popup
@@ -19,13 +25,13 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
     static.loaded_spells = []
 
     for spell_json in spells:
-        # spell_json = spells[idx]
         spell_py = {}
 
         spell_py["name"] = spell_json["name"]
         spell_py["level"] = spell_json["level"]
         spell_py["school"] = spell_json["school"]
 
+        # DESCRIPTION
         spell_py["description"] = ""
         description_lines = []
         entries = spell_json.get("entries", [])
@@ -42,10 +48,12 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
                     description_lines.append(higher_entry) # type: ignore
         spell_py["description"] = "\n".join(description_lines) # type: ignore
 
+        # CLASS + SUBCLASS
         # TODO: temp
         spell_py["classes"] = []
         spell_py["subclasses"] = []
 
+        # CASTING TIME
         spell_py["casting_time"] = []
         if times := spell_json.get("time"):
             for time in times:
@@ -65,6 +73,7 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
                     "amount": time["number"]
                 })
 
+        # DURATION + CONCENTRATION
         spell_py["concentration"] = False
         spell_py["duration"] = []
         if durations := spell_json.get("duration"):
@@ -95,19 +104,21 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
                 if duration.get("concentration", False):
                     spell_py["concentration"] = True
 
+        # RANGE
         spell_py["range"] = []
-        if range := spell_json.get("range"):
-            if range["type"] == "special":
+        if spell_range := spell_json.get("range"):
+            if spell_range["type"] == "special":
                 spell_py["range"].append({ # type: ignore
                         "type": "special",
                         "amount": 0
                 })
             else:
                 spell_py["range"].append({ # type: ignore
-                    "type": range["distance"]["type"],
-                    "amount": range["distance"].get("amount", 0)
+                    "type": spell_range["distance"]["type"],
+                    "amount": spell_range["distance"].get("amount", 0)
                 })
-                        
+
+        # AREA        
         area_dict =  {
             "C": "Cube",
             "H": "Hemisphere",
@@ -126,6 +137,7 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
             for area in areas:
                 spell_py["area"].append(area_dict[area]) # type: ignore
 
+        # COMPONENTS
         spell_py["components"] = {
             "v": spell_json.get("components", {}).get("v", False),
             "s": spell_json.get("components", {}).get("s", False),
@@ -139,8 +151,10 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
                 spell_py["components"]["c"] = False
             spell_py["components"]["m"] = spell_py["components"]["m"]["text"]
 
+        # RITUAL
         spell_py["ritual"] = spell_json.get("meta", {}).get("ritual", False)
 
+        # TO_HIT
         spell_py["to_hit"] = {
             "name": spell_py["name"],
             "total": 0,
@@ -157,9 +171,10 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
             "manual": True
         }
 
-        
+        # DAMAGE
         spell_py["damage"] = []
         if damage := spell_json.get("scalingLevelDice"):
+            # if the spell has scalingLevelDice key, it is a cantrip, just copy the data
             roll = {
                 "dice": damage["scaling"]["1"].split("d")[1],
                 "amount": damage["scaling"]["1"].split("d")[0]
@@ -171,11 +186,54 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
                 scaling[int(key)]["amount"] = value.split("d")[0]
             spell_py["damage"].append({ # type: ignore
                 "roll": roll,
-                "scaling": scaling
+                "scaling_level": scaling,
+                "scaling_slot": {}
             })
+        else:
+            scale_damage_match = re.findall(RE_SPELL_SCALING, spell_py["description"])
+            damage_match = re.findall(RE_SPELL_DAMAGE, spell_py["description"])
+            if scale_damage_match != []:
+                # if the spell has {@scaledamage ...}, it has all the info we need:
+                #   - initial damage
+                #   - damage for each level above the initial level
+                for match in scale_damage_match:
+                    first_level = int(match[-2].split("-")[0])
+                    last_level = int(match[-2].split("-")[1])
+                    # for {@scaledamage ...} that have two initial damages: {@scaledamage 4d8;2d8|3-9|1d8}
+                    for damage_str in match[0].split(";"):
+                        initial_damage = {
+                            "dice": int(damage_str.split("d")[1]),
+                            "amount": int(damage_str.split("d")[0])
+                        }
+                        scaling_slot = {
+                            str(level): {
+                                "dice": initial_damage["dice"], 
+                                "amount": initial_damage["amount"] + idx * int(match[-1].split("d")[0])
+                                } 
+                            for idx, level in enumerate(range(first_level, last_level + 1))
+                            }
+                        spell_py["damage"].append({ # type: ignore
+                            "roll": initial_damage,
+                            "scaling_level": {},
+                            "scaling_slot": scaling_slot
+                        })
+            elif damage_match != []:
+                # if the spell doesnt have any of the above, the best we can do is find {@damage ...}
+                for match in damage_match:
+                    damage = {
+                        "dice": int(match.split("d")[1]),
+                        "amount": int(match.split("d")[0])
+                    }
+                    spell_py["damage"].append({ # type: ignore
+                        "roll": damage,
+                        "scaling_level": {},
+                        "scaling_slot": {}
+                    })
 
+        # DAMAGE TYPE
         spell_py["damage_type"] = spell_json.get("damageInflict", [])
 
+        # CONDITIONS
         spell_py["condition_inflicted"] = []
         if conditions := spell_json.get("conditionInflict", None):
             for condition in conditions:
@@ -190,11 +248,13 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
                         "custom": True
                     })
         
+        # SAVE
         spell_py["saving_throw"] = []
         if saves := spell_json.get("savingThrow", None):
             for save in saves:
                 spell_py["saving_throw"].append(save[:3].upper()) # type: ignore
 
+        # TAGS
         spell_py["tags"] = []
 
         static.loaded_spells.append(copy.deepcopy(spell_py)) # type: ignore
@@ -385,6 +445,15 @@ def draw_spells(static: MainWindowProtocol) -> None:
                 "search_text": "",
                 "search_results": []
             }
+
+    imgui.same_line()
+
+    # DEBUG
+    if imgui.button("Add All Spells"):
+        process_spell_from_file(static)
+        for spell in static.loaded_spells:
+            static.data["spells"].append(spell)
+            on_add_spell(static)
 
     if imgui.begin_popup("Modify Spells"):
         imgui.text("Placeholder")
