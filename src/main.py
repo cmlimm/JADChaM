@@ -13,7 +13,7 @@ from util.core import save_file
 # TODO[BUG]: spell save does not update if it is not visible
 # TODO[BUG]: widgets in feature windows (i.e. Warlock or Paladin) duplicate when loading a new character sheet
 
-# TODO: material components that are consumed should be marked
+# TODO: add advantage and disadvantage rolls
 # TODO: for damage effects change the input field to a dropdown with damage types + other
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
 # TODO: add `min=` to the text parsing

@@ -795,7 +795,7 @@ def draw_roll_popup(menu_id: str, static: MainWindowProtocol) -> None:
     
     # TODO: make flashing optional
     fps = imgui.get_io().framerate
-    if static.states["roll_color_frames_count"] >= 5*fps or static.states["roll_color_frames_count"] == 0:
+    if static.states["roll_color_frames_count"] >= 10*fps or static.states["roll_color_frames_count"] == 0:
         static.states["roll_popup_color"] = random.choices(range(256), k=3)
         static.states["roll_color_frames_count"] = 1
     else:
@@ -806,10 +806,10 @@ def draw_roll_popup(menu_id: str, static: MainWindowProtocol) -> None:
     if imgui.begin_popup(f"roll_popup_{menu_id}"):
         imgui.text("Roll:")
         total = 0
-        for roll in static.states["roll_list"]:
-            roll_str, roll_type, roll_result = roll["roll_str"], roll["roll_type"], roll["roll_result"]
+        if imgui.begin_table(f"roll_table_{menu_id}", 3, STRIPED_TABLE_FLAGS):
+            for roll in static.states["roll_list"]:
+                roll_str, roll_type, roll_result = roll["roll_str"], roll["roll_type"], roll["roll_result"]
 
-            if imgui.begin_table(f"roll_table_{menu_id}", 3, STRIPED_TABLE_FLAGS):
                 imgui.table_next_row(); imgui.table_next_column()
                 imgui.text(roll_str); imgui.table_next_column()
 
@@ -839,6 +839,7 @@ def draw_roll_popup(menu_id: str, static: MainWindowProtocol) -> None:
 
                 end_table_nested()
 
+        imgui.spacing()
         imgui.text(f"Total: {total}")
 
         imgui.end_popup()
