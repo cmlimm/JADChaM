@@ -140,9 +140,14 @@ class NewBonus(TypedDict):
 
 
 class SearchData(TypedDict):
-    search_window_opened: bool
     search_text: str
     search_results: list[Any]
+
+
+class Roll(TypedDict):
+    roll_str: str
+    roll_type: str
+    roll_result: int
 
 
 class States(TypedDict):
@@ -167,8 +172,6 @@ class States(TypedDict):
 
     counter_edit: Counter
 
-    new_text_item_popups_opened: dict[str, bool]
-
     cyclic_bonus: bool
     cyclic_bonus_path: list[str]
 
@@ -180,6 +183,11 @@ class States(TypedDict):
 
     search_data: dict[str, SearchData]
     
+    roll_list: list[Roll]
+    roll_popup_opened: dict[str, bool]
+    roll_color_frames_count: int
+    roll_popup_color: list[int]
+
 
 class MainWindowProtocol():
     regular_font: imgui.ImFont

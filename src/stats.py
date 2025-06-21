@@ -1,11 +1,11 @@
-from imgui_bundle import imgui
+from imgui_bundle import ImVec2, imgui
 
 from cs_types.core import MainWindowProtocol
 from cs_types.stats import RollableStat, StaticStat
 from settings import MEDIUM_STRING_INPUT_WIDTH, TWO_DIGIT_BUTTONS_INPUT_WIDTH
 from util.calc import find_max_override, sum_bonuses
 from util.custom_imgui import ColorButton
-from util.sheet import draw_add_bonus, draw_bonuses, draw_overrides
+from util.sheet import draw_add_bonus, draw_bonuses, draw_overrides, draw_roll_menu
 
 
 def draw_rollable_stat_button(stat_id: str, stat: RollableStat, 
@@ -23,6 +23,8 @@ def draw_rollable_stat_button(stat_id: str, stat: RollableStat,
     with ColorButton(color):
         if imgui.button(f"{stat["total"]:^+}##{stat_id}"):
             imgui.open_popup(f"{stat["name"]}_edit_stat")
+    
+    draw_roll_menu(stat_id, "1d20", str(stat["total"]), "Stat", static)
 
     if imgui.begin_popup(f"{stat["name"]}_edit_stat"):
         imgui.align_text_to_frame_padding();

@@ -1,3 +1,4 @@
+import random
 import re
 from math import trunc
 
@@ -171,3 +172,14 @@ def fuzzy_search(text: str, line: str) -> bool:
         return True
 
     return False
+
+
+def calculate_roll(roll_mod: str) -> int:
+    roll = roll_mod
+    mod = "0"
+    if "+" in roll_mod:
+        roll, mod = roll_mod.split("+")
+    dice_count, dice_size = roll.split("d")
+
+    roll_result = sum([random.randint(1, int(dice_size)) for _ in range(int(dice_count))])
+    return roll_result + int(mod)

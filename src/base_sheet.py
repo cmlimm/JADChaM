@@ -24,6 +24,8 @@ from util.sheet import (
     draw_edit_list_popup,
     draw_open_image_button,
     draw_overrides,
+    draw_roll_menu,
+    draw_roll_popup,
     draw_text_table,
 )
 
@@ -300,6 +302,8 @@ def draw_abilities(static: MainWindowProtocol) -> None:
                 if imgui.button(f"{ability["name"]}[{ability["total_base_score"]}]\n{ability["total"]:^+}"):
                     imgui.open_popup(f"{ability["name"]}_edit_ability")
 
+                draw_roll_menu(f"{ability["name"]}_ability", "1d20", str(ability["total"]), "Stat", static)
+
                 if imgui.begin_popup(f"{ability["name"]}_edit_ability"):
                     imgui.align_text_to_frame_padding()
                     imgui.text(f"Base Score"); imgui.same_line()
@@ -511,3 +515,20 @@ def draw_skills(static: MainWindowProtocol) -> None:
                                           static)
         
         end_table_nested()
+
+
+def draw_status(static: MainWindowProtocol) -> None:
+    if static.states["roll_list"] != []:
+        imgui.align_text_to_frame_padding()
+        imgui.text("Current Roll:"); imgui.same_line()
+
+        imgui.align_text_to_frame_padding()
+        imgui.text(", ".join([roll["roll_str"] for roll in static.states["roll_list"]]))
+        
+        imgui.same_line()
+        
+        if imgui.button("Roll"):
+            static.states["roll_popup_opened"]["status_roll"] = True
+            imgui.open_popup(f"roll_popup_status_roll")
+
+        draw_roll_popup("status_roll", static)

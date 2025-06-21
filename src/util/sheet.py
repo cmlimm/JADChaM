@@ -1,11 +1,12 @@
 import itertools
+import random
 from typing import Any, Callable, Optional
 
-from imgui_bundle import ImVec2, icons_fontawesome_6, imgui
+from imgui_bundle import ImColor, ImVec2, icons_fontawesome_6, imgui
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 from cs_types.components import Bonus, BonusTo, Counter, TextData
-from cs_types.core import Feature, MainWindowProtocol, NewBonus, StatTypes
+from cs_types.core import Feature, MainWindowProtocol, NewBonus, Roll, StatTypes
 from cs_types.guards import (
     isAbilityList,
     isClassList,
@@ -30,7 +31,13 @@ from settings import (  # type: ignore
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
 )
-from util.calc import check_for_cycles, fuzzy_search, get_bonus_value, sum_bonuses
+from util.calc import (
+    calculate_roll,
+    check_for_cycles,
+    fuzzy_search,
+    get_bonus_value,
+    sum_bonuses,
+)
 from util.core import open_image
 from util.custom_imgui import ColorButton, draw_text_cell, end_table_nested, help_marker
 
@@ -497,6 +504,7 @@ def draw_counter(counter: Counter, static: MainWindowProtocol) -> None:
         imgui.dummy(ImVec2(0, 0))
         counter["current"] = sum([int(state) for state in counter_states])
 
+
 def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: MainWindowProtocol, 
                       counter: Optional[Counter] = None) -> None:
     if not counter:
@@ -566,11 +574,6 @@ def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: Mai
 
 def draw_new_text_item_popup(table_name: str, default_types: list[str], target_lists: list[list[TextData]], 
                              static: MainWindowProtocol, source: str = "", manual: bool = True) -> None:
-    """
-    When opening a popup, change the `static.states["new_text_item_popup_opened"]` variable to `True`
-    This way we can track popup opening and closing to clear temporary data for new items
-    """
-    
     if imgui.begin_popup(f"New Text Table Item Popup##{table_name}"):
         imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.states["new_training"]["name"] = imgui.input_text_with_hint(
@@ -620,8 +623,10 @@ def draw_new_text_item_popup(table_name: str, default_types: list[str], target_l
                 "manual": True
             }
         imgui.end_popup()
-    elif static.states["new_text_item_popups_opened"].get(table_name, False):
-        static.states["new_text_item_popups_opened"][table_name] = False
+    # The reason why we do not need `elif` here with a check for opened popup is because
+    # we can reset the data as much as we want (every frame when the popup is closed).
+    # We only need to store the temporary data for the new item while the popup is opened.
+    else:
         static.states["text_table_type_idx"] = 0
         static.states["new_training"] = {
             "name": "",
@@ -656,7 +661,6 @@ def draw_text_table(table_name: str, data: list[TextData], default_types: list[s
     if imgui.begin_popup_modal(popup_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
         if imgui.button(f"New Item##{table_name}"):
             imgui.open_popup(f"New Text Table Item Popup##{table_name}")
-            static.states["new_text_item_popups_opened"][table_name] = True
         draw_new_text_item_popup(table_name, default_types, [data], static)
 
         if imgui.begin_table("training_edit_list", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
@@ -750,7 +754,95 @@ def draw_search_popup(search_id: str, search_list: list[Any],
             imgui.end_table()
 
         imgui.end_popup()
-    elif static.states["search_data"].get(search_id, False) and static.states["search_data"][search_id]["search_window_opened"]:
-        static.states["search_data"][search_id]["search_window_opened"] = False
+    elif static.states["search_data"].get(search_id, False):
         static.states["search_data"][search_id]["search_text"] = ""
         static.states["search_data"][search_id]["search_results"] = []
+
+
+def draw_roll_menu(menu_id: str, roll_str: str, mod_str: str, roll_type: str, static: MainWindowProtocol, button_result: bool=False) -> None:
+    open_popup = False
+
+    if button_result:
+        imgui.open_popup(menu_id)
+
+    if imgui.begin_popup(menu_id) or imgui.begin_popup_context_item():
+        roll: Roll = {
+            "roll_str": f"{roll_str}{f"+{mod_str}" if mod_str != "0" else ""}",
+            "roll_type": roll_type,
+            "roll_result": 0
+        }
+        roll["roll_result"] = calculate_roll(roll["roll_str"])
+        if imgui.menu_item_simple("Add to Roll"):
+            static.states["roll_list"].append(roll)
+        if imgui.menu_item_simple("Add & Roll"):
+            open_popup = True
+            static.states["roll_popup_opened"][menu_id] = True
+            static.states["roll_list"].append(roll)
+        imgui.end_popup()
+
+    if open_popup:
+        imgui.open_popup(f"roll_popup_{menu_id}")
+        open_popup = False
+
+    draw_roll_popup(menu_id, static)
+
+
+def draw_roll_popup(menu_id: str, static: MainWindowProtocol) -> None:
+    main_size = imgui.get_main_viewport().size
+    main_pos = imgui.get_main_viewport().pos
+    imgui.set_next_window_pos(ImVec2(main_pos.x + main_size.x - 10, main_pos.y + main_size.y - 10),
+                              imgui.Cond_.appearing.value, ImVec2(1, 1))
+    
+    # TODO: make flashing optional
+    fps = imgui.get_io().framerate
+    if static.states["roll_color_frames_count"] >= 5*fps or static.states["roll_color_frames_count"] == 0:
+        static.states["roll_popup_color"] = random.choices(range(256), k=3)
+        static.states["roll_color_frames_count"] = 1
+    else:
+        static.states["roll_color_frames_count"] += 1
+
+    rgb = static.states["roll_popup_color"]
+    imgui.push_style_color(imgui.Col_.border.value, ImColor(rgb[0], rgb[1], rgb[2]).value) # type: ignore
+    if imgui.begin_popup(f"roll_popup_{menu_id}"):
+        imgui.text("Roll:")
+        total = 0
+        for roll in static.states["roll_list"]:
+            roll_str, roll_type, roll_result = roll["roll_str"], roll["roll_type"], roll["roll_result"]
+
+            if imgui.begin_table(f"roll_table_{menu_id}", 3, STRIPED_TABLE_FLAGS):
+                imgui.table_next_row(); imgui.table_next_column()
+                imgui.text(roll_str); imgui.table_next_column()
+
+                total += roll_result
+                imgui.text(str(roll_result)); imgui.table_next_column()
+
+                imgui.text(roll_type)
+
+            end_table_nested()
+        imgui.spacing()
+
+        types = set([roll["roll_type"] for roll in static.states["roll_list"]])
+        if len(types) != 1:
+            if imgui.begin_table(f"roll_results_table_{menu_id}", 2, STRIPED_TABLE_FLAGS):
+                imgui.table_setup_column("Type")
+                imgui.table_setup_column("Total")
+                imgui.table_headers_row()
+
+                for roll_type, roll_list in itertools.groupby(sorted(static.states["roll_list"],  
+                                                                    key=lambda x: x["roll_type"]), 
+                                                                    key=lambda x: x["roll_type"]):
+                    imgui.table_next_row(); imgui.table_next_column()
+                    imgui.text(roll_type); imgui.table_next_column()
+
+                    type_total = sum([roll["roll_result"] for roll in roll_list])
+                    imgui.text(str(type_total))
+
+                end_table_nested()
+
+        imgui.text(f"Total: {total}")
+
+        imgui.end_popup()
+    elif static.states["roll_popup_opened"].get(menu_id, False) and static.states["roll_popup_opened"][menu_id]:
+        static.states["roll_popup_opened"][menu_id] = False
+        static.states["roll_list"] = []
+    imgui.pop_style_color()

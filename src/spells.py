@@ -15,7 +15,7 @@ from settings import (  # type: ignore
 )
 from stats import draw_rollable_stat_button
 from util.custom_imgui import end_table_nested, help_marker
-from util.sheet import draw_search_popup
+from util.sheet import draw_roll_menu, draw_search_popup
 
 
 def process_spell_from_file(static: MainWindowProtocol) -> None:
@@ -232,6 +232,7 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
 
         # DAMAGE TYPE
         spell_py["damage_type"] = spell_json.get("damageInflict", [])
+        spell_py["damage_type"] = spell_py["damage_type"] + ["Unknown"] * (len(spell_py["damage"]) - len(spell_py["damage_type"]))
 
         # CONDITIONS
         spell_py["condition_inflicted"] = []
@@ -354,7 +355,12 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
     imgui.table_next_column()
 
     # DAMAGE + DAMAGE TYPE + CONDITIONS
-    damage = [f"{damage["roll"]["amount"]}d{damage["roll"]["dice"]}" for damage in spell["damage"]]
+    for idx, damage in enumerate(spell["damage"]):
+        damage_roll_str = f"{damage["roll"]["amount"]}d{damage["roll"]["dice"]}"
+        button_result = imgui.button(f"{damage_roll_str}##{spell["name"]}_{idx}")
+        draw_roll_menu(f"damage_roll_{spell["name"]}_{idx}", damage_roll_str, "0", spell["damage_type"][idx], static, button_result)
+        imgui.same_line()
+
     damage_types_dict = {
         "acid": "acid",
         "bludgeoning": "bldg",
@@ -370,17 +376,14 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
         "slashing": "slsh",
         "thunder": "tndr"
     }
-    damage_types = [f"{damage_types_dict[damage_type]}" for damage_type in spell["damage_type"]]
+    damage_types = [f"{damage_types_dict[damage_type]}" for damage_type in spell["damage_type"] if damage_type != "Unknown"]
     conditions = [condition["name"] for condition in spell["condition_inflicted"]]
     conditions_descs = [f"{condition["name"]}\n\n{condition["description"]}" for condition in spell["condition_inflicted"]]
     
-    damage_str = ", ".join(damage)
     damage_types_str = ", ".join(damage_types)
     conditions_str = ", ".join(conditions)
     conditions_descs_str = "\n\n\n".join(conditions_descs)
     total_str = ""
-    if damage_str != "":
-        total_str += damage_str
     if damage_types_str != "":
         if total_str != "": total_str += " | " 
         total_str += damage_types_str
@@ -441,7 +444,6 @@ def draw_spells(static: MainWindowProtocol) -> None:
         imgui.open_popup("search_spells")
         if not static.states["search_data"].get("spells", False):
             static.states["search_data"]["spells"] = {
-                "search_window_opened": True,
                 "search_text": "",
                 "search_results": []
             }

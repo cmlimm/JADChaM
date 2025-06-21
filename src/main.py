@@ -3,6 +3,7 @@ import os
 from imgui_bundle import ImVec2, hello_imgui, imgui, imgui_md, immapp  # type: ignore
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
+from base_sheet import draw_status
 from cs_types.core import MainWindowProtocol
 from util.character_loading import draw_load_character_button, load_character
 from util.core import save_file
@@ -52,10 +53,13 @@ def post_init(state: MainWindowProtocol) -> None:
         "new_tag": "",
         "new_condition_name": "",
         "new_condition_description": "",
-        "new_text_item_popups_opened": {},
         "cyclic_bonus": False,
         "cyclic_bonus_path": [],
-        "search_data": {}
+        "search_data": {},
+        "roll_list": [],
+        "roll_popup_opened": {},
+        "roll_color_frames_count": 0,
+        "roll_popup_color": [0, 0, 0]
     }
 
     state.are_windows_loaded = False
@@ -181,11 +185,15 @@ def make_params() -> tuple[hello_imgui.RunnerParams, immapp.AddOnsParams]:
     main_window_state = MainWindowProtocol()
 
     runner_params.imgui_window_params.show_menu_bar = True
-    runner_params.callbacks.show_app_menu_items = lambda: draw_toolbar(main_window_state)
+    runner_params.callbacks.show_app_menu_items = lambda main_window_state=main_window_state: draw_toolbar(main_window_state)
 
-    runner_params.callbacks.load_additional_fonts = lambda: load_fonts(main_window_state)
-    runner_params.callbacks.post_init = lambda: post_init(main_window_state)
-    runner_params.callbacks.before_imgui_render = lambda: each_frame(main_window_state)
+    runner_params.callbacks.load_additional_fonts = lambda main_window_state=main_window_state: load_fonts(main_window_state)
+    runner_params.callbacks.post_init = lambda main_window_state=main_window_state: post_init(main_window_state)
+    runner_params.callbacks.before_imgui_render = lambda main_window_state=main_window_state: each_frame(main_window_state)
+
+    runner_params.imgui_window_params.show_status_bar = True
+    runner_params.callbacks.show_status = lambda main_window_state=main_window_state: draw_status(main_window_state)
+    runner_params.imgui_window_params.show_status_fps = False
 
     runner_params.imgui_window_params.default_imgui_window_type = (
         hello_imgui.DefaultImGuiWindowType.provide_full_screen_dock_space
