@@ -759,7 +759,7 @@ def draw_search_popup(search_id: str, search_list: list[Any],
         static.states["search_data"][search_id]["search_results"] = []
 
 
-def draw_roll_menu(menu_id: str, roll_str: str, mod_str: str, roll_type: str, static: MainWindowProtocol, button_result: bool=False) -> None:
+def draw_roll_menu(menu_id: str, roll_str: str, mod_str: str, roll_type: str, adv_disadv: int, static: MainWindowProtocol, button_result: bool=False) -> None:
     open_popup = False
 
     if button_result:
@@ -771,7 +771,7 @@ def draw_roll_menu(menu_id: str, roll_str: str, mod_str: str, roll_type: str, st
             "roll_type": roll_type,
             "roll_result": 0
         }
-        roll["roll_result"] = calculate_roll(roll["roll_str"])
+        roll["roll_result"] = calculate_roll(roll["roll_str"], adv_disadv)
         if imgui.menu_item_simple("Add to Roll"):
             static.states["roll_list"].append(roll)
         if imgui.menu_item_simple("Add & Roll"):

@@ -302,7 +302,7 @@ def draw_abilities(static: MainWindowProtocol) -> None:
                 if imgui.button(f"{ability["name"]}[{ability["total_base_score"]}]\n{ability["total"]:^+}"):
                     imgui.open_popup(f"{ability["name"]}_edit_ability")
 
-                draw_roll_menu(f"{ability["name"]}_ability", "1d20", str(ability["total"]), "Stat", static)
+                draw_roll_menu(f"{ability["name"]}_ability", "1d20", str(ability["total"]), "Stat", 0, static)
 
                 if imgui.begin_popup(f"{ability["name"]}_edit_ability"):
                     imgui.align_text_to_frame_padding()

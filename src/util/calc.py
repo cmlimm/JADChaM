@@ -174,7 +174,7 @@ def fuzzy_search(text: str, line: str) -> bool:
     return False
 
 
-def calculate_roll(roll_mod: str) -> int:
+def calculate_roll(roll_mod: str, adv_disadv: int) -> int:
     roll = roll_mod
     mod = "0"
     if "+" in roll_mod:
@@ -182,4 +182,11 @@ def calculate_roll(roll_mod: str) -> int:
     dice_count, dice_size = roll.split("d")
 
     roll_result = sum([random.randint(1, int(dice_size)) for _ in range(int(dice_count))])
+
+    roll_result_2 = sum([random.randint(1, int(dice_size)) for _ in range(int(dice_count))])
+    if adv_disadv == 1:
+        roll_result = max(roll_result, roll_result_2)
+    if adv_disadv == -1:
+        roll_result = min(roll_result, roll_result_2)
+
     return roll_result + int(mod)

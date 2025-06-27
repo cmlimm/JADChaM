@@ -24,7 +24,7 @@ def draw_rollable_stat_button(stat_id: str, stat: RollableStat,
         if imgui.button(f"{stat["total"]:^+}##{stat_id}"):
             imgui.open_popup(f"{stat["name"]}_edit_stat")
     
-    draw_roll_menu(stat_id, "1d20", str(stat["total"]), "Stat", static)
+    draw_roll_menu(stat_id, "1d20", str(stat["total"]), "Stat", roll, static)
 
     if imgui.begin_popup(f"{stat["name"]}_edit_stat"):
         imgui.align_text_to_frame_padding();

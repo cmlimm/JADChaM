@@ -358,7 +358,7 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
     for idx, damage in enumerate(spell["damage"]):
         damage_roll_str = f"{damage["roll"]["amount"]}d{damage["roll"]["dice"]}"
         button_result = imgui.button(f"{damage_roll_str}##{spell["name"]}_{idx}")
-        draw_roll_menu(f"damage_roll_{spell["name"]}_{idx}", damage_roll_str, "0", spell["damage_type"][idx], static, button_result)
+        draw_roll_menu(f"damage_roll_{spell["name"]}_{idx}", damage_roll_str, "0", spell["damage_type"][idx], 0, static, button_result)
         imgui.same_line()
 
     damage_types_dict = {
