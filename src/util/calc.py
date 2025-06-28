@@ -99,19 +99,29 @@ def find_max_override(override_list: list[Bonus], static: MainWindowProtocol) ->
 
 def replace_value(match: re.Match[str], static: MainWindowProtocol) -> str:
     text = match.group(0).strip("{}")
-    text_split = text.split(", mult=")
+
+    text_split = text.split(", min=")
+    minimum = 0
+    if len(text_split) == 2:
+        minimum_text = text_split[1]
+        if isRepresentInt(minimum_text):
+            minimum = int(minimum_text)
+        elif isRepresentFloat(minimum_text):
+            minimum = float(minimum_text)
+
+    text_split = text_split[0].split(", mult=")
     value = text_split[0]
     multiplier = 1.0
     if len(text_split) == 2:
         multiplier_text = text_split[1]
-        if isRepresentFloat(multiplier_text) or isRepresentInt(multiplier_text) :
+        if isRepresentFloat(multiplier_text) or isRepresentInt(multiplier_text):
             multiplier = float(multiplier_text)
 
     numerical_value = get_bonus_value(value, static)
     if numerical_value == "delete": numerical_value = "Error"
 
     if isRepresentInt(numerical_value):
-        return str(trunc(int(numerical_value)*multiplier))
+        return str(max(trunc(int(numerical_value)*multiplier), minimum))
     else:
         return ""
 
