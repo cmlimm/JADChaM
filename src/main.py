@@ -10,7 +10,6 @@ from util.core import save_file
 
 # TODO[BUG]: deleted skill is not deleted from the feature bonuses
 # TODO[BUG]: can't rename a counter, delete name editing entirely, it is not needed
-# TODO[BUG]: spell save does not update if it is not visible
 # TODO[BUG]: widgets in feature windows (i.e. Warlock or Paladin) duplicate when loading a new character sheet
 
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)

@@ -1,4 +1,4 @@
-from imgui_bundle import ImVec2, imgui
+from imgui_bundle import imgui
 
 from cs_types.core import MainWindowProtocol
 from cs_types.stats import RollableStat, StaticStat
@@ -80,11 +80,7 @@ def draw_rollable_stat_button(stat_id: str, stat: RollableStat,
         imgui.end_popup()
 
 
-def draw_static_stat_button(stat_id: str, stat: StaticStat, 
-                            bonus_types: list[str],
-                            cache_prefix: str,
-                            static: MainWindowProtocol,
-                            numerical_step: int = 1) -> None:
+def calc_static_stat(stat: StaticStat, static: MainWindowProtocol) -> tuple[bool, int]:
     override_idx, override_value = find_max_override(stat["base_overrides"], static)
     bonus_total, _ = sum_bonuses(stat["bonuses"], static)
 
@@ -94,6 +90,16 @@ def draw_static_stat_button(stat_id: str, stat: StaticStat,
         is_override = True
     else:
         stat["total"] = stat["base"] + bonus_total
+
+    return (is_override, override_idx)
+
+
+def draw_static_stat_button(stat_id: str, stat: StaticStat, 
+                            bonus_types: list[str],
+                            cache_prefix: str,
+                            static: MainWindowProtocol,
+                            numerical_step: int = 1) -> None:
+    is_override, override_idx = calc_static_stat(stat, static)
     
     if imgui.button(f"{stat["total"]}##{stat_id}"):
         imgui.open_popup(f"{stat["name"]}_edit_stat")

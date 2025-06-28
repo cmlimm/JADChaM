@@ -17,7 +17,7 @@ from settings import (  # type: ignore
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_INPUT_WIDTH,
 )
-from stats import draw_rollable_stat_button, draw_static_stat_button
+from stats import calc_static_stat, draw_rollable_stat_button, draw_static_stat_button
 from util.calc import find_max_override, sum_bonuses
 from util.custom_imgui import ColorButton, draw_text_cell, end_table_nested, help_marker
 from util.sheet import (
@@ -62,6 +62,10 @@ def draw_class(static: MainWindowProtocol) -> None:
             class_dict["total"] = class_dict["level"]
             if not class_dict["name"].startswith("no_display"):
                 draw_text_cell(f"{class_dict["name"]}"); imgui.table_next_column()
+
+                # Recalculate spell save even if the button is not visible
+                if class_dict["spell_save_enabled"]:
+                    calc_static_stat(class_dict["spell_save"], static)
 
                 if imgui.button(f"{class_dict["level"]}##class_{class_dict["name"]}"):
                     imgui.open_popup(f"##{class_dict["name"]}_edit_class")
