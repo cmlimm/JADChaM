@@ -3,14 +3,16 @@ from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, immapp  # type: ign
 
 from cs_types.core import MainWindowProtocol
 from cs_types.guards import isRepresentInt
-from settings import STRIPED_TABLE_FLAGS  # type: ignore
-from settings import (
+from settings import (  # type: ignore
     DAMAGE_EFFECTS_DEFAULT,
+    DAMAGE_TYPES,
     INVISIBLE_TABLE_FLAGS,
     LARGE_STRING_INPUT_WIDTH,
     LIST_TYPE_TO_BONUS,
     MEDIUM_STRING_INPUT_WIDTH,
     PROFICIENCIES_DEFAULT,
+    PROFICIENCIES_TYPES,
+    STRIPED_TABLE_FLAGS,
     THREE_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_INPUT_WIDTH,
@@ -187,8 +189,7 @@ def draw_hp(static: MainWindowProtocol) -> None:
 
 
 def draw_damage_effects(static: MainWindowProtocol) -> None:
-    draw_text_table("Damage Effects", static.data["damage_effects"], 
-                    DAMAGE_EFFECTS_DEFAULT, static)
+    draw_text_table("Damage Effects", static.data["damage_effects"], DAMAGE_TYPES, DAMAGE_EFFECTS_DEFAULT, static)
 
 
 def draw_conditions(static: MainWindowProtocol) -> None:
@@ -495,8 +496,7 @@ def draw_senses(static: MainWindowProtocol) -> None:
 
 
 def draw_training(static: MainWindowProtocol) -> None:
-    draw_text_table("Proficiencies & Training", static.data["training"], 
-                    PROFICIENCIES_DEFAULT, static)
+    draw_text_table("Proficiencies & Training", static.data["training"], PROFICIENCIES_TYPES, PROFICIENCIES_DEFAULT, static)
 
 
 def draw_skills(static: MainWindowProtocol) -> None:

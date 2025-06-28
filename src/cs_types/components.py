@@ -16,6 +16,7 @@ class TextData(TypedDict):
 
 
 class TextDataWithIdx(TextData):
+    name_idx: int
     type_idx: int
 
 

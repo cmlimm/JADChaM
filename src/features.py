@@ -3,13 +3,15 @@ from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: i
 
 from cs_types.components import Bonus, BonusTo
 from cs_types.core import Feature, MainWindowProtocol
-from settings import MARKDOWN_TEXT_TABLE  # type: ignore
 from settings import (  # type: ignore
     DAMAGE_EFFECTS_DEFAULT,
+    DAMAGE_TYPES,
     INVISIBLE_TABLE_FLAGS,
     LIST_TYPE_TO_BONUS,
+    MARKDOWN_TEXT_TABLE,
     MEDIUM_STRING_INPUT_WIDTH,
     PROFICIENCIES_DEFAULT,
+    PROFICIENCIES_TYPES,
     SHORT_STRING_INPUT_WIDTH,
 )
 from util.calc import get_bonus_value, parse_text
@@ -255,7 +257,7 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
         if imgui.button(f"New Damage Effect##{feature["name"]}"):
             imgui.open_popup(f"New Text Table Item Popup##{feature["name"]}_damage_effects")
 
-        draw_new_text_item_popup(f"{feature["name"]}_damage_effects", DAMAGE_EFFECTS_DEFAULT, 
+        draw_new_text_item_popup(f"{feature["name"]}_damage_effects", DAMAGE_TYPES, DAMAGE_EFFECTS_DEFAULT, 
                                  [static.data["damage_effects"], feature["damage_effects"]], static, 
                                  feature["name"], False)
 
@@ -264,7 +266,7 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
         if imgui.button(f"New Proficiency##{feature["name"]}"):
             imgui.open_popup(f"New Text Table Item Popup##{feature["name"]}_proficiency")
             
-        draw_new_text_item_popup(f"{feature["name"]}_proficiency", PROFICIENCIES_DEFAULT, 
+        draw_new_text_item_popup(f"{feature["name"]}_proficiency", PROFICIENCIES_TYPES, PROFICIENCIES_DEFAULT, 
                                  [static.data["training"], feature["proficiencies"]], static, 
                                  feature["name"], False)
 

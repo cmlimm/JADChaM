@@ -62,8 +62,10 @@ LIST_TYPE_TO_BONUS: ListTypeToBonus = {
                  "Proficiency", "Initiative", "Spell Save", "Counter"] 
 }
 
-DAMAGE_TYPES = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"]
+DAMAGE_TYPES: list[str] = ["Acid", "Bludgeoning", "Cold", "Fire", "Force", "Lightning", "Necrotic", "Piercing", "Poison", 
+                           "Psychic", "Radiant", "Slashing", "Thunder"]
 DAMAGE_EFFECTS_DEFAULT: list[str] = ["Resistance", "Immunity", "Vulnerability"]
+PROFICIENCIES_TYPES: list[str] = []
 PROFICIENCIES_DEFAULT: list[str] = ["Armor", "Language", "Tools", "Weapons"]
 
 SPELL_RANGE_TYPE_DEFAULT: list[str] = ["feet", "yards", "miles", "self", "touch", "unlimited", "plane", "sight"]

@@ -572,7 +572,7 @@ def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: Mai
         imgui.end_popup()
 
 
-def draw_new_text_item_popup(table_name: str, default_types: list[str], target_lists: list[list[TextData]], 
+def draw_new_text_item_popup(table_name: str, default_names: list[str], default_types: list[str], target_lists: list[list[TextData]], 
                              static: MainWindowProtocol, source: str = "", manual: bool = True) -> None:
     if imgui.begin_popup(f"New Text Table Item Popup##{table_name}"):
         if not static.states["new_training"].get(table_name, False):
@@ -581,14 +581,36 @@ def draw_new_text_item_popup(table_name: str, default_types: list[str], target_l
                 "type": "",
                 "source": "",
                 "manual": True,
+                "name_idx": 0,
                 "type_idx": 0
             }
 
-        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-        _, static.states["new_training"][table_name]["name"] = imgui.input_text_with_hint(
-            "##new_training_name", "Name", static.states["new_training"][table_name]["name"], 128)
-        imgui.pop_item_width()
+        # NAME
+        if default_names != []:
+            names = default_names + ["Other"]
+            imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+            _, static.states["new_training"][table_name]["name_idx"] = imgui.combo(f"##{table_name}_select_name", 
+                                                                                static.states["new_training"][table_name]["name_idx"], 
+                                                                                names, len(names))
+            imgui.pop_item_width()
+
+            if static.states["new_training"][table_name]["name_idx"] == len(names) - 1:
+                imgui.same_line()
+                imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+                if static.states["new_training"][table_name]["name"] in names:
+                    static.states["new_training"][table_name]["name"] = ""
+                _, static.states["new_training"][table_name]["name"] = imgui.input_text_with_hint(
+                    "##new_training_name", "Name", static.states["new_training"][table_name]["name"], 128)
+                imgui.pop_item_width()
+            else:
+                static.states["new_training"][table_name]["name"] = names[static.states["new_training"][table_name]["name_idx"]]
+        else:
+            imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+            _, static.states["new_training"][table_name]["name"] = imgui.input_text_with_hint(
+                "##new_training_name", "Name", static.states["new_training"][table_name]["name"], 128)
+            imgui.pop_item_width()
         
+        # TYPE
         types = default_types + ["Other"]
         imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.states["new_training"][table_name]["type_idx"] = imgui.combo(f"##{table_name}_select_type", 
@@ -607,6 +629,7 @@ def draw_new_text_item_popup(table_name: str, default_types: list[str], target_l
         else:
             static.states["new_training"][table_name]["type"] = types[static.states["new_training"][table_name]["type_idx"]]
         
+        # SOURCE
         if source == "":
             imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
             _, static.states["new_training"][table_name]["source"] = imgui.input_text_with_hint(
@@ -630,6 +653,7 @@ def draw_new_text_item_popup(table_name: str, default_types: list[str], target_l
                 "type": "",
                 "source": "",
                 "manual": True,
+                "name_idx": 0,
                 "type_idx": 0
             }
         imgui.end_popup()
@@ -641,10 +665,11 @@ def draw_new_text_item_popup(table_name: str, default_types: list[str], target_l
             "type": "",
             "source": "",
             "manual": True,
+            "name_idx": 0,
             "type_idx": 0
         }
 
-def draw_text_table(table_name: str, data: list[TextData], default_types: list[str], 
+def draw_text_table(table_name: str, data: list[TextData], default_names: list[str], default_types: list[str], 
                     static: MainWindowProtocol) -> None:
     if imgui.begin_table(F"{table_name}_text_table", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
         width = imgui.get_window_width()
@@ -670,7 +695,7 @@ def draw_text_table(table_name: str, data: list[TextData], default_types: list[s
     if imgui.begin_popup_modal(popup_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
         if imgui.button(f"New Item##{table_name}"):
             imgui.open_popup(f"New Text Table Item Popup##{table_name}")
-        draw_new_text_item_popup(table_name, default_types, [data], static)
+        draw_new_text_item_popup(table_name, default_names, default_types, [data], static)
 
         if imgui.begin_table("training_edit_list", 2, flags=STRIPED_TABLE_FLAGS):  # type: ignore
             for item_type, item_list in itertools.groupby(sorted(data, key=lambda x: x["type"]), key=lambda x: x["type"]):
@@ -701,6 +726,7 @@ def draw_text_table(table_name: str, data: list[TextData], default_types: list[s
                 "type": "",
                 "source": "",
                 "manual": True,
+                "name_idx": 0,
                 "type_idx": 0
             }
             imgui.close_current_popup()
