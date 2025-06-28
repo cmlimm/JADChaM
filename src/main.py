@@ -25,16 +25,10 @@ def post_init(state: MainWindowProtocol) -> None:
         "ability_bonus_type_idx": 0,
         "static_bonus_type_idx": 0,
         "counter_display_type_idx": 0,
-        "text_table_type_idx": 0,
         "hp_add": "",
         "new_item_name": "",
         "new_bonuses": {},
-        "new_training": {
-            "name": "",
-            "type": "",
-            "source": "",
-            "manual": True
-        },
+        "new_training": {},
         "target_name": "",
         "target_ref": "",
         "counter_edit": {

@@ -15,6 +15,10 @@ class TextData(TypedDict):
     manual: bool
 
 
+class TextDataWithIdx(TextData):
+    type_idx: int
+
+
 class Condition(TypedDict):
     name: str
     description: str

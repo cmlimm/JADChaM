@@ -254,7 +254,7 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
 
         if imgui.button(f"New Damage Effect##{feature["name"]}"):
             imgui.open_popup(f"New Text Table Item Popup##{feature["name"]}_damage_effects")
-            static.states["new_text_item_popups_opened"][f"{feature["name"]}_damage_effects"] = True
+
         draw_new_text_item_popup(f"{feature["name"]}_damage_effects", DAMAGE_EFFECTS_DEFAULT, 
                                  [static.data["damage_effects"], feature["damage_effects"]], static, 
                                  feature["name"], False)
@@ -263,7 +263,7 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
 
         if imgui.button(f"New Proficiency##{feature["name"]}"):
             imgui.open_popup(f"New Text Table Item Popup##{feature["name"]}_proficiency")
-            static.states["new_text_item_popups_opened"][f"{feature["name"]}_proficiency"] = True
+            
         draw_new_text_item_popup(f"{feature["name"]}_proficiency", PROFICIENCIES_DEFAULT, 
                                  [static.data["training"], feature["proficiencies"]], static, 
                                  feature["name"], False)

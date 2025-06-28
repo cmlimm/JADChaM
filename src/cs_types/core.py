@@ -3,7 +3,14 @@ from typing import Any, Literal, Optional, TypedDict
 from imgui_bundle import imgui
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
-from cs_types.components import Bonus, BonusTo, Condition, Counter, TextData
+from cs_types.components import (
+    Bonus,
+    BonusTo,
+    Condition,
+    Counter,
+    TextData,
+    TextDataWithIdx,
+)
 from cs_types.spell import Spell
 from cs_types.stats import RollableStat, StaticStat  # type: ignore
 
@@ -155,12 +162,11 @@ class States(TypedDict):
     ability_bonus_type_idx: int
     static_bonus_type_idx: int
     counter_display_type_idx: int
-    text_table_type_idx: int
     
     hp_add: str
     
     new_item_name: str
-    new_training: TextData
+    new_training: dict[str, TextDataWithIdx]
     new_tag: str
     new_bonuses: dict[str, NewBonus]
     new_window_name: str

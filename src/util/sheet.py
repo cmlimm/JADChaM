@@ -575,64 +575,73 @@ def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: Mai
 def draw_new_text_item_popup(table_name: str, default_types: list[str], target_lists: list[list[TextData]], 
                              static: MainWindowProtocol, source: str = "", manual: bool = True) -> None:
     if imgui.begin_popup(f"New Text Table Item Popup##{table_name}"):
+        if not static.states["new_training"].get(table_name, False):
+            static.states["new_training"][table_name] = {
+                "name": "",
+                "type": "",
+                "source": "",
+                "manual": True,
+                "type_idx": 0
+            }
+
         imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-        _, static.states["new_training"]["name"] = imgui.input_text_with_hint(
-            "##new_training_name", "Name", static.states["new_training"]["name"], 128)
+        _, static.states["new_training"][table_name]["name"] = imgui.input_text_with_hint(
+            "##new_training_name", "Name", static.states["new_training"][table_name]["name"], 128)
         imgui.pop_item_width()
         
         types = default_types + ["Other"]
         imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-        _, static.states["text_table_type_idx"] = imgui.combo(f"##{table_name}_select_type", 
-                                                            static.states["text_table_type_idx"], 
-                                                            types, len(types))
+        _, static.states["new_training"][table_name]["type_idx"] = imgui.combo(f"##{table_name}_select_type", 
+                                                                               static.states["new_training"][table_name]["type_idx"], 
+                                                                               types, len(types))
         imgui.pop_item_width()
 
-        if static.states["text_table_type_idx"] == len(types) - 1:
+        if static.states["new_training"][table_name]["type_idx"] == len(types) - 1:
             imgui.same_line()
             imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-            if static.states["new_training"]["type"] in types:
-                static.states["new_training"]["type"] = ""
-            _, static.states["new_training"]["type"] = imgui.input_text_with_hint(
-                "##new_training_type", "Type (optional)", static.states["new_training"]["type"], 128)
+            if static.states["new_training"][table_name]["type"] in types:
+                static.states["new_training"][table_name]["type"] = ""
+            _, static.states["new_training"][table_name]["type"] = imgui.input_text_with_hint(
+                "##new_training_type", "Type (optional)", static.states["new_training"][table_name]["type"], 128)
             imgui.pop_item_width()
         else:
-            static.states["new_training"]["type"] = types[static.states["text_table_type_idx"]]
+            static.states["new_training"][table_name]["type"] = types[static.states["new_training"][table_name]["type_idx"]]
         
         if source == "":
             imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-            _, static.states["new_training"]["source"] = imgui.input_text_with_hint(
-                "##new_training_source", "Source (optional)", static.states["new_training"]["source"], 128)
+            _, static.states["new_training"][table_name]["source"] = imgui.input_text_with_hint(
+                "##new_training_source", "Source (optional)", static.states["new_training"][table_name]["source"], 128)
             imgui.pop_item_width()
         
-        if imgui.button("Add##add_new_training") and static.states["new_training"]["name"] != "":
-            if static.states["new_training"]["type"] == "":
-                static.states["new_training"]["type"] = "Other"
+        if imgui.button("Add##add_new_training") and static.states["new_training"][table_name]["name"] != "":
+            if static.states["new_training"][table_name]["type"] == "":
+                static.states["new_training"][table_name]["type"] = "Other"
 
             for target_list in target_lists:
                 target_list.append({
-                    "name": static.states["new_training"]["name"],
-                    "type": static.states["new_training"]["type"],
-                    "source": static.states["new_training"]["source"] if source == "" else source,
+                    "name": static.states["new_training"][table_name]["name"],
+                    "type": static.states["new_training"][table_name]["type"],
+                    "source": static.states["new_training"][table_name]["source"] if source == "" else source,
                     "manual": manual
                 })
 
-            static.states["new_training"] = {
+            static.states["new_training"][table_name] = {
                 "name": "",
                 "type": "",
                 "source": "",
-                "manual": True
+                "manual": True,
+                "type_idx": 0
             }
         imgui.end_popup()
-    # The reason why we do not need `elif` here with a check for opened popup is because
-    # we can reset the data as much as we want (every frame when the popup is closed).
+    # We can reset the data as much as we want (every frame when the popup is closed).
     # We only need to store the temporary data for the new item while the popup is opened.
-    else:
-        static.states["text_table_type_idx"] = 0
-        static.states["new_training"] = {
+    elif static.states["new_training"].get(table_name, False):
+        static.states["new_training"][table_name] = {
             "name": "",
             "type": "",
             "source": "",
-            "manual": True
+            "manual": True,
+            "type_idx": 0
         }
 
 def draw_text_table(table_name: str, data: list[TextData], default_types: list[str], 
@@ -687,11 +696,12 @@ def draw_text_table(table_name: str, data: list[TextData], default_types: list[s
         
         imgui.spacing()
         if imgui.button("Close", ImVec2(120, 0)):
-            static.states["new_training"] = {
+            static.states["new_training"][table_name] = {
                 "name": "",
                 "type": "",
                 "source": "",
-                "manual": True
+                "manual": True,
+                "type_idx": 0
             }
             imgui.close_current_popup()
         imgui.end_popup()
