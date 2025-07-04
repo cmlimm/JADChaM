@@ -35,6 +35,7 @@ class BonusTo(TypedDict):
 
 
 class Counter(TypedDict):
+    id: str
     name: str
     parent: str
     current: int

@@ -1,6 +1,7 @@
 import copy
 import json
 import re
+import uuid
 
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui  # type: ignore
 
@@ -27,6 +28,7 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
     for spell_json in spells:
         spell_py = {}
 
+        spell_py["id"] = str(uuid.uuid4())
         spell_py["name"] = spell_json["name"]
         spell_py["level"] = spell_json["level"]
         spell_py["school"] = spell_json["school"]
@@ -262,7 +264,7 @@ def process_spell_from_file(static: MainWindowProtocol) -> None:
 
 
 def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
-    if imgui.button(f"Use##{spell["name"]}_use_button"):
+    if imgui.button(f"Use##{spell["id"]}_use_button"):
         pass
     
     imgui.table_next_column()
@@ -346,10 +348,10 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
 
     # TO HIT
     if spell.get("to_hit", None):
-        draw_rollable_stat_button(f"{spell["name"]}_to_hit", 
+        draw_rollable_stat_button(f"{spell["id"]}_to_hit", 
                                 spell["to_hit"],
                                 LIST_TYPE_TO_BONUS["rollable"],
-                                f"spell:{spell["name"]}:to_hit",
+                                f"spell:{spell["id"]}:to_hit",
                                 static)
 
     imgui.table_next_column()
@@ -357,8 +359,8 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
     # DAMAGE + DAMAGE TYPE + CONDITIONS
     for idx, damage in enumerate(spell["damage"]):
         damage_roll_str = f"{damage["roll"]["amount"]}d{damage["roll"]["dice"]}"
-        button_result = imgui.button(f"{damage_roll_str}##{spell["name"]}_{idx}")
-        draw_roll_menu(f"damage_roll_{spell["name"]}_{idx}", damage_roll_str, "0", spell["damage_type"][idx], 0, static, button_result)
+        button_result = imgui.button(f"{damage_roll_str}##{spell["id"]}_{idx}")
+        draw_roll_menu(f"damage_roll_{spell["id"]}_{idx}", damage_roll_str, "0", spell["damage_type"][idx], 0, static, button_result)
         imgui.same_line()
 
     damage_types_dict = {
@@ -428,9 +430,9 @@ def draw_spell(spell: Spell, static: MainWindowProtocol) -> None:
 
 
 def on_add_spell(static: MainWindowProtocol) -> None:
-    name = static.data["spells"][-1]["name"]
-    static.data_refs[f"spell:{name}:to_hit"] = static.data["spells"][-1]["to_hit"]
-    static.bonus_list_refs[f"spell:{name}:to_hit:bonuses"] = static.data["spells"][-1]["to_hit"]["bonuses"]
+    id = static.data["spells"][-1]["id"]
+    static.data_refs[f"spell:{id}:to_hit"] = static.data["spells"][-1]["to_hit"]
+    static.bonus_list_refs[f"spell:{id}:to_hit:bonuses"] = static.data["spells"][-1]["to_hit"]["bonuses"]
 
 
 def draw_spells(static: MainWindowProtocol) -> None:

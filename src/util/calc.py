@@ -1,6 +1,7 @@
 import random
 import re
 from math import trunc
+from uuid import UUID
 
 from fuzzysearch import find_near_matches  # type: ignore
 
@@ -8,6 +9,20 @@ from cs_types.components import Bonus
 from cs_types.core import MainWindowProtocol
 from cs_types.guards import isRepresentFloat, isRepresentInt
 from settings import RE_VALUE
+
+
+def find_id_by_name(name: str, static: MainWindowProtocol) -> str:
+    try:
+        UUID(name, version=4)
+        return name
+    except ValueError:
+        ids = [element["id"] for key, element in static.data_refs.items() if element["name"] == name]
+        
+        id = ""
+        if ids != []:
+            id = ids[0]
+        
+        return id
 
 
 def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus: int = 100, return_delete: bool = True) -> int | float | str:
@@ -32,8 +47,6 @@ def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus:
             return "advantage"
         elif value == "disadvantage":
             return "disadvantage"
-        elif value == "ability:DEX":
-            return min(static.data_refs.get("ability:DEX", {"total": 0})["total"], max_dex_bonus) # type: ignore
         elif value.startswith("counter") and value.endswith("max"):
             try:
                 return static.data_refs[value[:-4]]["max"] # type: ignore
@@ -44,6 +57,8 @@ def get_bonus_value(value: str | int, static: MainWindowProtocol, max_dex_bonus:
                 return static.data_refs[value[:-8]]["current"] # type: ignore
             except KeyError:
                 return "delete"
+        elif value == f"ability:{find_id_by_name("DEX", static)}":
+            return min(static.data_refs.get(f"ability:{find_id_by_name("DEX", static)}", {"total": 0})["total"], max_dex_bonus) # type: ignore
         else:
             # TODO: in release verison wrap everything with try-except
             return static.data_refs.get(value, {"total": 0})["total"] # type: ignore

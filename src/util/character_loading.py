@@ -52,7 +52,7 @@ def open_character_window(static: MainWindowProtocol) -> None:
 def process_character(static: MainWindowProtocol) -> None:
     """"
     Create a dict that stores references to complex objects, i. e:
-    "abilities:animal_handling": reference to static.data["abilities"]["animal_handling"]
+    "abilities:animal_handling_id": reference to static.data["abilities"]["animal_handling"]
     
     This allows us to quickly access an object without searching through a dict.
     """
@@ -72,58 +72,58 @@ def process_character(static: MainWindowProtocol) -> None:
 
     # Classes
     for class_dict in static.data["level"]["classes"]:
-        static.data_refs[f"level:{class_dict["name"]}"] = class_dict
+        static.data_refs[f"level:{class_dict["id"]}"] = class_dict
         if class_dict["spell_save_enabled"]:
-            static.data_refs[f"spell_save:{class_dict["name"]}"] = class_dict["spell_save"]
-            static.bonus_list_refs[f"spell_save:{class_dict["name"]}:bonuses"] = class_dict["spell_save"]["bonuses"]
+            static.data_refs[f"spell_save:{class_dict["id"]}"] = class_dict["spell_save"]
+            static.bonus_list_refs[f"spell_save:{class_dict["id"]}:bonuses"] = class_dict["spell_save"]["bonuses"]
 
     # Abilities
     for ability in static.data["abilities"]:
-        static.data_refs[f"ability:{ability["name"]}"] = ability
+        static.data_refs[f"ability:{ability["id"]}"] = ability
 
-        static.bonus_list_refs[f"ability:{ability["name"]}:base_score_bonuses"] = ability["base_score_bonuses"]
-        static.bonus_list_refs[f"ability:{ability["name"]}:base_score_overrides"] = ability["base_score_overrides"]
-        static.bonus_list_refs[f"ability:{ability["name"]}:modifier_bonuses"] = ability["modifier_bonuses"]
+        static.bonus_list_refs[f"ability:{ability["id"]}:base_score_bonuses"] = ability["base_score_bonuses"]
+        static.bonus_list_refs[f"ability:{ability["id"]}:base_score_overrides"] = ability["base_score_overrides"]
+        static.bonus_list_refs[f"ability:{ability["id"]}:modifier_bonuses"] = ability["modifier_bonuses"]
 
     # Saves
     for save in static.data["saves"]:
-        static.data_refs[f"save:{save["name"]}"] = save
-        static.bonus_list_refs[f"save:{save["name"]}:bonuses"] = save["bonuses"]
+        static.data_refs[f"save:{save["id"]}"] = save
+        static.bonus_list_refs[f"save:{save["id"]}:bonuses"] = save["bonuses"]
 
     # Skills
     for skill in static.data["skills"]:
-        static.data_refs[f"skill:{skill["name"]}"] = skill
-        static.bonus_list_refs[f"skill:{skill["name"]}:bonuses"] = skill["bonuses"]
+        static.data_refs[f"skill:{skill["id"]}"] = skill
+        static.bonus_list_refs[f"skill:{skill["id"]}:bonuses"] = skill["bonuses"]
 
     # Speed
     for speed in static.data["speed"]:
-        static.data_refs[f"speed:{speed["name"]}"] = speed
-        static.bonus_list_refs[f"speed:{speed["name"]}:base_overrides"] = speed["base_overrides"]
-        static.bonus_list_refs[f"speed:{speed["name"]}:bonuses"] = speed["bonuses"]
+        static.data_refs[f"speed:{speed["id"]}"] = speed
+        static.bonus_list_refs[f"speed:{speed["id"]}:base_overrides"] = speed["base_overrides"]
+        static.bonus_list_refs[f"speed:{speed["id"]}:bonuses"] = speed["bonuses"]
 
     # Passives
     for passive in static.data["passive_skill"]:
-        static.data_refs[f"passive:{passive["name"]}"] = passive
-        static.bonus_list_refs[f"passive:{passive["name"]}:base_overrides"] = passive["base_overrides"]
-        static.bonus_list_refs[f"passive:{passive["name"]}:bonuses"] = passive["bonuses"]
+        static.data_refs[f"passive:{passive["id"]}"] = passive
+        static.bonus_list_refs[f"passive:{passive["id"]}:base_overrides"] = passive["base_overrides"]
+        static.bonus_list_refs[f"passive:{passive["id"]}:bonuses"] = passive["bonuses"]
 
     # Senses
     for sense in static.data["sense"]:
-        static.data_refs[f"sense:{sense["name"]}"] = sense
-        static.bonus_list_refs[f"sense:{sense["name"]}:base_overrides"] = sense["base_overrides"]
-        static.bonus_list_refs[f"sense:{sense["name"]}:bonuses"] = sense["bonuses"]
+        static.data_refs[f"sense:{sense["id"]}"] = sense
+        static.bonus_list_refs[f"sense:{sense["id"]}:base_overrides"] = sense["base_overrides"]
+        static.bonus_list_refs[f"sense:{sense["id"]}:bonuses"] = sense["bonuses"]
 
     # Features
     for feature in static.data["features"]:
-        static.data_refs[f"feature:{feature["name"]}"] = feature
+        static.data_refs[f"feature:{feature["id"]}"] = feature
         for counter in feature["counters"]:
-            static.data_refs[f"counter:{feature["name"]}:{counter["name"]}"] = counter
+            static.data_refs[f"counter:{feature["id"]}:{counter["id"]}"] = counter
 
     # Spells
     for spell in static.data["spells"]:
         if spell["to_hit"]["name"] != "no_display":
-            static.data_refs[f"spell:{spell["name"]}:to_hit"] = spell["to_hit"]
-            static.bonus_list_refs[f"spell:{spell["name"]}:to_hit:bonuses"] = spell["to_hit"]["bonuses"]
+            static.data_refs[f"spell:{spell["id"]}:to_hit"] = spell["to_hit"]
+            static.bonus_list_refs[f"spell:{spell["id"]}:to_hit:bonuses"] = spell["to_hit"]["bonuses"]
         
 
     # Open windows for feature tags

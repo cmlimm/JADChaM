@@ -1,6 +1,6 @@
 import os
 
-from imgui_bundle import ImVec2, hello_imgui, imgui, imgui_md, immapp  # type: ignore
+from imgui_bundle import hello_imgui, imgui, imgui_md, immapp  # type: ignore
 from imgui_bundle import portable_file_dialogs as pfd  # type: ignore
 
 from base_sheet import draw_status
@@ -9,8 +9,8 @@ from util.character_loading import draw_load_character_button, load_character
 from util.core import save_file
 
 # TODO[BUG]: deleted skill is not deleted from the feature bonuses
-# TODO[BUG]: can't rename a counter, delete name editing entirely, it is not needed
 # TODO[BUG]: widgets in feature windows (i.e. Warlock or Paladin) duplicate when loading a new character sheet
+# TODO[BUG]: string references no longer work with names. change to ids
 
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
 # TODO: hide long feature descriptions?
@@ -29,6 +29,7 @@ def post_init(state: MainWindowProtocol) -> None:
         "target_name": "",
         "target_ref": "",
         "counter_edit": {
+            "id": "",
             "name": "",
             "parent": "",
             "current": 0,
@@ -39,7 +40,6 @@ def post_init(state: MainWindowProtocol) -> None:
             "manual": True
         },
         "new_window_name": "",
-        "feat_name": "",
         "new_tag": "",
         "new_condition_name": "",
         "new_condition_description": "",

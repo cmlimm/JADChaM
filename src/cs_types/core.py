@@ -34,6 +34,7 @@ class FontHolder:
 
 
 class CharacterClass(TypedDict):
+    id: str
     name: str
     subclass: str
     total: int
@@ -51,6 +52,7 @@ class Level(TypedDict):
 
 
 class Hp(TypedDict):
+    id: str
     name: str
     current: int
     max_total: int
@@ -60,6 +62,7 @@ class Hp(TypedDict):
 
 
 class Proficiency(TypedDict):
+    id: str
     name: str
     total: int
 
@@ -71,6 +74,7 @@ class Armor(TypedDict):
 
 
 class ArmorClass(TypedDict):
+    id: str
     name: str
     total: int
     base: int
@@ -79,6 +83,7 @@ class ArmorClass(TypedDict):
 
 
 class Ability(TypedDict):
+    id: str
     name: str
     total: int
     total_base_score: int
@@ -97,6 +102,7 @@ class Exhaustion(TypedDict):
 
 
 class Feature(TypedDict):
+    id: str
     name: str
     description: str
     tags: list[str]
@@ -181,12 +187,6 @@ class States(TypedDict):
     cyclic_bonus: bool
     cyclic_bonus_path: list[str]
 
-    # A temporary storage for the new feature name
-    # Used when opening a feature popup to be able to change 
-    # the name of the feature without the popup closing,
-    # otherwise the popup name changes with the feature name.
-    feat_name: str
-
     search_data: dict[str, SearchData]
     
     roll_list: list[Roll]
@@ -209,6 +209,8 @@ class MainWindowProtocol():
     data: CharacterData
     is_character_loaded: bool
     are_windows_loaded: bool
+
+    text_callback_data: imgui.InputTextCallbackData
 
     loaded_spells: list[Spell]
 

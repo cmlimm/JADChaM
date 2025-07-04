@@ -4,6 +4,7 @@ from cs_types.components import Bonus
 
 
 class RollableStat(TypedDict):
+    id: str
     name: str
     total: int
     bonuses: list[Bonus]
@@ -13,6 +14,7 @@ class RollableStat(TypedDict):
 
 
 class StaticStat(TypedDict):
+    id: str
     name: str
     total: int
     base: int

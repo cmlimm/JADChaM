@@ -1,6 +1,9 @@
+import functools
+
 from imgui_bundle import hello_imgui  # type: ignore
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: ignore
 
+import settings
 from cs_types.components import Bonus, BonusTo
 from cs_types.core import Feature, MainWindowProtocol
 from settings import (  # type: ignore
@@ -16,14 +19,15 @@ from settings import (  # type: ignore
 )
 from util.calc import get_bonus_value, parse_text
 from util.custom_imgui import ColorButton, end_table_nested
-from util.sheet import STRIPED_TABLE_FLAGS  # type: ignore
 from util.sheet import (  # type: ignore
+    STRIPED_TABLE_FLAGS,
     add_item_to_list,
     delete_feature_bonus,
     delete_item_from_list,
     draw_add_bonus,
     draw_counter,
     draw_edit_counter,
+    draw_entities_menu,
     draw_new_text_item_popup,
 )
 
@@ -40,79 +44,79 @@ def draw_target_menu(menu_name: str, menu_id: str, static: MainWindowProtocol):
         if imgui.begin_menu(f"Ability##{menu_id}"):
             for ability in static.data["abilities"]:
                 ability_name = ability["name"]
-                if not ability_name.startswith("no_display") and imgui.begin_menu(f"{ability_name}##{menu_id}"):
+                if ability_name != "no_display" and imgui.begin_menu(f"{ability_name}##{menu_id}"):
                     if imgui.menu_item_simple(f"Base Score##{menu_id}"):
                         static.states["target_name"] = f"Ability Base Score, {ability_name}"
-                        static.states["target_ref"] = f"ability:{ability_name}:base_score_bonuses"
+                        static.states["target_ref"] = f"ability:{ability["id"]}:base_score_bonuses"
                     if imgui.menu_item_simple(f"Base Score Override##{menu_id}"):
                         static.states["target_name"] = f"Ability Base Score Override, {ability_name}"
-                        static.states["target_ref"] = f"ability:{ability_name}:base_score_overrides"
+                        static.states["target_ref"] = f"ability:{ability["id"]}:base_score_overrides"
                     if imgui.menu_item_simple(f"Modifier##{menu_id}"):
                         static.states["target_name"] = f"Ability Modifier, {ability_name}"
-                        static.states["target_ref"] = f"ability:{ability_name}:modifier_bonuses"
+                        static.states["target_ref"] = f"ability:{ability["id"]}:modifier_bonuses"
                     imgui.end_menu()
             imgui.end_menu()
         # Saving Throw
         if imgui.begin_menu(f"Save##{menu_id}"):
             for save in static.data["saves"]:
                 save_name = save["name"]
-                if not save_name.startswith("no_display") and imgui.menu_item_simple(save_name):
+                if save_name != "no_display" and imgui.menu_item_simple(save_name):
                     static.states["target_name"] = f"Saving Throw, {save_name}"
-                    static.states["target_ref"] = f"save:{save_name}:bonuses"
+                    static.states["target_ref"] = f"save:{save["id"]}:bonuses"
             imgui.end_menu()
         # Skill
         if imgui.begin_menu(f"Skill##{menu_id}"):
             for skill in static.data["skills"]:
                 skill_name = skill["name"]
-                if not skill_name.startswith("no_display") and imgui.menu_item_simple(skill_name):
+                if skill_name != "no_display" and imgui.menu_item_simple(skill_name):
                     static.states["target_name"] = f"Skill, {skill_name}"
-                    static.states["target_ref"] = f"skill:{skill_name}:bonuses"
+                    static.states["target_ref"] = f"skill:{skill["id"]}:bonuses"
             imgui.end_menu()
         # Spell Save
         if imgui.begin_menu(f"Spell Save##{menu_id}"):
             for class_item in static.data["level"]["classes"]:
                 class_name = class_item["name"]
-                if not class_name.startswith("no_display") and class_item["spell_save_enabled"] and imgui.menu_item_simple(f"{class_name}##{menu_id}"):
+                if class_name != "no_display" and class_item["spell_save_enabled"] and imgui.menu_item_simple(f"{class_name}##{menu_id}"):
                     static.states["target_name"] = f"Spell Save, {class_name}"
-                    static.states["target_ref"] = f"spell_save:{class_name}:bonuses"
+                    static.states["target_ref"] = f"spell_save:{class_item["id"]}:bonuses"
             imgui.end_menu()
         # Speed
         if imgui.begin_menu(f"Speed##{menu_id}"):
             for speed in static.data["speed"]:
                 speed_name = speed["name"]
-                if not speed_name.startswith("no_display") and imgui.begin_menu(f"{speed_name}##{menu_id}"):
+                if speed_name != "no_display" and imgui.begin_menu(f"{speed_name}##{menu_id}"):
                     if imgui.menu_item_simple("Bonus"):
                         static.states["target_name"] = f"Speed, {speed_name}"
-                        static.states["target_ref"] = f"speed:{speed_name}:bonuses"
+                        static.states["target_ref"] = f"speed:{speed["id"]}:bonuses"
                     if imgui.menu_item_simple("Override"):
                         static.states["target_name"] = f"Speed Base Override, {speed_name}"
-                        static.states["target_ref"] = f"speed:{speed_name}:base_overrides"
+                        static.states["target_ref"] = f"speed:{speed["id"]}:base_overrides"
                     imgui.end_menu()
             imgui.end_menu()
         # Passive Skill
         if imgui.begin_menu(f"Passive Skill##{menu_id}"):
             for passive in static.data["passive_skill"]:
                 passive_name = passive["name"]
-                if not passive_name.startswith("no_display") and imgui.begin_menu(f"{passive_name}##{menu_id}"):
+                if passive_name != "no_display" and imgui.begin_menu(f"{passive_name}##{menu_id}"):
                     if imgui.menu_item_simple("Bonus"):
                         static.states["target_name"] = f"Passive Skill, {passive_name}"
-                        static.states["target_ref"] = f"passive:{passive_name}:bonuses"
+                        static.states["target_ref"] = f"passive:{passive["id"]}:bonuses"
                     if imgui.menu_item_simple("Override"):
                         static.states["target_name"] = f"Passive Skill Base Override, {passive_name}"
-                        static.states["target_ref"] = f"passive:{passive_name}:base_overrides"
+                        static.states["target_ref"] = f"passive:{passive["id"]}:base_overrides"
                     imgui.end_menu()
             imgui.end_menu()
         # Sense
         if imgui.begin_menu(f"Sense##{menu_id}"):
             for sense in static.data["sense"]:
                 sense_name = sense["name"]
-                if not sense_name.startswith("no_display") and imgui.begin_menu(f"{sense_name}##{menu_id}"):
+                if sense_name != "no_display" and imgui.begin_menu(f"{sense_name}##{menu_id}"):
                     if imgui.menu_item_simple("Bonus"):
                         static.states["target_name"] = f"Sense, {sense_name}"
-                        static.states["target_ref"] = f"sense:{sense_name}:bonuses"
+                        static.states["target_ref"] = f"sense:{sense["id"]}:bonuses"
                     if imgui.menu_item_simple("Override"):
                         static.states["target_name"] = f"Sense Base Override, {sense_name}"
-                        static.states["target_ref"] = f"sense:{sense_name}:base_overrides"
+                        static.states["target_ref"] = f"sense:{sense["id"]}:base_overrides"
                     imgui.end_menu()
             imgui.end_menu()
         # Initiative
@@ -133,9 +137,9 @@ def draw_target_menu(menu_name: str, menu_id: str, static: MainWindowProtocol):
 
 
 def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> None:
-    popup_name = f"Bonus for {feature["name"]}##popup"
+    popup_name = f"Bonus for {feature["id"]}##popup"
     if imgui.begin_popup(popup_name):
-        bonus_id = f"{feature["name"]}_bonus"
+        bonus_id = f"{feature["id"]}_bonus"
         if not bonus_id in static.states["new_bonuses"]:
             static.states["new_bonuses"][bonus_id] = {
                 "new_bonus_type": "",
@@ -145,7 +149,7 @@ def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> Non
         new_bonus = static.states["new_bonuses"][bonus_id]
 
         draw_target_menu(f"{static.states["target_name"] if static.states["target_name"] != "" else "Choose Target"}", 
-                         f"{feature["name"]}_target", static)
+                         f"{feature["id"]}_target", static)
         
         if static.states["target_ref"] != "":
             draw_add_bonus(bonus_id,
@@ -156,7 +160,7 @@ def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> Non
 
         imgui.spacing()
 
-        if imgui.button(f"Add##{feature["name"]}_new_bonus_to"):
+        if imgui.button(f"Add##{feature["id"]}_new_bonus_to"):
             imgui.close_current_popup()
             
             if static.states["target_ref"] != "" and new_bonus["new_bonus_value"] != "":
@@ -187,12 +191,25 @@ def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> Non
         imgui.end_popup()
 
 
+def callback_show_possible_values(data: imgui.InputTextCallbackData, static: MainWindowProtocol) -> int:
+    static.states["new_bonuses"]["select_possible_value"] = {
+            "new_bonus_type": "text_callback",
+            "new_bonus_value": "",
+            "new_bonus_mult": 1.0
+        }
+    
+    if not hasattr(static, "text_callback_data"):
+        static.text_callback_data = data
+
+    return 0
+
+
 def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtocol) -> None:
     center = imgui.get_main_viewport().get_center()
     imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
     window_size = imgui.get_main_viewport().size
 
-    popup_name = f"Edit {feature["name"]}##popup"
+    popup_name = f"Edit Feature##popup_{feature["id"]}"
     if imgui.begin_popup_modal(popup_name, None, imgui.WindowFlags_.always_auto_resize.value)[0]:
         # imgui.set_cursor_pos_x(window_size.x/2)
         # imgui.dummy(ImVec2(0, 0))
@@ -200,25 +217,46 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
         imgui.align_text_to_frame_padding()
         imgui.text("Name"); imgui.same_line()
         imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
-        _, static.states["feat_name"] = imgui.input_text(f"##{feature["name"]}_feature_name", static.states["feat_name"], 128)
+        _, feature["name"] = imgui.input_text(f"##{feature["id"]}_feature_name", feature["name"], 128)
         imgui.pop_item_width(); imgui.same_line()
 
         with ColorButton("bad"):
             if imgui.button("Delete Feature"):
                 imgui.close_current_popup()
-                if static.states["feat_name"] != "":
-                    feature["name"] = static.states["feat_name"]
-                static.states["feat_name"] = ""
                 delete_item_from_list(feature, idx, static.data["features"], "feature", static)
 
         imgui.text("Description")
         imgui.set_next_window_size_constraints(ImVec2(window_size.x/2, imgui.get_text_line_height() * 5),
                                                ImVec2(window_size.x/2, imgui.get_text_line_height() * 5))
         if imgui.begin_child("description_text"):
-            _, feature["description"] = imgui.input_text_multiline(f"##{feature["name"]}_feature_description", 
+            _, feature["description"] = imgui.input_text_multiline(f"##{feature["id"]}_feature_description", 
                                                                 feature["description"], 
-                                                                ImVec2(-1, imgui.get_text_line_height() * 5), 128)
+                                                                ImVec2(-1, imgui.get_text_line_height() * 5),
+                                                                flags=imgui.InputTextFlags_.callback_completion, # type: ignore
+                                                                callback=lambda x, static=static: callback_show_possible_values(x, static))
             imgui.end_child()
+
+        if hasattr(static, "text_callback_data"):
+            imgui.open_popup("text_callback_popup")
+
+        if imgui.begin_popup("text_callback_popup"):
+            draw_entities_menu("text_callback_menu", 
+                               "text_callback_menu",
+                               LIST_TYPE_TO_BONUS["all"],
+                               static.states["new_bonuses"]["select_possible_value"], 
+                               static, 
+                               True)
+            imgui.end_popup()
+        elif "select_possible_value" in static.states["new_bonuses"] and static.states["new_bonuses"]["select_possible_value"]["new_bonus_value"] != "":
+            if hasattr(static, "text_callback_data"):
+                data = static.text_callback_data
+                data.insert_chars(data.cursor_pos, str(static.states["new_bonuses"]["select_possible_value"]["new_bonus_value"]))
+                del static.text_callback_data
+            static.states["new_bonuses"]["select_possible_value"] = {
+                "new_bonus_type": "",
+                "new_bonus_value": "",
+                "new_bonus_mult": 1.0
+            }
 
         # If we are creating a feature in a specific tab, it should have 
         # the corresponding tag by default
@@ -242,35 +280,35 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
                     del feature["tags"][idx]
         imgui.dummy(ImVec2(0, 0))
 
-        if imgui.button(f"New Bonus##{feature["name"]}"):
-            imgui.open_popup(f"Bonus for {feature["name"]}##popup")
+        if imgui.button(f"New Bonus##{feature["id"]}"):
+            imgui.open_popup(f"Bonus for {feature["id"]}##popup")
         draw_edit_feature_bonus(feature, static)
         
         imgui.same_line()
 
-        if imgui.button(f"New Counter##{feature["name"]}"):
+        if imgui.button(f"New Counter##{feature["id"]}"):
             imgui.open_popup("Edit Counter##popup")
-        draw_edit_counter(feature["counters"], feature["name"], static)
+        draw_edit_counter(feature["counters"], feature["id"], static)
 
         imgui.same_line()
 
-        if imgui.button(f"New Damage Effect##{feature["name"]}"):
-            imgui.open_popup(f"New Text Table Item Popup##{feature["name"]}_damage_effects")
+        if imgui.button(f"New Damage Effect##{feature["id"]}"):
+            imgui.open_popup(f"New Text Table Item Popup##{feature["id"]}_damage_effects")
 
-        draw_new_text_item_popup(f"{feature["name"]}_damage_effects", DAMAGE_TYPES, DAMAGE_EFFECTS_DEFAULT, 
+        draw_new_text_item_popup(f"{feature["id"]}_damage_effects", DAMAGE_TYPES, DAMAGE_EFFECTS_DEFAULT, 
                                  [static.data["damage_effects"], feature["damage_effects"]], static, 
                                  feature["name"], False)
 
         imgui.same_line()
 
-        if imgui.button(f"New Proficiency##{feature["name"]}"):
-            imgui.open_popup(f"New Text Table Item Popup##{feature["name"]}_proficiency")
+        if imgui.button(f"New Proficiency##{feature["id"]}"):
+            imgui.open_popup(f"New Text Table Item Popup##{feature["id"]}_proficiency")
             
-        draw_new_text_item_popup(f"{feature["name"]}_proficiency", PROFICIENCIES_TYPES, PROFICIENCIES_DEFAULT, 
+        draw_new_text_item_popup(f"{feature["id"]}_proficiency", PROFICIENCIES_TYPES, PROFICIENCIES_DEFAULT, 
                                  [static.data["training"], feature["proficiencies"]], static, 
                                  feature["name"], False)
 
-        if imgui.begin_table(f"{feature["name"]}_bonuses_counters_spells_attacks", 4, INVISIBLE_TABLE_FLAGS): # type: ignore
+        if imgui.begin_table(f"{feature["id"]}_bonuses_counters_spells_attacks", 4, INVISIBLE_TABLE_FLAGS): # type: ignore
             imgui.table_next_row(); imgui.table_next_column()
             imgui.separator_text("Bonuses")
             if feature["bonuses"] != []:
@@ -299,8 +337,8 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
                     for idx, feature_counter in enumerate(feature["counters"]):
                         imgui.table_next_row(); imgui.table_next_column()
                         if imgui.button(f"{feature_counter["name"]}##{idx}"):
-                            imgui.open_popup(f"Edit Counter##{feature_counter["name"]}_popup")
-                        draw_edit_counter(feature["counters"], feature["name"], static, feature_counter)
+                            imgui.open_popup(f"Edit Counter##{feature_counter["id"]}_popup")
+                        draw_edit_counter(feature["counters"], feature["id"], static, feature_counter)
 
                         imgui.table_next_column()
                         if feature_counter["manual"]:
@@ -348,18 +386,13 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
 
         if imgui.button("Close", ImVec2(120, 0)):
             imgui.close_current_popup()
-            if static.states["feat_name"] != "":
-                feature["name"] = static.states["feat_name"]
-            static.states["feat_name"] = ""
         imgui.end_popup()
-
 
 def draw_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtocol) -> None:
     imgui.spacing()
     draw_edit_feature(feature, idx, tag, static)
     if imgui.button(f"{feature["name"]}##{idx}"):
-        static.states["feat_name"] = feature["name"]
-        imgui.open_popup(f"Edit {feature["name"]}##popup")
+        imgui.open_popup(f"Edit Feature##popup_{feature["id"]}")
 
     imgui.spacing()
 
@@ -375,7 +408,7 @@ def draw_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtoco
 
     imgui.spacing()
 
-    imgui.push_id(f"tags_{feature["name"]}_{idx}")
+    imgui.push_id(f"tags_{feature["id"]}_{idx}")
     imgui_md.render(f"**Tags**: {", ".join(feature["tags"])}")
     imgui.pop_id()
     imgui.spacing()

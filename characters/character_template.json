@@ -3,16 +3,18 @@
     "image_path": "images/Mirkezim Surprised.png",
     "level": {
         "name": "Level",
-        "total": 11,
+        "total": 12,
         "classes": [
             {
+                "id": "no_display",
                 "name": "no_display",
                 "subclass": "",
+                "total": 0,
                 "level": 0,
                 "dice": 0,
-                "total": 0,
                 "spell_save_enabled": false,
                 "spell_save": {
+                    "id": "no_display_spell_save",
                     "name": "Spell Save (no display)",
                     "total": 0,
                     "base": 0,
@@ -23,59 +25,64 @@
                 "manual": false
             },
             {
+                "id": "50d6a65c-f2e2-4706-93ca-74d19faea889",
                 "name": "Paladin",
                 "subclass": "Oath of the Ancients",
+                "total": 6,
                 "level": 6,
                 "dice": 10,
-                "total": 6,
                 "spell_save_enabled": true,
                 "spell_save": {
-                    "name": "Spell Save (Paladin)",
-                    "total": 10,
+                    "id": "d078dde4-a788-4962-8231-84a5d6f466df",
+                    "name": "Spell Save Paladin",
+                    "total": 18,
                     "base": 12,
                     "base_overrides": [],
                     "bonuses": [
                         {
-                            "name": "CHA (Basic Rules)",
-                            "value": "ability:CHA",
-                            "multiplier": 1,
+                            "name": "Ability Modifier, CHA (Manual)",
+                            "value": "ability:a4421d1c-0a89-4d7c-98d2-8668fcf1719b",
+                            "multiplier": 1.0,
                             "manual": true
                         }
                     ],
-                    "manual": true
+                    "manual": false
                 },
                 "manual": true
             },
             {
+                "id": "f9798fb6-bb4d-4032-a037-27a01ad9aac2",
                 "name": "Warlock",
                 "subclass": "Fey Patron",
-                "level": 5,
-                "dice": 10,
-                "total": 5,
+                "total": 6,
+                "level": 6,
+                "dice": 8,
                 "spell_save_enabled": true,
                 "spell_save": {
-                    "name": "Spell Save (Warlock)",
-                    "total": 10,
+                    "id": "87ed2b17-c3ed-45af-b754-f94cb51ee13e",
+                    "name": "Spell Save Warlock",
+                    "total": 18,
                     "base": 12,
                     "base_overrides": [],
                     "bonuses": [
                         {
-                            "name": "CHA (Basic Rules)",
-                            "value": "ability:CHA",
-                            "multiplier": 1,
+                            "name": "Ability Modifier, CHA (Manual)",
+                            "value": "ability:a4421d1c-0a89-4d7c-98d2-8668fcf1719b",
+                            "multiplier": 1.0,
                             "manual": true
                         }
                     ],
-                    "manual": true
+                    "manual": false
                 },
                 "manual": true
             }
         ]
     },
     "hp": {
+        "id": "hp",
         "name": "HP",
-        "current": 20,
-        "max_total": 42,
+        "current": 44,
+        "max_total": 44,
         "max_base": 20,
         "temp": 0,
         "bonuses": [
@@ -84,6 +91,12 @@
                 "value": "level:total",
                 "multiplier": 2.0,
                 "manual": false
+            },
+            {
+                "name": "Channel Divinity (Channel Divinity) Current (Manual)",
+                "value": "counter:2453bee8-796e-4329-b4f9-54bb3fc79478:206ab9bf-6a60-44d7-b3b2-3c693ae2c0df:current",
+                "multiplier": 1.0,
+                "manual": true
             }
         ]
     },
@@ -120,10 +133,12 @@
         "description": "D20 Tests are reduced by two times your current level of Exhaustion, and your speed is reduced by 5 feet per level.\nAt 6 levels of Exhaustion your character dies."
     },
     "proficiency": {
+        "id": "proficiency",
         "name": "Proficiency",
         "total": 4
     },
     "initiative": {
+        "id": "initiative",
         "name": "Initiative",
         "total": 4,
         "bonuses": [
@@ -132,12 +147,6 @@
                 "value": 0,
                 "multiplier": 1.0,
                 "manual": false
-            },
-            {
-                "name": "DEX (Basic Rules)",
-                "value": "ability:DEX",
-                "multiplier": 1.0,
-                "manual": true
             },
             {
                 "name": "Proficiency (Alert)",
@@ -151,6 +160,7 @@
         "manual": false
     },
     "armor_class": {
+        "id": "armor_class",
         "name": "Armor Class",
         "total": 15,
         "base": 10,
@@ -159,17 +169,11 @@
             "armor_class": 15,
             "max_dex_bonus": 2
         },
-        "bonuses": [
-            {
-                "name": "DEX (Basic Rules)",
-                "value": "ability:DEX",
-                "multiplier": 1.0,
-                "manual": true
-            }
-        ]
+        "bonuses": []
     },
     "abilities": [
         {
+            "id": "no_display",
             "name": "no_display",
             "total": 0,
             "total_base_score": 0,
@@ -180,57 +184,52 @@
             "manual": false
         },
         {
+            "id": "86980063-3c7b-4d8a-88ba-463cd12fc6bd",
             "name": "STR",
-            "total": 0,
-            "total_base_score": 10,
+            "total": 1,
+            "total_base_score": 12,
             "base_score_overrides": [],
             "base_score_bonuses": [],
-            "base_score": 10,
+            "base_score": 12,
             "modifier_bonuses": [],
             "manual": true
         },
         {
+            "id": "abd006fa-d591-4465-874c-4b8c6ee20e07",
             "name": "DEX",
-            "total": 0,
-            "total_base_score": 10,
+            "total": 2,
+            "total_base_score": 14,
             "base_score_overrides": [],
             "base_score_bonuses": [],
-            "base_score": 10,
+            "base_score": 14,
             "modifier_bonuses": [],
             "manual": true
         },
         {
+            "id": "51fb7794-19b0-4335-8b22-a9a7b0de0277",
             "name": "CON",
-            "total": 0,
-            "total_base_score": 10,
+            "total": 3,
+            "total_base_score": 16,
             "base_score_overrides": [],
             "base_score_bonuses": [],
-            "base_score": 10,
+            "base_score": 16,
             "modifier_bonuses": [],
             "manual": true
         },
         {
+            "id": "06d799fc-c21e-4e8e-aad2-c737226d3222",
             "name": "INT",
-            "total": 0,
-            "total_base_score": 10,
+            "total": 4,
+            "total_base_score": 18,
             "base_score_overrides": [],
             "base_score_bonuses": [],
-            "base_score": 10,
+            "base_score": 18,
             "modifier_bonuses": [],
             "manual": true
         },
         {
+            "id": "ae7f5ae9-1a87-4ade-b728-cac17a74d837",
             "name": "WIS",
-            "total": 0,
-            "total_base_score": 10,
-            "base_score_overrides": [],
-            "base_score_bonuses": [],
-            "base_score": 10,
-            "modifier_bonuses": [],
-            "manual": true
-        },
-        {
-            "name": "CHA",
             "total": 5,
             "total_base_score": 20,
             "base_score_overrides": [],
@@ -238,10 +237,22 @@
             "base_score": 20,
             "modifier_bonuses": [],
             "manual": true
+        },
+        {
+            "id": "a4421d1c-0a89-4d7c-98d2-8668fcf1719b",
+            "name": "CHA",
+            "total": 6,
+            "total_base_score": 22,
+            "base_score_overrides": [],
+            "base_score_bonuses": [],
+            "base_score": 22,
+            "modifier_bonuses": [],
+            "manual": true
         }
     ],
     "saves": [
         {
+            "id": "no_display",
             "name": "no_display",
             "total": 0,
             "bonuses": [],
@@ -250,8 +261,9 @@
             "manual": false
         },
         {
+            "id": "62cf3397-2b42-48ad-9ae4-758c49658523",
             "name": "STR",
-            "total": 0,
+            "total": 1,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -260,9 +272,9 @@
                     "manual": false
                 },
                 {
-                    "name": "STR (Basic Rules)",
-                    "value": "ability:STR",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, STR (Manual)",
+                    "value": "ability:86980063-3c7b-4d8a-88ba-463cd12fc6bd",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -271,8 +283,9 @@
             "manual": true
         },
         {
+            "id": "e40b1969-0cf6-4540-8bb1-a988d5ac4c7d",
             "name": "DEX",
-            "total": 0,
+            "total": 2,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -281,8 +294,8 @@
                     "manual": false
                 },
                 {
-                    "name": "DEX (Basic Rules)",
-                    "value": "ability:DEX",
+                    "name": "Ability Modifier, DEX (Manual)",
+                    "value": "ability:abd006fa-d591-4465-874c-4b8c6ee20e07",
                     "multiplier": 1.0,
                     "manual": true
                 }
@@ -292,8 +305,9 @@
             "manual": true
         },
         {
+            "id": "ae92d74f-5d64-4426-9b99-5ac13947634c",
             "name": "CON",
-            "total": 0,
+            "total": 3,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -302,8 +316,8 @@
                     "manual": false
                 },
                 {
-                    "name": "CON (Basic Rules)",
-                    "value": "ability:CON",
+                    "name": "Ability Modifier, CON (Manual)",
+                    "value": "ability:51fb7794-19b0-4335-8b22-a9a7b0de0277",
                     "multiplier": 1.0,
                     "manual": true
                 }
@@ -313,8 +327,9 @@
             "manual": true
         },
         {
+            "id": "7541e65d-1d96-4146-9c67-dca143a8829c",
             "name": "INT",
-            "total": 0,
+            "total": 4,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -323,8 +338,8 @@
                     "manual": false
                 },
                 {
-                    "name": "INT (Basic Rules)",
-                    "value": "ability:INT",
+                    "name": "Ability Modifier, INT (Manual)",
+                    "value": "ability:06d799fc-c21e-4e8e-aad2-c737226d3222",
                     "multiplier": 1.0,
                     "manual": true
                 }
@@ -334,28 +349,8 @@
             "manual": true
         },
         {
+            "id": "fc0125b7-5645-4e38-9e36-7d5c49260ad9",
             "name": "WIS",
-            "total": 0,
-            "bonuses": [
-                {
-                    "name": "Manual",
-                    "value": 0,
-                    "multiplier": 1.0,
-                    "manual": false
-                },
-                {
-                    "name": "WIS (Basic Rules)",
-                    "value": "ability:WIS",
-                    "multiplier": 1.0,
-                    "manual": true
-                }
-            ],
-            "manual_advantage": false,
-            "manual_disadvantage": false,
-            "manual": true
-        },
-        {
-            "name": "CHA",
             "total": 5,
             "bonuses": [
                 {
@@ -365,8 +360,30 @@
                     "manual": false
                 },
                 {
-                    "name": "CHA (Basic Rules)",
-                    "value": "ability:CHA",
+                    "name": "Ability Modifier, WIS (Manual)",
+                    "value": "ability:ae7f5ae9-1a87-4ade-b728-cac17a74d837",
+                    "multiplier": 1.0,
+                    "manual": true
+                }
+            ],
+            "manual_advantage": false,
+            "manual_disadvantage": false,
+            "manual": true
+        },
+        {
+            "id": "c05b11ae-3f3e-414e-ab96-1b1e363c5ce2",
+            "name": "CHA",
+            "total": 6,
+            "bonuses": [
+                {
+                    "name": "Manual",
+                    "value": 0,
+                    "multiplier": 1.0,
+                    "manual": false
+                },
+                {
+                    "name": "Ability Modifier, CHA (Manual)",
+                    "value": "ability:a4421d1c-0a89-4d7c-98d2-8668fcf1719b",
                     "multiplier": 1.0,
                     "manual": true
                 }
@@ -378,6 +395,7 @@
     ],
     "skills": [
         {
+            "id": "no_display",
             "name": "no_display",
             "total": 0,
             "bonuses": [],
@@ -386,8 +404,9 @@
             "manual": false
         },
         {
+            "id": "1de4c2d8-f74b-42d4-909c-68dfb2682f16",
             "name": "Acrobatics",
-            "total": 0,
+            "total": 2,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -396,8 +415,8 @@
                     "manual": false
                 },
                 {
-                    "name": "DEX (Basic Rules)",
-                    "value": "ability:DEX",
+                    "name": "Ability Modifier, DEX (Manual)",
+                    "value": "ability:abd006fa-d591-4465-874c-4b8c6ee20e07",
                     "multiplier": 1.0,
                     "manual": true
                 }
@@ -407,8 +426,9 @@
             "manual": true
         },
         {
+            "id": "a64c29e7-9935-49ac-902e-e727108b8a13",
             "name": "Animal Handling",
-            "total": 0,
+            "total": 5,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -417,9 +437,9 @@
                     "manual": false
                 },
                 {
-                    "name": "WIS (Basic Rules)",
-                    "value": "ability:WIS",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, WIS (Manual)",
+                    "value": "ability:ae7f5ae9-1a87-4ade-b728-cac17a74d837",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -428,8 +448,9 @@
             "manual": true
         },
         {
+            "id": "82196197-5b15-48a1-96fa-f764c1e1eb06",
             "name": "Arcana",
-            "total": 0,
+            "total": 4,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -438,9 +459,9 @@
                     "manual": false
                 },
                 {
-                    "name": "INT (Basic Rules)",
-                    "value": "ability:INT",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, INT (Manual)",
+                    "value": "ability:06d799fc-c21e-4e8e-aad2-c737226d3222",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -449,8 +470,9 @@
             "manual": true
         },
         {
+            "id": "d4aed017-f196-402e-9517-ab91dfb967c0",
             "name": "Athletics",
-            "total": 0,
+            "total": 1,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -459,9 +481,9 @@
                     "manual": false
                 },
                 {
-                    "name": "STR (Basic Rules)",
-                    "value": "ability:STR",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, STR (Manual)",
+                    "value": "ability:86980063-3c7b-4d8a-88ba-463cd12fc6bd",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -470,8 +492,9 @@
             "manual": true
         },
         {
+            "id": "8d76459b-a2ef-4b9a-983e-f61f9149a488",
             "name": "Deception",
-            "total": 5,
+            "total": 6,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -480,9 +503,9 @@
                     "manual": false
                 },
                 {
-                    "name": "CHA (Basic Rules)",
-                    "value": "ability:CHA",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, CHA (Manual)",
+                    "value": "ability:a4421d1c-0a89-4d7c-98d2-8668fcf1719b",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -491,8 +514,9 @@
             "manual": true
         },
         {
+            "id": "c69f8494-fe48-4ad6-9456-28b9378c7c6c",
             "name": "History",
-            "total": 0,
+            "total": 4,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -501,9 +525,9 @@
                     "manual": false
                 },
                 {
-                    "name": "INT (Basic Rules)",
-                    "value": "ability:INT",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, INT (Manual)",
+                    "value": "ability:06d799fc-c21e-4e8e-aad2-c737226d3222",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -512,8 +536,9 @@
             "manual": true
         },
         {
+            "id": "378ceb20-1191-49c1-ba7d-a69dd8069d20",
             "name": "Insight",
-            "total": 0,
+            "total": 5,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -522,9 +547,9 @@
                     "manual": false
                 },
                 {
-                    "name": "WIS (Basic Rules)",
-                    "value": "ability:WIS",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, WIS (Manual)",
+                    "value": "ability:ae7f5ae9-1a87-4ade-b728-cac17a74d837",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -533,8 +558,9 @@
             "manual": true
         },
         {
+            "id": "78974730-f948-4a3d-9069-9a1b999e8b58",
             "name": "Intimidation",
-            "total": 5,
+            "total": 6,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -543,9 +569,9 @@
                     "manual": false
                 },
                 {
-                    "name": "CHA (Basic Rules)",
-                    "value": "ability:CHA",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, CHA (Manual)",
+                    "value": "ability:a4421d1c-0a89-4d7c-98d2-8668fcf1719b",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -554,8 +580,9 @@
             "manual": true
         },
         {
+            "id": "65d067a6-28d5-4d58-a3c2-3b6fbbc0e1cf",
             "name": "Investigation",
-            "total": 0,
+            "total": 4,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -564,9 +591,9 @@
                     "manual": false
                 },
                 {
-                    "name": "INT (Basic Rules)",
-                    "value": "ability:INT",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, INT (Manual)",
+                    "value": "ability:06d799fc-c21e-4e8e-aad2-c737226d3222",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -575,8 +602,9 @@
             "manual": true
         },
         {
+            "id": "2228d9f2-29a2-4350-9d0a-a9fd12c9d47a",
             "name": "Medicine",
-            "total": 0,
+            "total": 5,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -585,9 +613,9 @@
                     "manual": false
                 },
                 {
-                    "name": "WIS (Basic Rules)",
-                    "value": "ability:WIS",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, WIS (Manual)",
+                    "value": "ability:ae7f5ae9-1a87-4ade-b728-cac17a74d837",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -596,9 +624,9 @@
             "manual": true
         },
         {
+            "id": "7c52702a-2730-45d3-a4d9-a5d5520528e8",
             "name": "Nature",
-            "total": 0,
-            "custom_mod": 0,
+            "total": 4,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -607,9 +635,9 @@
                     "manual": false
                 },
                 {
-                    "name": "INT (Basic Rules)",
-                    "value": "ability:INT",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, INT (Manual)",
+                    "value": "ability:06d799fc-c21e-4e8e-aad2-c737226d3222",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -618,9 +646,9 @@
             "manual": true
         },
         {
+            "id": "e60cb091-3259-4a6d-bc5f-fcd6dac5d229",
             "name": "Perception",
-            "total": 0,
-            "custom_mod": 0,
+            "total": 5,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -629,9 +657,9 @@
                     "manual": false
                 },
                 {
-                    "name": "WIS (Basic Rules)",
-                    "value": "ability:WIS",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, WIS (Manual)",
+                    "value": "ability:ae7f5ae9-1a87-4ade-b728-cac17a74d837",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -640,9 +668,9 @@
             "manual": true
         },
         {
+            "id": "ba69c446-cee0-4848-92ac-37bc15546701",
             "name": "Performance",
-            "total": 5,
-            "custom_mod": 0,
+            "total": 6,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -651,9 +679,9 @@
                     "manual": false
                 },
                 {
-                    "name": "CHA (Basic Rules)",
-                    "value": "ability:CHA",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, CHA (Manual)",
+                    "value": "ability:a4421d1c-0a89-4d7c-98d2-8668fcf1719b",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -662,9 +690,9 @@
             "manual": true
         },
         {
+            "id": "d4eb9486-14b5-4706-830d-2ef68b7356fb",
             "name": "Persuasion",
-            "total": 5,
-            "custom_mod": 0,
+            "total": 6,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -673,9 +701,9 @@
                     "manual": false
                 },
                 {
-                    "name": "CHA (Basic Rules)",
-                    "value": "ability:CHA",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, CHA (Manual)",
+                    "value": "ability:a4421d1c-0a89-4d7c-98d2-8668fcf1719b",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -684,9 +712,9 @@
             "manual": true
         },
         {
+            "id": "070402ad-79cb-4e1d-b3ae-3cdfc2662e70",
             "name": "Religion",
-            "total": 0,
-            "custom_mod": 0,
+            "total": 4,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -695,9 +723,9 @@
                     "manual": false
                 },
                 {
-                    "name": "INT (Basic Rules)",
-                    "value": "ability:INT",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, INT (Manual)",
+                    "value": "ability:06d799fc-c21e-4e8e-aad2-c737226d3222",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -706,9 +734,9 @@
             "manual": true
         },
         {
+            "id": "362e27bd-2c4a-4e51-a922-1f1877d7ee83",
             "name": "Sleight of Hand",
-            "total": 0,
-            "custom_mod": 0,
+            "total": 2,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -717,9 +745,9 @@
                     "manual": false
                 },
                 {
-                    "name": "DEX (Basic Rules)",
-                    "value": "ability:DEX",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, DEX (Manual)",
+                    "value": "ability:abd006fa-d591-4465-874c-4b8c6ee20e07",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -728,8 +756,9 @@
             "manual": true
         },
         {
+            "id": "82104c82-a38d-483c-b538-06983dae3df3",
             "name": "Stealth",
-            "total": 0,
+            "total": 2,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -738,9 +767,9 @@
                     "manual": false
                 },
                 {
-                    "name": "DEX (Basic Rules)",
-                    "value": "ability:DEX",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, DEX (Manual)",
+                    "value": "ability:abd006fa-d591-4465-874c-4b8c6ee20e07",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -749,8 +778,9 @@
             "manual": true
         },
         {
+            "id": "ac5c3928-da44-4477-adf5-5ed6898af583",
             "name": "Survival",
-            "total": 0,
+            "total": 5,
             "bonuses": [
                 {
                     "name": "Manual",
@@ -759,9 +789,9 @@
                     "manual": false
                 },
                 {
-                    "name": "WIS (Basic Rules)",
-                    "value": "ability:WIS",
-                    "multiplier": 1,
+                    "name": "Ability Modifier, WIS (Manual)",
+                    "value": "ability:ae7f5ae9-1a87-4ade-b728-cac17a74d837",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -772,6 +802,7 @@
     ],
     "speed": [
         {
+            "id": "no_display",
             "name": "no_display",
             "total": 0,
             "base": 0,
@@ -780,6 +811,7 @@
             "manual": false
         },
         {
+            "id": "e4e87c3d-5219-4511-acf6-e1fc7a3475ae",
             "name": "Walking",
             "total": 30,
             "base": 30,
@@ -788,6 +820,7 @@
             "manual": true
         },
         {
+            "id": "7caf9008-2b82-4010-9140-53c0a77b5b2c",
             "name": "Climbing",
             "total": 0,
             "base": 0,
@@ -796,6 +829,7 @@
             "manual": true
         },
         {
+            "id": "a665f73d-5fa7-4573-83ae-97d70fb17834",
             "name": "Swimming",
             "total": 0,
             "base": 0,
@@ -804,6 +838,7 @@
             "manual": true
         },
         {
+            "id": "fa361cc0-57ba-4bc2-ae28-2741a472a39d",
             "name": "Flying",
             "total": 0,
             "base": 0,
@@ -814,6 +849,7 @@
     ],
     "passive_skill": [
         {
+            "id": "no_display",
             "name": "no_display",
             "total": 0,
             "base": 0,
@@ -822,45 +858,48 @@
             "manual": false
         },
         {
+            "id": "bd47afda-9f42-45e4-b3b7-fd674e17f2af",
             "name": "Perception",
-            "total": 10,
+            "total": 15,
             "base": 10,
             "base_overrides": [],
             "bonuses": [
                 {
-                    "name": "WIS (Basic Rules)",
-                    "value": "ability:WIS",
-                    "multiplier": 1,
+                    "name": "Skill, Perception (Manual)",
+                    "value": "skill:e60cb091-3259-4a6d-bc5f-fcd6dac5d229",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
             "manual": true
         },
         {
+            "id": "162a781f-3855-4fb8-974f-872303f3d599",
             "name": "Investigation",
-            "total": 10,
+            "total": 14,
             "base": 10,
             "base_overrides": [],
             "bonuses": [
                 {
-                    "name": "INT (Basic Rules)",
-                    "value": "ability:INT",
-                    "multiplier": 1,
+                    "name": "Skill, Investigation (Manual)",
+                    "value": "skill:65d067a6-28d5-4d58-a3c2-3b6fbbc0e1cf",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
             "manual": true
         },
         {
+            "id": "7232ed35-c9b8-4b7c-9397-31e705697267",
             "name": "Insight",
-            "total": 10,
+            "total": 15,
             "base": 10,
             "base_overrides": [],
             "bonuses": [
                 {
-                    "name": "WIS (Basic Rules)",
-                    "value": "ability:WIS",
-                    "multiplier": 1,
+                    "name": "Skill, Insight (Manual)",
+                    "value": "skill:378ceb20-1191-49c1-ba7d-a69dd8069d20",
+                    "multiplier": 1.0,
                     "manual": true
                 }
             ],
@@ -869,6 +908,7 @@
     ],
     "sense": [
         {
+            "id": "no_display",
             "name": "no_display",
             "total": 0,
             "base": 0,
@@ -877,14 +917,16 @@
             "manual": false
         },
         {
+            "id": "a5af2014-eb21-4e07-9819-e9b22cfaa378",
             "name": "Blindsight",
-            "total": 30,
-            "base": 30,
+            "total": 0,
+            "base": 0,
             "base_overrides": [],
             "bonuses": [],
             "manual": true
         },
         {
+            "id": "2b2099d9-d16c-41bc-b19a-af48fd06c7e4",
             "name": "Darkvision",
             "total": 0,
             "base": 0,
@@ -893,6 +935,7 @@
             "manual": true
         },
         {
+            "id": "34e3444b-30ae-49c3-b7cf-446cc75e1289",
             "name": "Tremorsense",
             "total": 0,
             "base": 0,
@@ -901,6 +944,7 @@
             "manual": true
         },
         {
+            "id": "6dac374c-9097-4237-89ee-3ed92e0d4872",
             "name": "Truesight",
             "total": 0,
             "base": 0,
@@ -973,6 +1017,7 @@
     ],
     "features": [
         {
+            "id": "no_display",
             "name": "no_display",
             "description": "",
             "tags": [],
@@ -983,8 +1028,9 @@
             "manual": false
         },
         {
+            "id": "6cff1777-6ddb-4c32-8ed9-19c7a468ba7b",
             "name": "Alert",
-            "description": "**Initiative Proficiency** When you roll Initiative, add +{proficiency} to the roll.\n\n**Initiative Swap** Immediately after you roll Initiative, you can swap your \nInitiative with the Initiative of one willing ally in the same combat. You can't make \nthis swap if you or the ally has the Incapacitated condition.",
+            "description": "**Initiative Proficiency** When you roll Initiative, add +{proficiency} to the roll.\n\n**Initiative Swap** Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one \nwilling ally in the same combat. You can't make this swap if you or the ally has the Incapacitated condition.",
             "tags": [
                 "Feat",
                 "Human"
@@ -1008,8 +1054,9 @@
             "manual": true
         },
         {
+            "id": "a2024730-5da0-4122-b7e9-441b18eadb1e",
             "name": "Tough",
-            "description": "When you take this feat, your HP maximum increases by {level:total, mult=2}. \nWhenever you gain a character level thereafter, your HP maximum increases an\n additional 2 HP.",
+            "description": "When you take this feat, your HP maximum increases by {level:total, mult=2}.\nWhenever you gain a character level thereafter, your HP maximum increases an additional 2 HP.",
             "tags": [
                 "Feat",
                 "Warlock",
@@ -1034,39 +1081,9 @@
             "manual": true
         },
         {
-            "name": "Lay On Hands",
-            "description": "You have a pool of healing power that replenishes when you finish a Long Rest. With that pool, you can \nrestore a total of {level:Paladin, mult=5}.\n\nAs a Bonus Action, you can touch a creature (which could be yourself) and restore a number HP to that\ncreature, up to the maximum amount remaining in the pool. You can also expend 5 HP from the pool \nof healing to remove the Poisoned condition from the creature; those points don't also restore HP to \nthe creature.",
-            "tags": [
-                "Paladin",
-                "Bonus Action"
-            ],
-            "bonuses": [],
-            "counters": [
-                {
-                    "name": "HP Pool",
-                    "parent": "Lay On Hands",
-                    "current": 20,
-                    "max": 30,
-                    "display_type": "+- Buttons",
-                    "bonuses": [
-                        {
-                            "name": "Level, Paladin",
-                            "value": "level:Paladin",
-                            "multiplier": 5,
-                            "manual": true
-                        }
-                    ],
-                    "min": 5,
-                    "manual": true
-                }
-            ],
-            "damage_effects": [],
-            "proficiencies": [],
-            "manual": true
-        },
-        {
+            "id": "2453bee8-796e-4329-b4f9-54bb3fc79478",
             "name": "Channel Divinity",
-            "description": "You can channel energy directly from the Outer Planes to fuel magical effects. Each time you use this class's Channel Divinity, you can choose which effect to create. You can use this class's Channel Divinity 2 times per Long Rest, but can regain one expended use after finishing a Short Rest.\n\nIf your Channel Divinity requires a saving throw, the DC equals your Paladin spell save DC (DC {ability:Spell Save}).\n\n**Divine Sense** As a Bonus Action, you can open your awareness to detect Celestials, Fiends, and Undead. For the next 10 minutes or until you have the Incapacitated condition, you know the location of any creature of those types within 60 feet of yourself, and you know its creature type. Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the Hallow spell.\n\n**Nature's Wrath** As a Magic action, you can expend one use of Channel Divinity to conjure spectral vines around each creature of your choice that you can see within 15 ft. Each creature must succeed on a DC 17 Str. saving throw, or have the Restrained condition for 1 minute. A Restrained creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+            "description": "You can channel energy directly from the Outer Planes to fuel magical effects. \nEach time you use this class's Channel Divinity, you can choose which effect to create. \nYou can use this class's Channel Divinity 2 times per Long Rest, but can regain one expended use after finishing \na Short Rest.\n\nIf your Channel Divinity requires a saving throw, the DC equals your Paladin spell save DC (DC {ability:Spell Save}).\n\n**Divine Sense** As a Bonus Action, you can open your awareness to detect Celestials, Fiends, and Undead. \nFor the next 10 minutes or until you have the Incapacitated condition, you know the location of any creature \nof those types within 60 feet of yourself, and you know its creature type. Within the same radius, you also \ndetect the presence of any place or object that has been consecrated or desecrated, as with the Hallow spell.\n\n**Nature's Wrath** As a Magic action, you can expend one use of Channel Divinity to conjure spectral vines \naround each creature of your choice that you can see within 15 ft. \nEach creature must succeed on a DC 17 Str. saving throw, or have the Restrained condition for 1 minute. \nA Restrained creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
             "tags": [
                 "Paladin",
                 "Action",
@@ -1075,8 +1092,9 @@
             "bonuses": [],
             "counters": [
                 {
+                    "id": "206ab9bf-6a60-44d7-b3b2-3c693ae2c0df",
                     "name": "Channel Divinity",
-                    "parent": "Channel Divinity",
+                    "parent": "",
                     "current": 0,
                     "max": 2,
                     "display_type": "Checkboxes",
@@ -1097,8 +1115,9 @@
             "manual": true
         },
         {
+            "id": "5efe61a8-dc67-487f-b1f3-15149af34061",
             "name": "Steps of the Fey",
-            "description": "Your patron grants you the ability to move between the boundaries of the planes. You can cast Misty Step without expending a spell slot a number of times equal to your Charisma modifier (minimum of once), and you regain all expended uses when you finish a Long Rest.\n\nIn addition, whenever you cast that spell, you can choose one of the following additional effects.\n\n**Refreshing Step** Immediately after you teleport, you or one creature you can see within 10 feet of yourself gains 1d10 Temporary Hit Points.\n\n**Taunting Step** Creatures within 5 feet of the space you left must succeed on a Wisdom saving throw against your spell save DC or have Disadvantage on attack rolls against creatures other than you until the start of your next turn.",
+            "description": "Your patron grants you the ability to move between the boundaries of the planes. You can cast Misty Step \nwithout expending a spell slot a number of times equal to your Charisma modifier (minimum of once), \nand you regain all expended uses when you finish a Long Rest.\n\nIn addition, whenever you cast that spell, you can choose one of the following additional effects.\n\n**Refreshing Step** Immediately after you teleport, you or one creature you can see within 10 feet of \nyourself gains 1d10 Temporary Hit Points.\n\n**Taunting Step** Creatures within 5 feet of the space you left must succeed on a Wisdom saving throw \nagainst your spell save DC or have Disadvantage on attack rolls against creatures other than you until the \nstart of your next turn.",
             "tags": [
                 "Warlock",
                 "Bonus Action"
@@ -1106,15 +1125,16 @@
             "bonuses": [],
             "counters": [
                 {
+                    "id": "322afd37-ec83-4670-984a-e855c6199dcb",
                     "name": "Misty Step",
-                    "parent": "Steps of the Fey",
+                    "parent": "",
                     "current": 0,
-                    "max": 5,
+                    "max": 6,
                     "display_type": "Checkboxes",
                     "bonuses": [
                         {
                             "name": "Ability Modifier, CHA",
-                            "value": "ability:CHA",
+                            "value": "ability:a4421d1c-0a89-4d7c-98d2-8668fcf1719b",
                             "multiplier": 1.0,
                             "manual": true
                         }
@@ -1128,8 +1148,9 @@
             "manual": true
         },
         {
+            "id": "3cf20e6e-8043-4af9-9087-5bc2b7f6eb5c",
             "name": "Lucky",
-            "description": "**Luck Points** You have {proficiency} Luck Points that you can spend on the benefits below. You regain expended Luck Points after a Long Rest.\n\n**Advantage** When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage on the roll.\n\n**Disadvantage** When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to impose Disadvantage on that roll.",
+            "description": "**Luck Points** You have {proficiency} Luck Points that you can spend on the benefits below. You regain \nexpended Luck Points after a Long Rest.\n\n**Advantage** When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage \non the roll.\n\n**Disadvantage** When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to \nimpose Disadvantage on that roll.",
             "tags": [
                 "Feat",
                 "Background",
@@ -1138,8 +1159,9 @@
             "bonuses": [],
             "counters": [
                 {
-                    "name": "Lock Points",
-                    "parent": "Lucky",
+                    "id": "40ec8b7f-f842-45fb-9b11-1f38bcc97d33",
+                    "name": "Luck Points",
+                    "parent": "",
                     "current": 0,
                     "max": 4,
                     "display_type": "Checkboxes",
@@ -1161,10 +1183,7 @@
         }
     ],
     "spells": [],
-    "feature_windows": [
-        "Paladin",
-        "Warlock"
-    ],
+    "feature_windows": [],
     "default_conditions": [
         {
             "name": "Blinded",

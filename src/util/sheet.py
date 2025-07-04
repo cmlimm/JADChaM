@@ -1,5 +1,6 @@
 import itertools
 import random
+import uuid
 from typing import Any, Callable, Optional
 
 from imgui_bundle import ImColor, ImVec2, icons_fontawesome_6, imgui
@@ -61,9 +62,10 @@ def draw_exhaustion_penalty(stat_type: StatTypes, static: MainWindowProtocol) ->
 
 
 def draw_entities_menu(menu_name: str, menu_id: str, types: list[str], 
-                       new_bonus: NewBonus, static: MainWindowProtocol):
+                       new_bonus: NewBonus, static: MainWindowProtocol, close_on_click=False):
     imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-    imgui.push_item_flag(imgui.ItemFlags_.auto_close_popups, False) # type: ignore
+    if not close_on_click:
+        imgui.push_item_flag(imgui.ItemFlags_.auto_close_popups, False) # type: ignore
 
     if menu_name == "":
         menu_name = "Choose Bonus"
@@ -81,17 +83,17 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
                     new_bonus["new_bonus_value"] = f"level:total"
                 for class_item in static.data["level"]["classes"]:
                     class_name = class_item["name"]
-                    if not class_name.startswith("no_display") and imgui.menu_item_simple(f"{class_name}##{menu_id}"):
+                    if class_name != "no_display" and imgui.menu_item_simple(f"{class_name}##{menu_id}"):
                         new_bonus["new_bonus_type"] = f"Level, {class_name}"
-                        new_bonus["new_bonus_value"] = f"level:{class_name}"
+                        new_bonus["new_bonus_value"] = f"level:{class_item["id"]}"
                 imgui.end_menu()
             # Spell Save
             elif bonus_type == "Spell Save"  and imgui.begin_menu(f"Spell Save##{menu_id}"):
                 for class_item in static.data["level"]["classes"]:
                     class_name = class_item["name"]
-                    if not class_name.startswith("no_display") and class_item["spell_save_enabled"] and imgui.menu_item_simple(f"{class_name}##{menu_id}"):
+                    if class_name != "no_display" and class_item["spell_save_enabled"] and imgui.menu_item_simple(f"{class_name}##{menu_id}"):
                         new_bonus["new_bonus_type"] = f"Spell Save, {class_name}"
-                        new_bonus["new_bonus_value"] = f"spell_save:{class_name}"
+                        new_bonus["new_bonus_value"] = f"spell_save:{class_item["id"]}"
                 imgui.end_menu()
             # Advantage and Disadvantage
             elif bonus_type == "Advantage" and imgui.menu_item_simple(f"Advantage##{menu_id}"):
@@ -104,30 +106,30 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
             elif bonus_type == "Ability" and imgui.begin_menu(f"Ability##{menu_id}"):
                 for ability in static.data["abilities"]:
                     ability_name = ability["name"]
-                    if not ability_name.startswith("no_display") and imgui.begin_menu(f"{ability_name}##{menu_id}"):
+                    if ability_name != "no_display" and imgui.begin_menu(f"{ability_name}##{menu_id}"):
                         if imgui.menu_item_simple(f"Modifier##{menu_id}"):
                             new_bonus["new_bonus_type"] = f"Ability Modifier, {ability_name}"
-                            new_bonus["new_bonus_value"] = f"ability:{ability_name}"
+                            new_bonus["new_bonus_value"] = f"ability:{ability["id"]}"
                         if imgui.menu_item_simple(f"Score##{menu_id}"):
                             new_bonus["new_bonus_type"] = f"Ability Score, {ability_name}"
-                            new_bonus["new_bonus_value"] = f"ability:{ability_name}:score"
+                            new_bonus["new_bonus_value"] = f"ability:{ability["id"]}:score"
                         imgui.end_menu()
                 imgui.end_menu()
             # Saving Throw
             elif bonus_type == "Saving Throw" and imgui.begin_menu(f"Save##{menu_id}"):
                 for save in static.data["saves"]:
                     save_name = save["name"]
-                    if not save_name.startswith("no_display") and imgui.menu_item_simple(save_name):
+                    if save_name != "no_display" and imgui.menu_item_simple(save_name):
                         new_bonus["new_bonus_type"] = f"Saving Throw, {save_name}"
-                        new_bonus["new_bonus_value"] = f"save:{save_name}"
+                        new_bonus["new_bonus_value"] = f"save:{save["id"]}"
                 imgui.end_menu()
             # Skill
             elif bonus_type == "Skill" and imgui.begin_menu(f"Skill##{menu_id}"):
                 for skill in static.data["skills"]:
                     skill_name = skill["name"]
-                    if not skill_name.startswith("no_display") and imgui.menu_item_simple(skill_name):
+                    if skill_name != "no_display" and imgui.menu_item_simple(skill_name):
                         new_bonus["new_bonus_type"] = f"Skill, {skill_name}"
-                        new_bonus["new_bonus_value"] = f"skill:{skill_name}"
+                        new_bonus["new_bonus_value"] = f"skill:{skill["id"]}"
                 imgui.end_menu()
             # Proficiency
             elif bonus_type == "Proficiency" and imgui.menu_item_simple(f"Proficiency##{menu_id}"):
@@ -137,25 +139,25 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
             elif bonus_type == "Speed" and imgui.begin_menu(f"Speed##{menu_id}"):
                 for speed in static.data["speed"]:
                     speed_name = speed["name"]
-                    if not speed_name.startswith("no_display") and imgui.menu_item_simple(speed_name):
+                    if speed_name != "no_display" and imgui.menu_item_simple(speed_name):
                         new_bonus["new_bonus_type"] = f"Speed, {speed_name}"
-                        new_bonus["new_bonus_value"] = f"speed:{speed_name}"
+                        new_bonus["new_bonus_value"] = f"speed:{speed["id"]}"
                 imgui.end_menu()
             # Passive Skill
             elif bonus_type == "Passive Skill" and imgui.begin_menu(f"Passive Skill##{menu_id}"):
                 for passive in static.data["passive_skill"]:
                     passive_name = passive["name"]
-                    if not passive_name.startswith("no_display") and imgui.menu_item_simple(passive_name):
+                    if passive_name != "no_display" and imgui.menu_item_simple(passive_name):
                         new_bonus["new_bonus_type"] = f"Passive Skill, {passive_name}"
-                        new_bonus["new_bonus_value"] = f"passive:{passive_name}"
+                        new_bonus["new_bonus_value"] = f"passive:{passive["id"]}"
                 imgui.end_menu()
             # Sense
             elif bonus_type == "Sense" and imgui.begin_menu(f"Sense##{menu_id}"):
                 for sense in static.data["sense"]:
                     sense_name = sense["name"]
-                    if not sense_name.startswith("no_display") and imgui.menu_item_simple(sense_name):
+                    if sense_name != "no_display" and imgui.menu_item_simple(sense_name):
                         new_bonus["new_bonus_type"] = f"Sense, {sense_name}"
-                        new_bonus["new_bonus_value"] = f"sense:{sense_name}"
+                        new_bonus["new_bonus_value"] = f"sense:{sense["id"]}"
                 imgui.end_menu()
             # Initiative
             elif bonus_type == "Initiative" and imgui.menu_item_simple(f"Initiative##{menu_id}"):
@@ -182,15 +184,17 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
                             if imgui.begin_menu(f"{counter["name"]}##counter_menu_{menu_id}"):
                                 if imgui.menu_item_simple(f"Max##{menu_id}"):
                                     new_bonus["new_bonus_type"] = f"{counter["name"]} ({feature["name"]}) Max"
-                                    new_bonus["new_bonus_value"] = f"counter:{feature["name"]}:{counter["name"]}:max"
+                                    new_bonus["new_bonus_value"] = f"counter:{feature["id"]}:{counter["id"]}:max"
                                 if imgui.menu_item_simple(f"Current##{menu_id}"):
                                     new_bonus["new_bonus_type"] = f"{counter["name"]} ({feature["name"]}) Current"
-                                    new_bonus["new_bonus_value"] = f"counter:{feature["name"]}:{counter["name"]}:current"
+                                    new_bonus["new_bonus_value"] = f"counter:{feature["id"]}:{counter["id"]}:current"
                                 imgui.end_menu() 
                         imgui.end_menu() 
                 imgui.end_menu() 
         imgui.end_menu()
-    imgui.pop_item_flag()
+        
+    if not close_on_click:
+        imgui.pop_item_flag()
 
 
 def draw_add_bonus(bonus_id: str, 
@@ -335,9 +339,12 @@ def delete_feature_bonus(feature: Feature, bonus: BonusTo, static: MainWindowPro
 
 def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str, 
                      static: MainWindowProtocol, tag: str = ""):
+    item_id = str(uuid.uuid4())
+
     if item_name != "":
         if isClassList(editable_list):
             editable_list.append({
+                "id": item_id,
                 "name": item_name,
                 "subclass": "",
                 "total": 0,
@@ -345,6 +352,7 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
                 "dice": 6,
                 "spell_save_enabled": False,
                 "spell_save": {
+                    "id": str(uuid.uuid4()),
                     "name": f"Spell Save {item_name}",
                     "total": 0,
                     "base": 12,
@@ -356,6 +364,7 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
             })
         if isAbilityList(editable_list):
             editable_list.append({
+                "id": item_id,
                 "name": item_name,
                 "total": 0,
                 "total_base_score": 0,
@@ -365,11 +374,12 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
                 "modifier_bonuses": [],
                 "manual": True
             })
-            static.bonus_list_refs[f"{cache_prefix}:{item_name}:base_score_bonuses"] = editable_list[-1]["base_score_bonuses"]
-            static.bonus_list_refs[f"{cache_prefix}:{item_name}:base_score_overrides"] = editable_list[-1]["base_score_overrides"]
-            static.bonus_list_refs[f"{cache_prefix}:{item_name}:modifier_bonuses"] = editable_list[-1]["modifier_bonuses"]
+            static.bonus_list_refs[f"{cache_prefix}:{item_id}:base_score_bonuses"] = editable_list[-1]["base_score_bonuses"]
+            static.bonus_list_refs[f"{cache_prefix}:{item_id}:base_score_overrides"] = editable_list[-1]["base_score_overrides"]
+            static.bonus_list_refs[f"{cache_prefix}:{item_id}:modifier_bonuses"] = editable_list[-1]["modifier_bonuses"]
         if isRollableStatList(editable_list):
             editable_list.append({
+                "id": item_id,
                 "name": item_name,
                 "total": 0,
                 "bonuses": [
@@ -384,9 +394,10 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
                 "manual_disadvantage": False,
                 "manual": True
             })
-            static.bonus_list_refs[f"{cache_prefix}:{item_name}:bonuses"] = editable_list[-1]["bonuses"]
+            static.bonus_list_refs[f"{cache_prefix}:{item_id}:bonuses"] = editable_list[-1]["bonuses"]
         if isStaticStatList(editable_list):
             editable_list.append({
+                "id": item_id,
                 "name": item_name,
                 "total": 0,
                 "base": 0,
@@ -394,13 +405,14 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
                 "bonuses": [],
                 "manual": True
             })
-            static.bonus_list_refs[f"{cache_prefix}:{item_name}:bonuses"] = editable_list[-1]["bonuses"]
-            static.bonus_list_refs[f"{cache_prefix}:{item_name}:base_overrides"] = editable_list[-1]["base_overrides"]
+            static.bonus_list_refs[f"{cache_prefix}:{item_id}:bonuses"] = editable_list[-1]["bonuses"]
+            static.bonus_list_refs[f"{cache_prefix}:{item_id}:base_overrides"] = editable_list[-1]["base_overrides"]
         if isFeatureList(editable_list):
             tags = []
             if tag != "All Features":
                 tags = [tag]
             editable_list.append({
+                "id": item_id,
                 "name": item_name,
                 "description": "",
                 "tags": tags,
@@ -410,7 +422,7 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
                 "proficiencies": [],
                 "manual": True
             })
-        static.data_refs[f"{cache_prefix}:{item_name}"] = editable_list[-1]
+        static.data_refs[f"{cache_prefix}:{item_id}"] = editable_list[-1]
 
 
 def delete_item_from_list(item: Any, item_idx: int, editable_list: list[Any], 
@@ -423,7 +435,7 @@ def delete_item_from_list(item: Any, item_idx: int, editable_list: list[Any],
                 # if counters in the feature are added somewhere as a bonus, they will be deleted
                 # from bonuses automatically when the program cannot find a reference, 
                 # see `get_bonus_value` and `sum_bonuses`
-                del static.data_refs[f"counter:{item["name"]}:{counter["name"]}"]
+                del static.data_refs[f"counter:{item["id"]}:{counter["id"]}"]
             for damage_effect in item["damage_effects"]:
                 idx_delete = static.data["damage_effects"].index(damage_effect)
                 del static.data["damage_effects"][idx_delete]
@@ -431,7 +443,7 @@ def delete_item_from_list(item: Any, item_idx: int, editable_list: list[Any],
                 idx_delete = static.data["training"].index(proficiency)
                 del static.data["training"][idx_delete]
         del editable_list[item_idx]
-        del static.data_refs[f"{cache_prefix}:{item["name"]}"]
+        del static.data_refs[f"{cache_prefix}:{item["id"]}"]
 
 
 def draw_edit_list_popup(editable_list: list[Any], cache_prefix: str, 
@@ -483,7 +495,7 @@ def draw_counter(counter: Counter, static: MainWindowProtocol) -> None:
     if counter["display_type"] == "+- Buttons":
         imgui.text(f"{counter["name"]} ({counter["max"]})"); imgui.same_line()
         imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
-        _, counter["current"] = imgui.input_int(f"##{counter["name"]}_counter", counter["current"])
+        _, counter["current"] = imgui.input_int(f"##{counter["id"]}_counter", counter["current"])
         if counter["current"] > counter["max"]:
             counter["current"] = counter["max"]
         if counter["current"] < 0:
@@ -499,26 +511,24 @@ def draw_counter(counter: Counter, static: MainWindowProtocol) -> None:
             else:
                 counter_states.append(False)
         for idx, _ in enumerate(counter_states):
-            _, counter_states[idx] = imgui.checkbox(f"##{counter["name"]}_{idx}_checkbox", counter_states[idx])
+            _, counter_states[idx] = imgui.checkbox(f"##{counter["id"]}_{idx}_checkbox", counter_states[idx])
             imgui.same_line()
         imgui.dummy(ImVec2(0, 0))
         counter["current"] = sum([int(state) for state in counter_states])
 
 
-def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: MainWindowProtocol, 
+def draw_edit_counter(counter_list: list[Counter], parent_id: str, static: MainWindowProtocol, 
                       counter: Optional[Counter] = None) -> None:
     if not counter:
         popup_name = "Edit Counter##popup"
     else:
-        popup_name = f"Edit Counter##{counter["name"]}_popup"
+        popup_name = f"Edit Counter##{counter["id"]}_popup"
     if imgui.begin_popup(popup_name):
         draw_add_button = False
         if not counter:
             counter = static.states["counter_edit"]
             draw_add_button = True
 
-        counter["parent"] = parent_name
-        
         imgui.push_item_width(MEDIUM_STRING_INPUT_WIDTH)
         _, counter["name"] = imgui.input_text_with_hint("##new_counter_name", "Name", 
                                                         counter["name"], 128)
@@ -547,7 +557,7 @@ def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: Mai
 
         imgui.separator_text(f"New bonus")
         draw_add_bonus(f"counter_new_bonus", 
-                       f"counter:{parent_name}:{counter["name"]}", 
+                       f"counter:{parent_id}:{counter["id"]}", 
                        counter["bonuses"], 
                        LIST_TYPE_TO_BONUS["all_no_advantage"], 
                        static, 
@@ -556,9 +566,11 @@ def draw_edit_counter(counter_list: list[Counter], parent_name: str, static: Mai
         if draw_add_button and imgui.button("Add Counter") and counter["name"] != "":
             counter["max"], _ = sum_bonuses(counter["bonuses"], static)
             counter["current"] = counter["max"]
+            counter["id"] = str(uuid.uuid4())
             counter_list.append(counter)
-            static.data_refs[f"counter:{parent_name}:{counter["name"]}"] = counter_list[-1]
+            static.data_refs[f"counter:{parent_id}:{counter["id"]}"] = counter_list[-1]
             static.states["counter_edit"] = {
+                "id": "",
                 "name": "",
                 "parent": "",
                 "current": 0,

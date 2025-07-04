@@ -38,6 +38,7 @@ class SpellDamage(TypedDict):
 
 
 class Spell(TypedDict):
+    id: str
     name: str
     description: str
     
