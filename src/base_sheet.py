@@ -112,8 +112,58 @@ def draw_class(static: MainWindowProtocol) -> None:
                                                     LIST_TYPE_TO_BONUS["all_no_advantage"],
                                                     "spell_save",
                                                     static)
-
                         end_table_nested()
+
+                    if class_dict["spell_save_enabled"]:
+                        imgui.separator_text("Spell Slots per Class Level")
+                        
+                        imgui.align_text_to_frame_padding()
+                        imgui.text("When Multiclassing, use this ratio of this class spell slots"); imgui.same_line()
+
+                        imgui.push_item_width(TWO_DIGIT_INPUT_WIDTH)
+                        _, class_dict["multiclass_ratio"] = imgui.input_float(f"##use_multiclass_spell_slots_{class_dict["id"]}", 
+                                                                              class_dict["multiclass_ratio"], format="%.1f")
+                        
+                        imgui.align_text_to_frame_padding()
+                        imgui.text("Special name for Spell Slots"); imgui.same_line()
+
+                        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+                        _, class_dict["separate_slots_name"] = imgui.input_text_with_hint(f"##special_slots_name_{class_dict["id"]}",
+                                                                                          "Like 'Pact'", class_dict["separate_slots_name"], 128)
+
+                        imgui.align_text_to_frame_padding()
+                        imgui.text("Max Spell Slot"); imgui.same_line()
+                        imgui.push_item_width(TWO_DIGIT_BUTTONS_INPUT_WIDTH)
+                        changed, max_spell_slot = imgui.input_int(f"##max_spell_slot_{class_dict["id"]}", len(class_dict["spell_slots"][0]))
+                        if max_spell_slot < 0: max_spell_slot = 0
+                        
+                        if changed and max_spell_slot > len(class_dict["spell_slots"][0]):
+                            for level in class_dict["spell_slots"]:
+                                level.append(0)
+                        if changed and max_spell_slot < len(class_dict["spell_slots"][0]):
+                            for level in class_dict["spell_slots"]:
+                                level.pop()
+                        
+                        if imgui.begin_table(f"spell_slots_{class_dict["id"]}", max_spell_slot + 1, STRIPED_TABLE_FLAGS):
+                            imgui.table_setup_column("")
+                            for spell_level in range(1, max_spell_slot + 1):
+                                imgui.table_setup_column(f"{spell_level}")
+                            imgui.table_headers_row()
+
+                            for class_level in range(1, 21):
+                                imgui.table_next_row()
+                                imgui.table_next_column()
+                                imgui.align_text_to_frame_padding()
+                                imgui.text(f"{class_level}")
+
+                                for spell_level in range(1, max_spell_slot + 1):
+                                    imgui.table_next_column()
+                                    imgui.push_item_width(TWO_DIGIT_INPUT_WIDTH)
+                                    _, class_dict["spell_slots"][class_level - 1][spell_level - 1] = imgui.input_int(f"##spell_slots_{class_level}_{spell_level}_{class_dict["id"]}",
+                                                                                                                     class_dict["spell_slots"][class_level - 1][spell_level - 1], 0)
+                                    
+                            end_table_nested()
+
                     imgui.end_popup()
         end_table_nested()
 

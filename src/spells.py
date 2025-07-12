@@ -1,5 +1,7 @@
 import copy
+import itertools
 import json
+import math
 import re
 import uuid
 
@@ -434,6 +436,53 @@ def on_add_spell(static: MainWindowProtocol) -> None:
     static.data_refs[f"spell:{id}:to_hit"] = static.data["spells"][-1]["to_hit"]
     static.bonus_list_refs[f"spell:{id}:to_hit:bonuses"] = static.data["spells"][-1]["to_hit"]["bonuses"]
 
+    static.data["spells"].sort(key=lambda x: x["level"])
+
+
+def calculate_spell_slots(static: MainWindowProtocol) -> None:
+    tables_multiclass = [(class_dict["spell_slots"][class_dict["level"] - 1], class_dict["level"], class_dict["multiclass_ratio"]) \
+                         for class_dict in static.data["level"]["classes"] \
+                         if class_dict["separate_slots_name"] == "" and class_dict["spell_save_enabled"]]
+    tables_separate = {
+        class_dict["separate_slots_name"]: {
+                "spell_slots_max": class_dict["spell_slots"][class_dict["level"] - 1],
+                "spell_slots_current": static.data["special_slots"].get(class_dict["separate_slots_name"], {}).get("spell_slots_current", class_dict["spell_slots"][class_dict["level"] - 1])
+            } for class_dict in static.data["level"]["classes"] if class_dict["separate_slots_name"] != "" and class_dict["spell_save_enabled"]
+        }
+
+    multiclass_spell_slots = [0]
+    if len(tables_multiclass) > 1:
+        total_levels = sum([math.ceil(table[1]*table[2]) for table in tables_multiclass])
+        if total_levels > 20: total_levels = 20
+
+        multiclass_spell_slots = [
+            [2,0,0,0,0,0,0,0,0],
+            [3,0,0,0,0,0,0,0,0],
+            [4,2,0,0,0,0,0,0,0],
+            [4,3,0,0,0,0,0,0,0],
+            [4,3,2,0,0,0,0,0,0],
+            [4,3,3,0,0,0,0,0,0],
+            [4,3,3,1,0,0,0,0,0],
+            [4,3,3,2,0,0,0,0,0],
+            [4,3,3,3,1,0,0,0,0],
+            [4,3,3,3,2,0,0,0,0],
+            [4,3,3,3,2,1,0,0,0],
+            [4,3,3,3,2,1,0,0,0],
+            [4,3,3,3,2,1,1,0,0],
+            [4,3,3,3,2,1,1,0,0],
+            [4,3,3,3,2,1,1,1,0],
+            [4,3,3,3,2,1,1,1,0],
+            [4,3,3,3,2,1,1,1,1],
+            [4,3,3,3,3,1,1,1,1],
+            [4,3,3,3,3,2,1,1,1],
+            [4,3,3,3,3,2,2,1,1]
+        ][total_levels - 1]
+    if len(tables_multiclass) == 1:
+        multiclass_spell_slots = tables_multiclass[0][0]
+
+    static.data["spell_slots"]["spell_slots_max"] = multiclass_spell_slots
+    static.data["special_slots"] = tables_separate # type: ignore
+
 
 def draw_spells(static: MainWindowProtocol) -> None:
     if imgui.button("Spells"):
@@ -469,28 +518,118 @@ def draw_spells(static: MainWindowProtocol) -> None:
     draw_search_popup("spells", static.loaded_spells, "name", "description", static.data["spells"], static,
                       callback_on_add=lambda x=static: on_add_spell(x)) # type: ignore
 
-    # TODO: maybe use Clipper to clip the table, but in that case all rows must be the same height
-    spells_list_len = len(static.data["spells"])
-    min_height = imgui.get_frame_height() * 1.5 * (spells_list_len + 2)
-    max_height = imgui.get_window_size().y - imgui.get_text_line_height_with_spacing()*4
-    outer_size = ImVec2(0.0, min(min_height, max_height))
-    if spells_list_len != 0 and imgui.begin_table("spells_table", 11, flags=STRIPED_TABLE_FLAGS | imgui.TableFlags_.scroll_y, outer_size=outer_size): # type: ignore
-        imgui.table_setup_scroll_freeze(0, 1)
-        imgui.table_setup_column("Use")
-        imgui.table_setup_column("C/R")
-        imgui.table_setup_column("Name")
-        imgui.table_setup_column("CT")
-        imgui.table_setup_column("Dur")
-        imgui.table_setup_column("Range")
-        imgui.table_setup_column("Area")
-        imgui.table_setup_column("To Hit")
-        imgui.table_setup_column("Effect")
-        imgui.table_setup_column("Saves")
-        imgui.table_setup_column("Comp.")
-        imgui.table_headers_row()
+    calculate_spell_slots(static)
 
-        for _, spell in enumerate(static.data["spells"]):
-            if spell["name"] != "no_display":
-                imgui.table_next_row(); imgui.table_next_column()
-                draw_spell(spell, static)
-        imgui.end_table()
+    grouped_spells = itertools.groupby(static.data["spells"], key=lambda x: x["level"])
+    for level, spell_list in grouped_spells:
+        imgui.align_text_to_frame_padding()
+        if level != 0:
+            imgui.text(f"Level {level}")
+        else:
+            imgui.text("Cantrips")
+        
+        # TODO: reverse current spell slots maybe
+        #       fix special spell slots
+        # DRAW SPELL SLOTS
+        if level != 0 and len(static.data["spell_slots"]["spell_slots_max"]) >= level and \
+           static.data["spell_slots"]["spell_slots_max"][level - 1] != 0:
+            
+            imgui.same_line()
+            spell_slots = static.data["spell_slots"]["spell_slots_max"][level - 1]
+            current_spell_slots = static.data["spell_slots"]["spell_slots_current"][level - 1]
+
+            spell_slots_states: list[bool] = []
+            for _ in range(spell_slots):
+                if current_spell_slots != 0:
+                    spell_slots_states.append(True)
+                    current_spell_slots -= 1
+                else:
+                    spell_slots_states.append(False)
+            for idx, _ in enumerate(spell_slots_states):
+                _, spell_slots_states[idx] = imgui.checkbox(f"##spell_slots_{level}_{idx}", spell_slots_states[idx])
+                if idx != len(spell_slots_states) - 1: imgui.same_line()
+            static.data["spell_slots"]["spell_slots_current"][level - 1] = sum([int(state) for state in spell_slots_states])
+        
+        for name, spell_slots_data in static.data["special_slots"].items():
+            if level != 0 and  len(spell_slots_data["spell_slots_max"]) >= level and \
+               spell_slots_data["spell_slots_max"][level - 1] != 0:
+                
+                imgui.same_line()
+                imgui.align_text_to_frame_padding()
+                imgui.text(name); imgui.same_line()
+
+                spell_slots = spell_slots_data["spell_slots_max"][level - 1]
+                current_spell_slots = spell_slots_data["spell_slots_current"][level - 1]
+
+                spell_slots_states: list[bool] = []
+                for _ in range(spell_slots):
+                    if current_spell_slots != 0:
+                        spell_slots_states.append(True)
+                        current_spell_slots -= 1
+                    else:
+                        spell_slots_states.append(False)
+                for idx, _ in enumerate(spell_slots_states):
+                    _, spell_slots_states[idx] = imgui.checkbox(f"##spell_slots_{name}_{level}_{idx}", spell_slots_states[idx])
+                    if idx != len(spell_slots_states) - 1: imgui.same_line()
+                spell_slots_data["spell_slots_current"][level - 1] = sum([int(state) for state in spell_slots_states])
+        
+        if imgui.begin_table(f"spells_table_{level}", 11, flags=STRIPED_TABLE_FLAGS): # type: ignore
+            imgui.table_setup_column("Use")
+            imgui.table_setup_column("C/R")
+            imgui.table_setup_column("Name")
+            imgui.table_setup_column("CT")
+            imgui.table_setup_column("Dur")
+            imgui.table_setup_column("Range")
+            imgui.table_setup_column("Area")
+            imgui.table_setup_column("To Hit")
+            imgui.table_setup_column("Effect")
+            imgui.table_setup_column("Saves")
+            imgui.table_setup_column("Comp.")
+            imgui.table_headers_row()
+
+            for spell in spell_list:
+                if spell["name"] != "no_display":
+                    imgui.table_next_row(); imgui.table_next_column()
+                    draw_spell(spell, static)
+            imgui.end_table()
+
+# [TODO][MAYBE?] DISPLAY SPELLS IN A TREE
+# spells_list_len = len(static.data["spells"])
+# # min_height = imgui.get_frame_height() * 1.5 * (spells_list_len + 2)
+# # max_height = imgui.get_window_size().y - imgui.get_text_line_height_with_spacing()*4
+# # outer_size = ImVec2(0.0, min(min_height, max_height))
+# if spells_list_len != 0 and imgui.begin_table("spells_table", 11, flags=STRIPED_TABLE_FLAGS): # type: ignore
+#     # imgui.table_setup_scroll_freeze(0, 1)
+#     imgui.table_setup_column("Use")
+#     imgui.table_setup_column("C/R")
+#     imgui.table_setup_column("Name")
+#     imgui.table_setup_column("CT")
+#     imgui.table_setup_column("Dur")
+#     imgui.table_setup_column("Range")
+#     imgui.table_setup_column("Area")
+#     imgui.table_setup_column("To Hit")
+#     imgui.table_setup_column("Effect")
+#     imgui.table_setup_column("Saves")
+#     imgui.table_setup_column("Comp.")
+#     imgui.table_headers_row()
+
+#     grouped_spells = itertools.groupby(static.data["spells"], key=lambda x: x["level"])
+#     for level, spell_list in grouped_spells:
+#         imgui.table_next_row(); imgui.table_next_column()
+#         open = False
+#         if level != 0:
+#             open = imgui.tree_node_ex(f"Level {level}", imgui.TreeNodeFlags_.span_all_columns | imgui.TreeNodeFlags_.label_span_all_columns) # type: ignore
+#             # imgui.text(f"Level {level}")
+#         else:
+#             open = imgui.tree_node_ex(f"Cantrips", imgui.TreeNodeFlags_.span_all_columns | imgui.TreeNodeFlags_.label_span_all_columns) # type: ignore
+#             # imgui.text("Cantrips")
+        
+#         if open:
+#             for spell in spell_list:
+#                 if spell["name"] != "no_display":
+#                     imgui.table_next_row(); imgui.table_next_column()
+#                     imgui.tree_node_ex(f"##{spell["id"]}", imgui.TreeNodeFlags_.span_all_columns | imgui.TreeNodeFlags_.leaf | imgui.TreeNodeFlags_.no_tree_push_on_open | imgui.TreeNodeFlags_.frame_padding) # type: ignore
+#                     imgui.same_line()
+#                     draw_spell(spell, static)
+#             imgui.tree_pop()
+#     imgui.end_table()

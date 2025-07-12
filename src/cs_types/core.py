@@ -42,6 +42,9 @@ class CharacterClass(TypedDict):
     dice: int
     spell_save_enabled: bool
     spell_save: StaticStat
+    spell_slots: list[list[int]]
+    multiclass_ratio: float
+    separate_slots_name: str
     manual: bool
 
 
@@ -118,6 +121,11 @@ class Feature(TypedDict):
     manual: bool
 
 
+class SpellSlots(TypedDict):
+    spell_slots_current: list[int]
+    spell_slots_max: list[int]
+
+
 class CharacterData(TypedDict):
     name: str
     image_path: str
@@ -146,6 +154,9 @@ class CharacterData(TypedDict):
     feature_windows: list[str]
 
     spells: list[Spell]
+    spell_slots: SpellSlots
+
+    special_slots: dict[str, SpellSlots]
 
     # attacks: list[Attack]
     # counters: list[IntegerValue]

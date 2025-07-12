@@ -360,6 +360,9 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
                     "bonuses": [],
                     "manual": False
                 },
+                "spell_slots": [[0] for _ in range(20)],
+                "multiclass_ratio": 0,
+                "separate_slots_name": "",
                 "manual": True
             })
         if isAbilityList(editable_list):
