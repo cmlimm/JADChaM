@@ -1,4 +1,5 @@
 import functools
+from uuid import uuid4
 
 from imgui_bundle import hello_imgui  # type: ignore
 from imgui_bundle import ImVec2, icons_fontawesome_6, imgui, imgui_md  # type: ignore
@@ -17,7 +18,8 @@ from settings import (  # type: ignore
     PROFICIENCIES_TYPES,
     SHORT_STRING_INPUT_WIDTH,
 )
-from util.calc import get_bonus_value, parse_text
+from stats import draw_static_stat_button
+from util.calc import get_bonus_value, parse_description
 from util.custom_imgui import ColorButton, end_table_nested
 from util.sheet import (  # type: ignore
     STRIPED_TABLE_FLAGS,
@@ -191,19 +193,6 @@ def draw_edit_feature_bonus(feature: Feature, static: MainWindowProtocol) -> Non
         imgui.end_popup()
 
 
-def callback_show_possible_values(data: imgui.InputTextCallbackData, static: MainWindowProtocol) -> int:
-    static.states["new_bonuses"]["select_possible_value"] = {
-            "new_bonus_type": "text_callback",
-            "new_bonus_value": "",
-            "new_bonus_mult": 1.0
-        }
-    
-    if not hasattr(static, "text_callback_data"):
-        static.text_callback_data = data
-
-    return 0
-
-
 def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtocol) -> None:
     center = imgui.get_main_viewport().get_center()
     imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
@@ -229,39 +218,56 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
         imgui.set_next_window_size_constraints(ImVec2(window_size.x/2, imgui.get_text_line_height() * 5),
                                                ImVec2(window_size.x/2, imgui.get_text_line_height() * 5))
         if imgui.begin_child("description_text"):
-            _, feature["description"] = imgui.input_text_multiline(f"##{feature["id"]}_feature_description", 
-                                                                feature["description"], 
-                                                                ImVec2(-1, imgui.get_text_line_height() * 5),
-                                                                flags=imgui.InputTextFlags_.callback_completion, # type: ignore
-                                                                callback=lambda x, static=static: callback_show_possible_values(x, static))
+            _, feature["description"]["text"] = imgui.input_text_multiline(f"##{feature["id"]}_feature_description", 
+                                                                           feature["description"]["text"],
+                                                                           ImVec2(-1, imgui.get_text_line_height() * 5))
             imgui.end_child()
 
-        if hasattr(static, "text_callback_data"):
-            imgui.open_popup("text_callback_popup")
-
-        if imgui.begin_popup("text_callback_popup"):
-            draw_entities_menu("text_callback_menu", 
-                               "text_callback_menu",
-                               LIST_TYPE_TO_BONUS["all"],
-                               static.states["new_bonuses"]["select_possible_value"], 
-                               static, 
-                               True)
-            imgui.end_popup()
-        elif "select_possible_value" in static.states["new_bonuses"] and static.states["new_bonuses"]["select_possible_value"]["new_bonus_value"] != "":
-            if hasattr(static, "text_callback_data"):
-                data = static.text_callback_data
-                data.insert_chars(data.cursor_pos, str(static.states["new_bonuses"]["select_possible_value"]["new_bonus_value"]))
-                del static.text_callback_data
-            static.states["new_bonuses"]["select_possible_value"] = {
-                "new_bonus_type": "",
-                "new_bonus_value": "",
-                "new_bonus_mult": 1.0
+        imgui.text("Description references")
+        
+        imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
+        _, static.states["new_desc_ref"] = imgui.input_text_with_hint("##new_desc_ref", "Reference", static.states["new_desc_ref"], 128)
+        imgui.pop_item_width(); imgui.same_line()
+        if imgui.button(f"Add##new_desc_ref"):
+            feature["description"]["references"][f"{static.states["new_desc_ref"]}"]= {
+                "id": str(uuid4()),
+                "name": static.states["new_desc_ref"],
+                "total": 0,
+                "base": 0,
+                "base_overrides": [],
+                "bonuses": [],
+                "manual": True
             }
+            static.states["new_desc_ref"] = ""
+
+        if feature["description"]["references"] != {}:
+            imgui.same_line()
+
+        changed_names = {}
+        for idx, (name, reference) in enumerate(feature["description"]["references"].items()):
+            imgui.align_text_to_frame_padding()
+            imgui.text(name); imgui.same_line()
+            name_changed = draw_static_stat_button(f"desc_ref_{idx}_feature_{feature["id"]}", 
+                                                   reference, 
+                                                   LIST_TYPE_TO_BONUS["all"],
+                                                   f"{feature["id"]}_{idx}",
+                                                   static); imgui.same_line()
+            
+            if name_changed:
+                changed_names[name] = reference["name"]
+
+            with ColorButton("bad"):
+                if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##desc_ref_{idx}"):
+                    del feature["description"]["references"][name]
+        for old_name, new_name in changed_names.items():
+            feature["description"]["references"][new_name] = feature["description"]["references"].pop(old_name)
 
         # If we are creating a feature in a specific tab, it should have 
         # the corresponding tag by default
         if not tag in feature["tags"] and tag != "All Features":
             feature["tags"].append(tag)
+
+        imgui.text("Tags")
 
         imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
         _, static.states["new_tag"] = imgui.input_text_with_hint("##new_tag", "Tag", static.states["new_tag"], 128)
@@ -388,6 +394,7 @@ def draw_edit_feature(feature: Feature, idx: int, tag: str, static: MainWindowPr
             imgui.close_current_popup()
         imgui.end_popup()
 
+
 def draw_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtocol) -> None:
     imgui.spacing()
     draw_edit_feature(feature, idx, tag, static)
@@ -396,7 +403,7 @@ def draw_feature(feature: Feature, idx: int, tag: str, static: MainWindowProtoco
 
     imgui.spacing()
 
-    description = parse_text(feature["description"], static)
+    description = parse_description(feature["description"], static)
     split_description = description.split("\n\n")
     for line in split_description:
         imgui_md.render(line)

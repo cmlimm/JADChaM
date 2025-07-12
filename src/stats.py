@@ -7,7 +7,7 @@ from settings import (
     SHORT_STRING_INPUT_WIDTH,
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
 )
-from util.calc import find_max_override, sum_bonuses
+from util.calc import calc_static_stat, sum_bonuses
 from util.custom_imgui import ColorButton
 from util.sheet import draw_add_bonus, draw_bonuses, draw_overrides, draw_roll_menu
 
@@ -87,33 +87,20 @@ def draw_rollable_stat_button(stat_id: str, stat: RollableStat,
         imgui.end_popup()
 
 
-def calc_static_stat(stat: StaticStat, static: MainWindowProtocol) -> tuple[bool, int]:
-    override_idx, override_value = find_max_override(stat["base_overrides"], static)
-    bonus_total, _ = sum_bonuses(stat["bonuses"], static)
-
-    is_override = False
-    if override_value > stat["base"]:
-        stat["total"] = override_value + bonus_total
-        is_override = True
-    else:
-        stat["total"] = stat["base"] + bonus_total
-
-    return (is_override, override_idx)
-
-
 def draw_static_stat_button(stat_id: str, stat: StaticStat, 
                             bonus_types: list[str],
                             cache_prefix: str,
                             static: MainWindowProtocol,
-                            numerical_step: int = 1) -> None:
+                            numerical_step: int = 1) -> bool:
     is_override, override_idx = calc_static_stat(stat, static)
     
     if imgui.button(f"{stat["total"]}##{stat_id}"):
         imgui.open_popup(f"{stat_id}_edit_stat")
 
+    name_changed = False
     if imgui.begin_popup(f"{stat_id}_edit_stat"):
         imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-        _, stat["name"] = imgui.input_text(f"##{stat["id"]}_name", stat["name"], 128)
+        name_changed, stat["name"] = imgui.input_text(f"##{stat["id"]}_name", stat["name"], 128)
         
         imgui.align_text_to_frame_padding()
         imgui.text(f"Base Value"); imgui.same_line()
@@ -151,3 +138,5 @@ def draw_static_stat_button(stat_id: str, stat: StaticStat,
                            static)
         
         imgui.end_popup()
+
+    return name_changed

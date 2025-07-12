@@ -101,10 +101,15 @@ class Exhaustion(TypedDict):
     description: str
 
 
+class Description(TypedDict):
+    text: str
+    references: dict[str, StaticStat]
+
+
 class Feature(TypedDict):
     id: str
     name: str
-    description: str
+    description: Description
     tags: list[str]
     bonuses: list[BonusTo]
     counters: list[Counter]
@@ -174,6 +179,7 @@ class States(TypedDict):
     new_item_name: str
     new_training: dict[str, TextDataWithIdx]
     new_tag: str
+    new_desc_ref: str
     new_bonuses: dict[str, NewBonus]
     new_window_name: str
     new_condition_name: str
@@ -209,8 +215,6 @@ class MainWindowProtocol():
     data: CharacterData
     is_character_loaded: bool
     are_windows_loaded: bool
-
-    text_callback_data: imgui.InputTextCallbackData
 
     loaded_spells: list[Spell]
 

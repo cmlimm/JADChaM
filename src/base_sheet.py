@@ -18,8 +18,8 @@ from settings import (  # type: ignore
     TWO_DIGIT_BUTTONS_INPUT_WIDTH,
     TWO_DIGIT_INPUT_WIDTH,
 )
-from stats import calc_static_stat, draw_rollable_stat_button, draw_static_stat_button
-from util.calc import find_max_override, sum_bonuses
+from stats import draw_rollable_stat_button, draw_static_stat_button
+from util.calc import calc_static_stat, find_max_override, sum_bonuses
 from util.custom_imgui import ColorButton, draw_text_cell, end_table_nested, help_marker
 from util.sheet import (
     draw_add_bonus,

@@ -135,12 +135,12 @@
     "proficiency": {
         "id": "proficiency",
         "name": "Proficiency",
-        "total": 4
+        "total": 5
     },
     "initiative": {
         "id": "initiative",
         "name": "Initiative",
-        "total": 4,
+        "total": 5,
         "bonuses": [
             {
                 "name": "Manual",
@@ -1019,7 +1019,10 @@
         {
             "id": "no_display",
             "name": "no_display",
-            "description": "",
+            "description": {
+                "text": "",
+                "references": {}
+            },
             "tags": [],
             "bonuses": [],
             "counters": [],
@@ -1030,7 +1033,27 @@
         {
             "id": "6cff1777-6ddb-4c32-8ed9-19c7a468ba7b",
             "name": "Alert",
-            "description": "**Initiative Proficiency** When you roll Initiative, add +{proficiency} to the roll.\n\n**Initiative Swap** Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one \nwilling ally in the same combat. You can't make this swap if you or the ally has the Incapacitated condition.",
+            "description": {
+                "text": "**Initiative Proficiency** When you roll Initiative, add +{init_bonus} to the roll.\n\n**Initiative Swap** Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one \nwilling ally in the same combat. You can't make this swap if you or the ally has the Incapacitated condition.",
+                "references": {
+                    "init_bonus": {
+                        "id": "d255af44-820a-4910-81cd-642de820fee4",
+                        "name": "init_bonus",
+                        "total": 5,
+                        "base": 0,
+                        "base_overrides": [],
+                        "bonuses": [
+                            {
+                                "name": "Proficiency (Manual)",
+                                "value": "proficiency",
+                                "multiplier": 1.0,
+                                "manual": true
+                            }
+                        ],
+                        "manual": true
+                    }
+                }
+            },
             "tags": [
                 "Feat",
                 "Human"
@@ -1056,7 +1079,27 @@
         {
             "id": "a2024730-5da0-4122-b7e9-441b18eadb1e",
             "name": "Tough",
-            "description": "When you take this feat, your HP maximum increases by {level:total, mult=2}.\nWhenever you gain a character level thereafter, your HP maximum increases an additional 2 HP.",
+            "description": {
+                "text": "When you take this feat, your HP maximum increases by {hp_bonus}.\nWhenever you gain a character level thereafter, your HP maximum increases an additional 2 HP.",
+                "references": {
+                    "hp_bonus": {
+                        "id": "03410eb5-a622-4439-9b3b-4e059258e78f",
+                        "name": "hp_bonus",
+                        "total": 24,
+                        "base": 0,
+                        "base_overrides": [],
+                        "bonuses": [
+                            {
+                                "name": "Level, Total (Manual)",
+                                "value": "level:total",
+                                "multiplier": 2.0,
+                                "manual": true
+                            }
+                        ],
+                        "manual": true
+                    }
+                }
+            },
             "tags": [
                 "Feat",
                 "Warlock",
@@ -1083,7 +1126,27 @@
         {
             "id": "2453bee8-796e-4329-b4f9-54bb3fc79478",
             "name": "Channel Divinity",
-            "description": "You can channel energy directly from the Outer Planes to fuel magical effects. \nEach time you use this class's Channel Divinity, you can choose which effect to create. \nYou can use this class's Channel Divinity 2 times per Long Rest, but can regain one expended use after finishing \na Short Rest.\n\nIf your Channel Divinity requires a saving throw, the DC equals your Paladin spell save DC (DC {ability:Spell Save}).\n\n**Divine Sense** As a Bonus Action, you can open your awareness to detect Celestials, Fiends, and Undead. \nFor the next 10 minutes or until you have the Incapacitated condition, you know the location of any creature \nof those types within 60 feet of yourself, and you know its creature type. Within the same radius, you also \ndetect the presence of any place or object that has been consecrated or desecrated, as with the Hallow spell.\n\n**Nature's Wrath** As a Magic action, you can expend one use of Channel Divinity to conjure spectral vines \naround each creature of your choice that you can see within 15 ft. \nEach creature must succeed on a DC 17 Str. saving throw, or have the Restrained condition for 1 minute. \nA Restrained creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+            "description": {
+                "text": "You can channel energy directly from the Outer Planes to fuel magical effects. \nEach time you use this class's Channel Divinity, you can choose which effect to create. \nYou can use this class's Channel Divinity 2 times per Long Rest, but can regain one expended use after finishing \na Short Rest.\n\nIf your Channel Divinity requires a saving throw, the DC equals your Paladin spell save DC (DC {cd_save}).\n\n**Divine Sense** As a Bonus Action, you can open your awareness to detect Celestials, Fiends, and Undead. \nFor the next 10 minutes or until you have the Incapacitated condition, you know the location of any creature \nof those types within 60 feet of yourself, and you know its creature type. Within the same radius, you also \ndetect the presence of any place or object that has been consecrated or desecrated, as with the Hallow spell.\n\n**Nature's Wrath** As a Magic action, you can expend one use of Channel Divinity to conjure spectral vines \naround each creature of your choice that you can see within 15 ft. \nEach creature must succeed on a DC {cd_save} Str. saving throw, or have the Restrained condition for 1 minute. \nA Restrained creature repeats the save at the end of each of its turns, ending the effect on itself on a success.",
+                "references": {
+                    "cd_save": {
+                        "id": "6d4b8a68-3b75-402f-8e79-d6ff5ee46571",
+                        "name": "cd_save",
+                        "total": 18,
+                        "base": 0,
+                        "base_overrides": [],
+                        "bonuses": [
+                            {
+                                "name": "Spell Save, Paladin (Manual)",
+                                "value": "spell_save:50d6a65c-f2e2-4706-93ca-74d19faea889",
+                                "multiplier": 1.0,
+                                "manual": true
+                            }
+                        ],
+                        "manual": true
+                    }
+                }
+            },
             "tags": [
                 "Paladin",
                 "Action",
@@ -1117,7 +1180,10 @@
         {
             "id": "5efe61a8-dc67-487f-b1f3-15149af34061",
             "name": "Steps of the Fey",
-            "description": "Your patron grants you the ability to move between the boundaries of the planes. You can cast Misty Step \nwithout expending a spell slot a number of times equal to your Charisma modifier (minimum of once), \nand you regain all expended uses when you finish a Long Rest.\n\nIn addition, whenever you cast that spell, you can choose one of the following additional effects.\n\n**Refreshing Step** Immediately after you teleport, you or one creature you can see within 10 feet of \nyourself gains 1d10 Temporary Hit Points.\n\n**Taunting Step** Creatures within 5 feet of the space you left must succeed on a Wisdom saving throw \nagainst your spell save DC or have Disadvantage on attack rolls against creatures other than you until the \nstart of your next turn.",
+            "description": {
+                "text": "Your patron grants you the ability to move between the boundaries of the planes. You can cast Misty Step \nwithout expending a spell slot a number of times equal to your Charisma modifier (minimum of once), \nand you regain all expended uses when you finish a Long Rest.\n\nIn addition, whenever you cast that spell, you can choose one of the following additional effects.\n\n**Refreshing Step** Immediately after you teleport, you or one creature you can see within 10 feet of \nyourself gains 1d10 Temporary Hit Points.\n\n**Taunting Step** Creatures within 5 feet of the space you left must succeed on a Wisdom saving throw \nagainst your spell save DC or have Disadvantage on attack rolls against creatures other than you until the \nstart of your next turn.",
+                "references": {}
+            },
             "tags": [
                 "Warlock",
                 "Bonus Action"
@@ -1150,7 +1216,27 @@
         {
             "id": "3cf20e6e-8043-4af9-9087-5bc2b7f6eb5c",
             "name": "Lucky",
-            "description": "**Luck Points** You have {proficiency} Luck Points that you can spend on the benefits below. You regain \nexpended Luck Points after a Long Rest.\n\n**Advantage** When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage \non the roll.\n\n**Disadvantage** When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to \nimpose Disadvantage on that roll.",
+            "description": {
+                "text": "**Luck Points** You have {luck_points_count} Luck Points that you can spend on the benefits below. You regain \nexpended Luck Points after a Long Rest.\n\n**Advantage** When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage \non the roll.\n\n**Disadvantage** When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to \nimpose Disadvantage on that roll.",
+                "references": {
+                    "luck_points_count": {
+                        "id": "47f658b8-35cb-4ce6-aeef-346109d78c33",
+                        "name": "luck_points_count",
+                        "total": 5,
+                        "base": 0,
+                        "base_overrides": [],
+                        "bonuses": [
+                            {
+                                "name": "Proficiency (Manual)",
+                                "value": "proficiency",
+                                "multiplier": 1.0,
+                                "manual": true
+                            }
+                        ],
+                        "manual": true
+                    }
+                }
+            },
             "tags": [
                 "Feat",
                 "Background",
@@ -1163,7 +1249,7 @@
                     "name": "Luck Points",
                     "parent": "",
                     "current": 0,
-                    "max": 4,
+                    "max": 5,
                     "display_type": "Checkboxes",
                     "bonuses": [
                         {

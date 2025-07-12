@@ -10,7 +10,6 @@ from util.core import save_file
 
 # TODO[BUG]: deleted skill is not deleted from the feature bonuses
 # TODO[BUG]: widgets in feature windows (i.e. Warlock or Paladin) duplicate when loading a new character sheet
-# TODO[BUG]: string references no longer work with names. change to ids
 
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
 # TODO: hide long feature descriptions?
@@ -41,6 +40,7 @@ def post_init(state: MainWindowProtocol) -> None:
         },
         "new_window_name": "",
         "new_tag": "",
+        "new_desc_ref": "",
         "new_condition_name": "",
         "new_condition_description": "",
         "cyclic_bonus": False,

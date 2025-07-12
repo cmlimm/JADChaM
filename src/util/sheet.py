@@ -62,10 +62,9 @@ def draw_exhaustion_penalty(stat_type: StatTypes, static: MainWindowProtocol) ->
 
 
 def draw_entities_menu(menu_name: str, menu_id: str, types: list[str], 
-                       new_bonus: NewBonus, static: MainWindowProtocol, close_on_click=False):
+                       new_bonus: NewBonus, static: MainWindowProtocol):
     imgui.push_item_width(SHORT_STRING_INPUT_WIDTH)
-    if not close_on_click:
-        imgui.push_item_flag(imgui.ItemFlags_.auto_close_popups, False) # type: ignore
+    imgui.push_item_flag(imgui.ItemFlags_.auto_close_popups, False) # type: ignore
 
     if menu_name == "":
         menu_name = "Choose Bonus"
@@ -193,8 +192,7 @@ def draw_entities_menu(menu_name: str, menu_id: str, types: list[str],
                 imgui.end_menu() 
         imgui.end_menu()
         
-    if not close_on_click:
-        imgui.pop_item_flag()
+    imgui.pop_item_flag()
 
 
 def draw_add_bonus(bonus_id: str, 
@@ -261,8 +259,10 @@ def draw_add_bonus(bonus_id: str,
         imgui.set_next_window_pos(center, imgui.Cond_.appearing.value, ImVec2(0.5, 0.5))
         
         if imgui.begin_popup_modal("Cyclic Bonus Path", None, imgui.WindowFlags_.always_auto_resize.value)[0]:
+            id_to_names = [static.data_refs[ref]["name"] for ref in static.states['cyclic_bonus_path']]
+            target_name = static.data_refs[target_ref]["name"]
             imgui.text_colored(DISADVANTAGE_ACTIVE_COLOR, 
-                               f"{' > '.join([target_ref] + static.states['cyclic_bonus_path'] + [target_ref])}")
+                               f"{' > '.join([target_name] + id_to_names + [target_name])}")
         
             if imgui.button("Close", ImVec2(120, 0)):
                 static.states["cyclic_bonus"] = False
@@ -414,7 +414,7 @@ def add_item_to_list(item_name: str, editable_list: list[Any], cache_prefix: str
             editable_list.append({
                 "id": item_id,
                 "name": item_name,
-                "description": "",
+                "description": {"text": "", "references": {}},
                 "tags": tags,
                 "bonuses": [],
                 "counters": [],
