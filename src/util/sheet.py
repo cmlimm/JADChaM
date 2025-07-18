@@ -324,7 +324,6 @@ def draw_overrides(list_id: str, override_list: list[Bonus], override_idx: int, 
                     imgui.table_next_column()
                     if imgui.button(f"{icons_fontawesome_6.ICON_FA_XMARK}##{idx}"):
                         del override_list[idx]
-                    imgui.pop_style_color(3)
         end_table_nested()
 
 

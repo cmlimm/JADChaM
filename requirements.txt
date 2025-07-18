@@ -1,4 +1,6 @@
 annotated-types==0.7.0
+attrs==25.3.0
+fuzzysearch==0.8.0
 glfw==2.8.0
 imgui-bundle==1.6.2
 munch==4.0.0
