@@ -1,5 +1,7 @@
 # (WIP) Just Another D&D Character Manager
 
+![](./preview.gif)
+
 A customizable D&D character manager.
 
 * Add new abilities, skills, senses, etc. Automatically calculate values by linking them to each other.
@@ -24,7 +26,3 @@ Supports importing spells from JSON. Support for importing other items is planne
     ```python
     python src/main.py
     ```
-
-## Preview
-
-![](./preview.gif)
