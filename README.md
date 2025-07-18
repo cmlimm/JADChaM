@@ -15,3 +15,7 @@
     ```python
     python src/main.py
     ```
+
+## Preview
+
+![](./preview.gif)

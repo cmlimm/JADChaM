@@ -11,6 +11,7 @@ from util.core import save_file
 # TODO[BUG]: deleted skill is not deleted from the feature bonuses
 # TODO[BUG]: widgets in feature windows (i.e. Warlock or Paladin) duplicate when loading a new character sheet
 
+# TODO: bonuses should have general overrides, not base overrides
 # TODO: on process character add all feature bonuses (in case the user added them manually to a JSON file)
 # TODO: hide long feature descriptions?
 # TODO: find a way to create a tab with dockable windows for managing more than one character
